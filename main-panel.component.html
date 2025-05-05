@@ -1,0 +1,151 @@
+
+<div class="main-content">
+  <div class="container-fluid" style="margin-top: -4%;">
+<div class="report-container">
+  <div class="title">Shree Harsiddhi Kisan Seva Kendra</div>
+  <table>
+    <tr>
+      <td>
+        <mat-form-field appearance="outline">
+          <mat-label>Select Date</mat-label>
+          <input matInput [matDatepicker]="picker"
+          [(ngModel)]="reportDate"
+          name="reportDate"
+          (ngModelChange)="showSelectedDate()">
+      
+          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+      </td>        
+      <td>
+        <div>Time To: {{ currentTime }}</div>
+      </td>
+    </tr>
+  </table>
+
+  <table class="no-border-table">
+    <thead>
+      <tr>
+        <th>Pump Name</th>
+        <th>Opening Meter</th>
+        <th>Closing Meter</th>
+        <th>Sale Ltr</th>
+        <th>Testing</th>
+        <th>Rate</th>
+        <th colspan="2">LTR</th>
+        <th>Total_Rs</th>
+      </tr>
+    </thead>
+  
+    <tbody>
+      <!-- Petrol Rows -->
+      <tr *ngFor="let petrol of petrolPumps; let i = index">
+        <td>{{ petrol.name }}</td>
+        <td><input type="number" [(ngModel)]="petrol.openingMeter" (input)="calculatePetrol(i)" /></td>
+        <td><input type="number" [(ngModel)]="petrol.closingMeter" (input)="calculatePetrol(i)" /></td>
+        <td><input type="number" [(ngModel)]="petrol.saleLtr" disabled /></td>
+        <td><input type="number" [(ngModel)]="petrol.testing" (input)="calculatePetrol(i)" /></td>
+        <td><input type="number" [(ngModel)]="petrol.rate" (input)="calculatePetrol(i)" /></td>
+        <td colspan="2"><input type="number" [(ngModel)]="petrol.ltr" disabled /></td>
+        <td><input type="number" [(ngModel)]="petrol.total_rs" disabled /></td>
+      </tr>
+      
+  
+      <!-- Petrol Total Row -->
+      <tr class="highlight">
+        <td colspan="6"><strong>Petrol Total</strong></td>
+        <td colspan="2"><strong>{{ petrolTotalLTR }}</strong></td>
+        <td colspan="2"><strong>{{ petrolTotalRS }}</strong></td>
+      </tr>
+  
+      <!-- Diesel Rows -->
+      <tr *ngFor="let diesel of dieselPumps; let i = index">
+        <td>{{ diesel.name }}</td>
+        <td><input type="number" [(ngModel)]="diesel.openingMeter" (input)="calculateDiesel(i)" /></td>
+        <td><input type="number" [(ngModel)]="diesel.closingMeter" (input)="calculateDiesel(i)" /></td>
+        <td><input type="number" [(ngModel)]="diesel.saleLtr" disabled /></td>
+        <td><input type="number" [(ngModel)]="diesel.testing" (input)="calculateDiesel(i)" /></td>
+        <td><input type="number" [(ngModel)]="diesel.rate" (input)="calculateDiesel(i)" /></td>
+        <td colspan="2"><input type="number" [(ngModel)]="diesel.ltr" disabled /></td>
+        <td><input type="number" [(ngModel)]="diesel.total_rs" disabled /></td>
+      </tr>
+      
+  
+      <!-- Diesel Total Row -->
+      <tr class="highlight">
+        <td colspan="6"><strong>Diesel Total</strong></td>
+        <td colspan="2"><strong>{{ dieselTotalLTR }}</strong></td>
+        <td><strong>{{ dieselTotalRS }}</strong></td>
+      </tr>
+    </tbody>
+  </table>
+  
+
+    <table>
+      <tr><td><strong>Total Fuel Rs</strong></td><td>{{totalRs}}</td></tr>
+      <tr (click)="openOilsellBakComponent()">
+        <td>Lube Oil Rs</td>
+        <td  class="billBaki">{{ oilsellTotal | number:'1.2-2' }}</td>
+      </tr>
+
+      <tr (click)="openAtmBakComponent()">
+        <td>ATM & Wallet</td>
+        <td  class="billBaki">{{ ATMTotal | number:'1.2-2' }}</td>
+      </tr>
+
+      <tr (click)="openKharchComponent()">
+        <td>Indirect Expenses</td>
+        <td class="billBaki">{{ kharchTotal | number:'1.2-2' }}</td>
+      </tr>
+      <tr (click)="openJamaBakiComponent()">
+        <td>Bill_Bak_Rs / Bill_Jama_Rs</td>
+        <td class="billBaki">{{ bakiTotal | number:'1.2-2' }}/{{ jamaTotal | number:'1.2-2' }}</td>
+      </tr>
+      <tr>
+        <td>Petrol Purchase LTR</td>
+        <td> 
+          <input type="number" [(ngModel)]="petrolPurchaseLTR" />
+        </td>
+      </tr>
+      <tr>
+        <td>Diesel Purchase LTR</td>
+        <td>
+          <input type="number" [(ngModel)]="dieselPurchaseLTR" />
+        </td>
+      </tr>
+      <tr><td>Total Case</td><td>{{Total_Case}}</td></tr>
+    </table>
+
+    <table>
+      <tr>
+        <th></th>
+        <th>Petrol</th>
+        <th>Diesel</th>
+      </tr>
+      <tr><td>Ugado Stock</td><td>{{Petrol_Ugadto_Stock}}</td><td>{{Diesel_Ugadto_Stock}}</td></tr>
+      <tr (click)="openPurchase()">
+        <td>Purchase LTR</td>
+        <td class="billBaki">0.00</td>
+        <td class="billBaki">0.00</td>
+      </tr>
+      
+      <tr><td>Total Stock</td><td>3790.3</td><td>1250.5</td></tr>
+      <tr><td>Total Sales</td><td>{{petrolTotalLTR}}</td><td>{{dieselTotalLTR}}</td></tr>
+      <tr><td>Total Stock</td><td>-17959.3</td><td>-13258.0</td></tr>
+    </table>
+
+    <table>
+      <tr (click)="dipstock()"><td>Petrol Dip</td><td class="billBaki">0.00</td>
+      <td>DIP PETROL Stock</td><td class="billBaki">0.00</td></tr>
+      <tr><td>Diesel Dip</td><td class="billBaki">0.00</td>
+      <td>DIP DIESEL Stock</td><td class="billBaki">0.00</td></tr>
+    </table>
+
+    <div class="button-container">
+      <button  mat-raised-button  type="button" class="btn btn-danger pull-right">Print</button>
+      <button  mat-raised-button  type="button" class="btn btn-danger pull-right" (click)="Submit()">Save</button>
+    </div>
+    
+    </div>
+  </div>
+</div>
