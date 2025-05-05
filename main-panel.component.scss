@@ -1,0 +1,70 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+  }
+  .report-container {
+    border: 2px solid #000;
+    padding: 10px;
+    background-color: white;
+  }
+  .title {
+    text-align: center;
+    font-weight: bold;
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 15px;
+  }
+  th, td {
+    border: 1px solid #333;
+    padding: 4px;
+    text-align: center;
+  }
+  .no-border {
+    border: none;
+  }
+  .no-border-table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  .no-border-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .no-border-table th,
+  .no-border-table td {
+    border: 1px solid #ccc;
+    padding: 6px;
+    text-align: center;
+  }
+  
+  .no-border-table input {
+    width: 100%;
+    border: none;
+    // border-bottom: 1px solid #aaa;
+    outline: none;
+    text-align: center;
+  }
+  
+  .highlight {
+    // background-color: yellow;
+    font-weight: bold;
+  }
+  
+  .billBaki{
+    cursor: pointer;
+    text-decoration: underline;
+    color: blue;
+    font-weight: bold;
+  }
+  .button-container {
+    display: flex;
+    justify-content: center; /* centers horizontally */
+    gap: 20px;               /* space between buttons */
+    margin-top: 20px;        /* optional: adds spacing above */
+  }
+  
