@@ -1,0 +1,104 @@
+
+  getFormattedDate(reportDate: Date): string {
+    const year = reportDate.getFullYear();
+    const month = String(reportDate.getMonth() + 1).padStart(2, '0');
+    const day = String(reportDate.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+  
+
+  getOneDayAgoStock(date: string, userId: string):Observable<any> {
+    const params = new HttpParams()
+      .set('date', date)
+      .set('userId', userId);
+
+    return this.http.get<any>(API_UGADTO_STOCK, { params }); 
+  }
+
+
+  getOillsellList(date: string, userId: string):Observable<any> {
+    const params = new HttpParams()
+      .set('date', date)
+      .set('userId', userId);
+
+    return this.http.get<any>(API_OIL, { params }); 
+  }
+
+  getTransactionList(date: string, userId: string):Observable<any> {
+    const params = new HttpParams()
+      .set('date', date)
+      .set('userId', userId);
+
+    return this.http.get<any>(API_TRANSACTION, { params }); 
+  }
+
+  getKharchList(date: string, userId: string):Observable<any> {
+    const params = new HttpParams()
+      .set('date', date)
+      .set('userId', userId);
+
+    return this.http.get<any>(API_KHARCH, { params }); 
+  }
+
+
+  getJamaBakiList(date: string, userId: string):Observable<any> {
+    const params = new HttpParams()
+      .set('date', date)
+      .set('userId', userId);
+
+    return this.http.get<any>(API_JAMA_BAKI, { params }); 
+  }
+
+//Main
+export const API_UGADTO_STOCK: string = `${prefix}/portal/api/oneDayAgoUgadtoStock`;
+export const API_OIL: string = `${prefix}/portal/api/OilList`;
+export const API_TRANSACTION: string = `${prefix}/portal/api/transaction`;
+export const API_KHARCH: string = `${prefix}/portal/api/kharch`;
+export const API_JAMA_BAKI: string = `${prefix}/portal/api/jamabaki`;
+
+
+///backend
+
+   @GetMapping("/oneDayAgoUgadtoStock")
+    public Map<String, Object> getOneDayAgoUgadtoStock(@RequestParam String date, @RequestParam String userId) {
+        Map<String, Object> response = new HashMap<>();
+        List<Dailystock> petrol = dailyskockRepository.findDataForOneDayAgo(date, userId);
+        List<dailydieselstock> diesel = dailydieselstockRepository.findDataForOneDayAgo(date, userId);
+        Dailystock petrolData = petrol.isEmpty() ? null : petrol.get(0);
+        dailydieselstock dieselData = diesel.isEmpty() ? null : diesel.get(0);
+
+        response.put("petrol", petrolData != null ? petrolData.getOpenstock() : null);
+        response.put("diesel", dieselData != null ? dieselData.getDieselopenstock() : null);
+        return response;
+    } -->>@Query(value = "SELECT * FROM dailystock WHERE date = DATE_SUB(:date, INTERVAL 1 DAY) AND (:user_id IS NULL OR user_id = :user_id)", nativeQuery = true)
+    List<Dailystock> findDataForOneDayAgo(@Param("date") String date, @Param("user_id") String userId);
+--->>@Query(value = "SELECT * FROM dailydieselstock WHERE date = DATE_SUB(?1, INTERVAL 1 DAY) AND user_id = ?2", nativeQuery = true)
+    List<dailydieselstock> findDataForOneDayAgo(String date, String userId);
+
+    @GetMapping(value = "/OilList")
+    public   List<OilSell> getOilsell(@RequestParam String date, @RequestParam String userId) {
+        List<OilSell> rawData = oilSellRepository.getoilData(date, userId);
+        return rawData;
+    }-->@Query("SELECT SUM(t1.price) AS total_price FROM OilSell t1 WHERE t1.date = :date AND t1.userId = :userId")
+    List<OilSell> getoilData(@Param("date") String date, @Param("userId") String userId);
+
+    @GetMapping(value = "/transaction")
+    public   List<transaction> getTransaction(@RequestParam String date, @RequestParam String userId) {
+        List<transaction> transaction = transactionRepository.gettransation(date, userId);
+        return transaction;
+    }-->@Query("SELECT  t.amount FROM transaction t WHERE t.date = :date AND t.userId = :userId")
+    List<transaction> gettransation(@Param("date") String date, @Param("userId") String userI
+
+    @GetMapping(value = "/kharch")
+    public   List<kharch> getkharch(@RequestParam String date, @RequestParam String userId) {
+        List<kharch> kharch = kharchrepository.getkharch(date, userId);
+        return kharch;
+    }-->@Query("SELECT k.price FROM kharch k WHERE k.date = :date AND k.userId = :userId")
+    List<kharch> getkharch(@Param("date") String date, @Param("userId") String userId)
+
+    @GetMapping(value = "/jamabaki")
+    public List<jamabaki> getjamabaki(@RequestParam String date, @RequestParam String userId) {
+        List<jamabaki> jamabaki = JamabakiRepository.getjamabaki(date, userId);
+        return jamabaki;
+    }-->@Query("SELECT SUM(j.jama), SUM(j.baki) FROM jamabaki j WHERE j.date = :date AND j.userId = :userId")
+    List<jamabaki> getjamabaki(@Param("date") String date, @Param("userId") String userId);
