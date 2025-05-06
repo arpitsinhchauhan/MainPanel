@@ -67,4 +67,22 @@ body {
     gap: 20px;               /* space between buttons */
     margin-top: 20px;        /* optional: adds spacing above */
   }
+  @media print {
+    .button-container {
+      display: none !important;
+    }
+  
+    mat-form-field {
+      display: none !important;
+    }
+  
+    input {
+      border: none !important;
+      background: transparent !important;
+    }
+  
+    .main-content {
+      margin: 0;
+    }
+  }
   
