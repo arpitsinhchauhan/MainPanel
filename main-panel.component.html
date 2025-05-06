@@ -46,7 +46,7 @@
         <td><input type="number" [(ngModel)]="petrol.saleLtr" disabled /></td>
         <td><input type="number" [(ngModel)]="petrol.testing" (input)="calculatePetrol(i)" /></td>
         <td><input type="number" [(ngModel)]="petrol.rate" (input)="calculatePetrol(i)" /></td>
-        <td colspan="2"><input type="number" [(ngModel)]="petrol.ltr" disabled /></td>
+        <td colspan="2"><input type="number" [value]="petrol.saleLtr < 0 ? petrol.saleLtr * -1 : petrol.saleLtr" disabled /></td>
         <td><input type="number" [(ngModel)]="petrol.total_rs" disabled /></td>
       </tr>
       
@@ -66,7 +66,7 @@
         <td><input type="number" [(ngModel)]="diesel.saleLtr" disabled /></td>
         <td><input type="number" [(ngModel)]="diesel.testing" (input)="calculateDiesel(i)" /></td>
         <td><input type="number" [(ngModel)]="diesel.rate" (input)="calculateDiesel(i)" /></td>
-        <td colspan="2"><input type="number" [(ngModel)]="diesel.ltr" disabled /></td>
+        <td colspan="2"><input type="number" [value]="diesel.saleLtr < 0 ? diesel.saleLtr * -1 : diesel.saleLtr" disabled /></td>
         <td><input type="number" [(ngModel)]="diesel.total_rs" disabled /></td>
       </tr>
       
@@ -101,19 +101,20 @@
         <td>Bill_Bak_Rs / Bill_Jama_Rs</td>
         <td class="billBaki">{{ bakiTotal | number:'1.2-2' }}/{{ jamaTotal | number:'1.2-2' }}</td>
       </tr>
-      <tr>
+      <tr (click)="openPurchase()">
         <td>Petrol Purchase LTR</td>
-        <td> 
-          <input type="number" [(ngModel)]="petrolPurchaseLTR" />
-        </td>
+        <td class="billBaki"> 
+          {{petolQuantity}}
+         </td>
       </tr>
-      <tr>
+      <tr (click)="openPurchase()">
         <td>Diesel Purchase LTR</td>
-        <td>
-          <input type="number" [(ngModel)]="dieselPurchaseLTR" />
+        <td class="billBaki">
+          {{dieselQuantity}}
         </td>
       </tr>
-      <tr><td>Total Case</td><td>{{Total_Case}}</td></tr>
+      <tr><td>Total Case</td><td>{{ totalCase | number:'1.2-2' }}</td></tr>
+
     </table>
 
     <table>
@@ -123,29 +124,26 @@
         <th>Diesel</th>
       </tr>
       <tr><td>Ugado Stock</td><td>{{Petrol_Ugadto_Stock}}</td><td>{{Diesel_Ugadto_Stock}}</td></tr>
-      <tr (click)="openPurchase()">
+      <tr>
         <td>Purchase LTR</td>
-        <td class="billBaki">0.00</td>
-        <td class="billBaki">0.00</td>
+        <td> {{petolQuantity}}</td>
+        <td> {{dieselQuantity}}</td>
       </tr>
-      
-      <tr><td>Total Stock</td><td>3790.3</td><td>1250.5</td></tr>
+      <tr><td>Total Stock</td><td>{{TotalPetrolStock}}</td><td>{{TotalDieselStock}}</td></tr>
       <tr><td>Total Sales</td><td>{{petrolTotalLTR}}</td><td>{{dieselTotalLTR}}</td></tr>
-      <tr><td>Total Stock</td><td>-17959.3</td><td>-13258.0</td></tr>
+      <tr> <td>Remaining Stock</td><td>{{TotalPetrolRemaining}}</td><td>{{TotalDieselRemaining}}</td></tr> 
     </table>
 
     <table>
-      <tr (click)="dipstock()"><td>Petrol Dip</td><td class="billBaki">0.00</td>
-      <td>DIP PETROL Stock</td><td class="billBaki">0.00</td></tr>
-      <tr><td>Diesel Dip</td><td class="billBaki">0.00</td>
-      <td>DIP DIESEL Stock</td><td class="billBaki">0.00</td></tr>
+      <tr (click)="dipstock()"><td>Petrol Dip</td><td class="billBaki">{{Petrol_dip}}</td>
+      <td>DIP PETROL Stock</td><td class="billBaki">{{Petrol_stock}}</td></tr>
+      <tr><td>Diesel Dip</td><td class="billBaki">{{Diesel_dip}}</td>     
+      <td>DIP DIESEL Stock</td><td class="billBaki">{{Diesel_stock}}</td></tr>
     </table>
-
     <div class="button-container">
-      <button  mat-raised-button  type="button" class="btn btn-danger pull-right">Print</button>
-      <button  mat-raised-button  type="button" class="btn btn-danger pull-right" (click)="Submit()">Save</button>
+      <button mat-raised-button type="button" class="btn btn-danger pull-right" (click)="printReport()">Print</button>
+      <button  mat-raised-button  type="button" class="btn btn-danger pull-right"  (click)="Submit()">Save</button>
     </div>
-    
     </div>
   </div>
 </div>
