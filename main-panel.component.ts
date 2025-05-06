@@ -2,13 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { UserServiceService } from 'app/services/user-service.service';
 import { OilReportComponent } from '../maps/oil-report/oil-report.component';
-import { AtmTransactionComponent } from '../atm-transaction/atm-transaction.component';
 import { TransactionReportComponent } from '../atm-transaction/transaction-report/transaction-report.component';
 import { KharchReportComponent } from '../kharch/kharch-report/kharch-report.component';
 import { JamaBakiReportComponent } from '../jama-baki/jama-baki-report/jama-baki-report.component';
 import { PurchaseReportComponent } from '../table-list/purchase-report/purchase-report.component';
-import { DipStockComponent } from '../dip-stock/dip-stock.component';
 import { DipStockReportComponent } from '../dip-stock/dip-stock-report/dip-stock-report.component';
+import { NotificationService } from 'app/services/notification.service';
 
 @Component({
   selector: 'app-main-panel',
@@ -45,7 +44,23 @@ export class MainPanelComponent implements OnInit {
   Petrol_Ugadto_Stock: number = 0;
   Diesel_Ugadto_Stock: number = 0;
 
-  constructor(private dialog: MatDialog,private use:UserServiceService) {}
+  petolQuantity : number = 0;
+  dieselQuantity: number = 0;
+
+  Petrol_dip : number = 0;
+  Petrol_stock: number = 0;
+  Diesel_dip : number = 0;
+  Diesel_stock: number = 0;
+
+  Total_petrol_stock: number = 0;
+  Total_diesel_stock: number = 0;
+
+  Total_Petrol: number = 0;
+  Total_Diesel: number = 0;
+
+  constructor(private dialog: MatDialog,private use:UserServiceService,
+    private notificationService:NotificationService
+  ) {}
   
  
 
@@ -73,6 +88,7 @@ export class MainPanelComponent implements OnInit {
     ];
     this.updateTime();
     setInterval(() => this.updateTime(), 1000);
+    
   }
 
   updateTime() {
@@ -80,18 +96,24 @@ export class MainPanelComponent implements OnInit {
     this.currentTime = now.toLocaleTimeString();
   }
 
+  getAbs(value: number): number {
+    return Math.abs(value || 0);
+  }
+  
+
   calculatePetrol(index: number) {
   const petrol = this.petrolPumps[index];
   const total = (petrol.closingMeter || 0) - (petrol.openingMeter || 0);
   const testing = petrol.testing || 0;
   const rate = petrol.rate || 0;
-  petrol.saleLtr=total;
+  petrol.saleLtr = Math.abs(total);
   petrol.ltr = total - testing;
-  petrol.total_rs = petrol.ltr * rate;
+  petrol.total_rs = Math.abs(petrol.ltr * rate);
 
   // Update Totals
-  this.petrolTotalLTR = this.petrolPumps.reduce((sum, p) => sum + (p.ltr || 0), 0);
-  this.petrolTotalRS = this.petrolPumps.reduce((sum, p) => sum + (p.total_rs || 0), 0);
+  this.petrolTotalLTR = this.petrolPumps.reduce((sum, p) => sum + Math.abs(p.ltr || 0), 0);
+  this.petrolTotalRS = this.petrolPumps.reduce((sum, p) => sum + Math.abs(p.total_rs || 0), 0);
+
   this.updateTotalRs();
 }
 
@@ -100,13 +122,13 @@ calculateDiesel(index: number) {
   const total = (diesel.closingMeter || 0) - (diesel.openingMeter || 0);
   const testing = diesel.testing || 0;
   const rate = diesel.rate || 0;
-  diesel.saleLtr = total;
+  diesel.saleLtr = Math.abs(total);
   diesel.ltr = total - testing;
-  diesel.total_rs = diesel.ltr * rate;
+  diesel.total_rs = Math.abs(diesel.ltr * rate);
 
   // Update Totals
-  this.dieselTotalLTR = this.dieselPumps.reduce((sum, d) => sum + (d.ltr || 0), 0);
-  this.dieselTotalRS = this.dieselPumps.reduce((sum, d) => sum + (d.total_rs || 0), 0);
+  this.dieselTotalLTR = this.dieselPumps.reduce((sum, d) => sum + Math.abs(d.ltr || 0), 0);
+  this.dieselTotalRS = this.dieselPumps.reduce((sum, d) => sum + Math.abs (d.total_rs || 0), 0);
   this.updateTotalRs();
 }
 
@@ -192,44 +214,122 @@ getUgadtoStock(date:string,userId:string) {
 }
 
 openPurchase(data?: any): void {
-  this.dialog.open(PurchaseReportComponent, {
+  const dialogRef=this.dialog.open(PurchaseReportComponent, {
     width: '70%',
-    data: data || {} 
+    data: { date: this.use.getFormattedDate(this.reportDate)}
+  });
+  dialogRef.afterClosed().subscribe(result => {
+    this.use.getPurchaseiList(this.use.getFormattedDate(this.reportDate), this.userId).subscribe(
+      data => {
+        console.log(data);
+        this.petolQuantity = data[0];;
+        this.dieselQuantity = data[1];
+      }
+    );
   });
 }
 
+get totalCase(): number {
+  return (
+    (Number(this.totalRs) || 0) +
+    (Number(this.oilsellTotal) || 0) -
+    (Number(this.ATMTotal) || 0) -
+    (Number(this.kharchTotal) || 0) -
+    (Number(this.bakiTotal) || 0) +
+    (Number(this.jamaTotal) || 0)
+  );
+}
+
+
 dipstock(){
-  this.dialog.open(DipStockReportComponent, {
+  const dialogRef=this.dialog.open(DipStockReportComponent, {
     width: '60%',
     height: '70%',
-    data: { oilsellTotal: this.oilsellTotal }
+    data: { date: this.use.getFormattedDate(this.reportDate)}
   });
+  dialogRef.afterClosed().subscribe(result => {
+    this.use.getDipList(this.use.getFormattedDate(this.reportDate), this.userId).subscribe(
+      data => {
+        console.log(data);
+        this.Petrol_dip = data[0][2];
+        this.Petrol_stock = data[0][3];
+        this.Diesel_dip = data[0][0];
+        this.Diesel_stock = data[0][1];
+        
+      }
+    );
+  });
+}
+
+
+
+get TotalPetrolStock(): number {
+  const petrolUgadto = Number(this.Petrol_Ugadto_Stock) || 0;
+  const petrolQty = Number(this.petolQuantity) || 0;
+  return petrolUgadto + petrolQty;
+}
+
+get TotalDieselStock(): number {
+  const dieselUgadto = Number(this.Diesel_Ugadto_Stock) || 0;
+  const dieselQty = Number(this.dieselQuantity) || 0;
+  return dieselUgadto + dieselQty;
+}
+
+get TotalPetrolRemaining(): number {
+  return this.TotalPetrolStock - (Number(this.petrolTotalLTR) || 0);
+}
+
+get TotalDieselRemaining(): number {
+  return this.TotalDieselStock - (Number(this.dieselTotalLTR) || 0);
 }
 
 
 Submit() {
   const petrolInputData = this.petrolPumps
-    .filter(p => !(p.openingMeter === 0 && p.closingMeter === 0 && p.testing === 0 && p.rate === 0))
-    .map(p => ({
-      name: p.name,
-      openingMeter: p.openingMeter,
-      closingMeter: p.closingMeter,
-      testing: p.testing,
-      rate: p.rate
-    }));
+  .filter(p => !(p.openingMeter === 0 && p.closingMeter === 0 && p.testing === 0 && p.rate === 0 && p.saleLtr === 0 && p.total_rs === 0 && p.ltr === 0))
+  .map(p => ({
+    date: String(this.use.getFormattedDate(this.reportDate)),      
+    user_id: String(this.userId),                                  
+    pump: String(p.name),                                          
+    open_meter: String(p.openingMeter),                            
+    close_meter: String(p.closingMeter),                           
+    testing: String(p.testing),                                    
+    rate: String(p.rate),                                          
+    petrol_ltr: String(p.saleLtr),                                      
+    total_sell: String(p.total_rs),                                
+    total: String(p.ltr)                                      
+  }));
 
-  const dieselInputData = this.dieselPumps
-    .filter(d => !(d.openingMeter === 0 && d.closingMeter === 0 && d.testing === 0 && d.rate === 0))
-    .map(d => ({
-      name: d.name,
-      openingMeter: d.openingMeter,
-      closingMeter: d.closingMeter,
-      testing: d.testing,
-      rate: d.rate
-    }));
+const dieselInputData = this.dieselPumps
+  .filter(d => !(d.openingMeter === 0 && d.closingMeter === 0 && d.testing === 0 && d.rate === 0 && d.saleLtr === 0 && d.total_rs === 0 && d.ltr === 0))
+  .map(d => ({
+    date: String(this.use.getFormattedDate(this.reportDate)),     
+    user_id: String(this.userId),                                 
+    pump: String(d.name),                                         
+    open_meter: String(d.openingMeter),                           
+    close_meter: String(d.closingMeter),                          
+    testing: String(d.testing),                                   
+    rate: String(d.rate),                                         
+    diesel_ltr: String(d.saleLtr),                                     
+    total_sell: String(d.total_rs),                               
+    total: String(d.ltr)                                     
+  }));
 
   console.log('Petrol Input Data:', petrolInputData);
   console.log('Diesel Input Data:', dieselInputData);
+
+  this.use.savefuleData(petrolInputData,dieselInputData).subscribe({
+    next: res => {
+      this.notificationService.success('Report succefully saved:');
+    },
+    error: err => {
+      this.notificationService.failure('Failed to save petrol data:');
+    }
+  });
+
+}
+printReport() {
+  window.print();
 }
 
 }
