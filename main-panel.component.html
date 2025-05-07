@@ -1,8 +1,8 @@
 
 <div class="main-content">
-  <div class="container-fluid" style="margin-top: -4%;">
+  <div class="container-fluid" style="margin-top: -6%;">
 <div class="report-container">
-  <div class="title">Shree Harsiddhi Kisan Seva Kendra</div>
+  <div class="title">{{PumpName}}</div>
   <table>
     <tr>
       <td>
@@ -12,12 +12,11 @@
           [(ngModel)]="reportDate"
           name="reportDate"
           (ngModelChange)="showSelectedDate()">
-      
           <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
           <mat-datepicker #picker></mat-datepicker>
         </mat-form-field>
       </td>        
-      <td>
+      <td class="text">
         <div>Time To: {{ currentTime }}</div>
       </td>
     </tr>
@@ -29,9 +28,9 @@
         <th>Pump Name</th>
         <th>Opening Meter</th>
         <th>Closing Meter</th>
-        <th>Sale Ltr</th>
         <th>Testing</th>
         <th>Rate</th>
+        <th>Sale Ltr</th>
         <th colspan="2">LTR</th>
         <th>Total_Rs</th>
       </tr>
@@ -41,11 +40,11 @@
       <!-- Petrol Rows -->
       <tr *ngFor="let petrol of petrolPumps; let i = index">
         <td>{{ petrol.name }}</td>
-        <td><input type="number" [(ngModel)]="petrol.openingMeter" (input)="calculatePetrol(i)" /></td>
-        <td><input type="number" [(ngModel)]="petrol.closingMeter" (input)="calculatePetrol(i)" /></td>
+        <td class="text"><input type="number" class="text" [(ngModel)]="petrol.openingMeter" (input)="calculatePetrol(i)" /></td>
+        <td class="text"><input type="number" class="text" [(ngModel)]="petrol.closingMeter" (input)="calculatePetrol(i)" /></td>
+        <td class="text"><input type="number" class="text" [(ngModel)]="petrol.testing" (input)="calculatePetrol(i)" /></td>
+        <td class="text"><input type="number" class="text" [(ngModel)]="petrol.rate" (input)="calculatePetrol(i)" /></td>
         <td><input type="number" [(ngModel)]="petrol.saleLtr" disabled /></td>
-        <td><input type="number" [(ngModel)]="petrol.testing" (input)="calculatePetrol(i)" /></td>
-        <td><input type="number" [(ngModel)]="petrol.rate" (input)="calculatePetrol(i)" /></td>
         <td colspan="2"><input type="number" [value]="petrol.saleLtr < 0 ? petrol.saleLtr * -1 : petrol.saleLtr" disabled /></td>
         <td><input type="number" [(ngModel)]="petrol.total_rs" disabled /></td>
       </tr>
@@ -61,11 +60,11 @@
       <!-- Diesel Rows -->
       <tr *ngFor="let diesel of dieselPumps; let i = index">
         <td>{{ diesel.name }}</td>
-        <td><input type="number" [(ngModel)]="diesel.openingMeter" (input)="calculateDiesel(i)" /></td>
-        <td><input type="number" [(ngModel)]="diesel.closingMeter" (input)="calculateDiesel(i)" /></td>
+        <td class="text"><input type="number" class="text" [(ngModel)]="diesel.openingMeter" (input)="calculateDiesel(i)" /></td>
+        <td class="text"><input type="number" class="text" [(ngModel)]="diesel.closingMeter" (input)="calculateDiesel(i)" /></td>
+        <td class="text"><input type="number" class="text" [(ngModel)]="diesel.testing" (input)="calculateDiesel(i)" /></td>
+        <td class="text"><input type="number" class="text" [(ngModel)]="diesel.rate" (input)="calculateDiesel(i)" /></td>
         <td><input type="number" [(ngModel)]="diesel.saleLtr" disabled /></td>
-        <td><input type="number" [(ngModel)]="diesel.testing" (input)="calculateDiesel(i)" /></td>
-        <td><input type="number" [(ngModel)]="diesel.rate" (input)="calculateDiesel(i)" /></td>
         <td colspan="2"><input type="number" [value]="diesel.saleLtr < 0 ? diesel.saleLtr * -1 : diesel.saleLtr" disabled /></td>
         <td><input type="number" [(ngModel)]="diesel.total_rs" disabled /></td>
       </tr>
@@ -79,37 +78,35 @@
       </tr>
     </tbody>
   </table>
-  
-
     <table>
       <tr><td><strong>Total Fuel Rs</strong></td><td>{{totalRs}}</td></tr>
       <tr (click)="openOilsellBakComponent()">
         <td>Lube Oil Rs</td>
-        <td  class="billBaki">{{ oilsellTotal | number:'1.2-2' }}</td>
+        <td  class="clickText">{{ oilsellTotal | number:'1.2-2' }}</td>
       </tr>
 
       <tr (click)="openAtmBakComponent()">
         <td>ATM & Wallet</td>
-        <td  class="billBaki">{{ ATMTotal | number:'1.2-2' }}</td>
+        <td  class="clickText">{{ ATMTotal | number:'1.2-2' }}</td>
       </tr>
 
       <tr (click)="openKharchComponent()">
         <td>Indirect Expenses</td>
-        <td class="billBaki">{{ kharchTotal | number:'1.2-2' }}</td>
+        <td class="clickText">{{ kharchTotal | number:'1.2-2' }}</td>
       </tr>
       <tr (click)="openJamaBakiComponent()">
         <td>Bill_Bak_Rs / Bill_Jama_Rs</td>
-        <td class="billBaki">{{ bakiTotal | number:'1.2-2' }}/{{ jamaTotal | number:'1.2-2' }}</td>
+        <td class="clickText">{{ bakiTotal | number:'1.2-2' }}/{{ jamaTotal | number:'1.2-2' }}</td>
       </tr>
       <tr (click)="openPurchase()">
         <td>Petrol Purchase LTR</td>
-        <td class="billBaki"> 
+        <td class="clickText"> 
           {{petolQuantity}}
          </td>
       </tr>
       <tr (click)="openPurchase()">
         <td>Diesel Purchase LTR</td>
-        <td class="billBaki">
+        <td class="clickText">
           {{dieselQuantity}}
         </td>
       </tr>
@@ -135,10 +132,10 @@
     </table>
 
     <table>
-      <tr (click)="dipstock()"><td>Petrol Dip</td><td class="billBaki">{{Petrol_dip}}</td>
-      <td>DIP PETROL Stock</td><td class="billBaki">{{Petrol_stock}}</td></tr>
-      <tr><td>Diesel Dip</td><td class="billBaki">{{Diesel_dip}}</td>     
-      <td>DIP DIESEL Stock</td><td class="billBaki">{{Diesel_stock}}</td></tr>
+      <tr (click)="dipstock()"><td>Petrol Dip</td><td class="clickText">{{Petrol_dip}}</td>
+      <td>DIP PETROL Stock</td><td class="clickText">{{Petrol_stock}}</td></tr>
+      <tr><td>Diesel Dip</td><td class="clickText">{{Diesel_dip}}</td>     
+      <td>DIP DIESEL Stock</td><td class="clickText">{{Diesel_stock}}</td></tr>
     </table>
     <div class="button-container">
       <button mat-raised-button type="button" class="btn btn-danger pull-right" (click)="printReport()">Print</button>
