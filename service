@@ -210,3 +210,157 @@ export const API_SAVE_FUEL_REPORT: string = `${prefix}/portal/api/saveFuelReport
         }
     }
 
+
+
+/////////////////////////////////////////
+
+
+  getPetrolList(date: string, userId: string):Observable<any> {
+    const params = new HttpParams()
+      .set('date', date)
+      .set('userId', userId);
+
+    return this.http.get<any>(API_Petrol, { params }); 
+  }
+
+  getDieselList(date: string, userId: string):Observable<any> {
+    const params = new HttpParams()
+      .set('date', date)
+      .set('userId', userId);
+
+    return this.http.get<any>(API_DIESEL, { params }); 
+  }
+
+  getUserName(userId: string):Observable<any> {
+    const params = new HttpParams()
+      .set('userId', userId);
+
+    return this.http.get<any>(API_USER_NAME, { params }); 
+  }
+
+}
+
+export const API_Petrol: string = `${prefix}/portal/api/petrolList`;
+export const API_DIESEL: string = `${prefix}/portal/api/dieselList`;
+export const API_USER_NAME: string = `${prefix}/portal/api/userName`;
+
+//////////////////////////
+
+    //PETROL SELL
+    @GetMapping(value = "/petrolList")
+    public List<PetrolSell> getPetrolSell(@RequestParam String date,@RequestParam String userId) {
+        List<PetrolSell> petrol = petrolSellRepository.findByDateAndUserId(date,userId);
+        return petrol;
+    }
+
+    @GetMapping(value = "/dieselList")
+    public List<Dieselsell> getDieselSell(@RequestParam String date,@RequestParam String userId) {
+        List<Dieselsell> Diesel = dieselSellRepository.findByDateAndUserId(date,userId);
+        return Diesel;
+    }
+
+    @GetMapping(value = "/userName")
+    public ResponseEntity<ApiResponse> getUserName(@RequestParam Long userId) {
+        String userName = userRepository.getUserDataForDate(userId);
+
+        if (userName != null) {
+            return ResponseEntity.ok(new ApiResponse(userName));
+        } else {
+            return ResponseEntity.ok(new ApiResponse("User not found"));
+        }
+    }
+
+@PostMapping("/saveFuelReport")
+public ResponseEntity<ApiResponse> saveFuelData(@RequestBody Map<String, Object> payload) {
+    List<Map<String, Object>> petrolData = (List<Map<String, Object>>) payload.get("petrolInputData");
+    List<Map<String, Object>> dieselData = (List<Map<String, Object>>) payload.get("dieselInputData");
+
+    if (petrolData.isEmpty() && dieselData.isEmpty()) {
+        ApiResponse response = new ApiResponse("No data to save.");
+        return ResponseEntity.ok(response);
+    }
+    try {
+        // 🚀 **Save or Update Petrol Data**
+        List<PetrolSell> petrolEntities = petrolData.stream()
+                .map(data -> {
+                            String date = (String) data.get("date");
+                            String userId = (String) data.get("user_id");
+                            String pump = (String) data.get("pump");
+                    Optional<PetrolSell> existingPetrol = petrolSellRepository.findByDateAndPumpAndUserId(date, pump, userId);
+
+                    PetrolSell petrol;
+                    if (existingPetrol.isPresent()) {
+                        petrol = existingPetrol.get();
+                        // If present, update values
+                        petrol.setOpen_meter((String) data.get("open_meter"));
+                        petrol.setClose_meter((String) data.get("close_meter"));
+                        petrol.setTesting((String) data.get("testing"));
+                        petrol.setRate((String) data.get("rate"));
+                        petrol.setTotal((String) data.get("total"));
+                        petrol.setTotal_sell((String) data.get("total_sell"));
+                        petrol.setPetrol_ltr((String) data.get("petrol_ltr"));
+                    } else {
+                        petrol = new PetrolSell();
+                        petrol.setDate(date);
+                        petrol.setUserId(userId);
+                        petrol.setPump(pump);
+                        petrol.setOpen_meter((String) data.get("open_meter"));
+                        petrol.setClose_meter((String) data.get("close_meter"));
+                        petrol.setTesting((String) data.get("testing"));
+                        petrol.setRate((String) data.get("rate"));
+                        petrol.setTotal((String) data.get("total"));
+                        petrol.setTotal_sell((String) data.get("total_sell"));
+                        petrol.setPetrol_ltr((String) data.get("petrol_ltr"));
+                    }
+                    return petrol;
+                })
+                .collect(Collectors.toList());
+        petrolSellRepository.saveAll(petrolEntities);
+
+        List<Dieselsell> dieselEntities = dieselData.stream()
+                .map(data -> {
+                    String date = (String) data.get("date");
+                    String userId = (String) data.get("user_id");
+                    String pump = (String) data.get("pump");
+
+                    // 🔍 Check if data already exists for date and pump
+                    Optional<Dieselsell> existingDiesel = dieselSellRepository.findByDateAndPumpAndUserId(date, pump, userId);
+
+                    Dieselsell diesel;
+                    if (existingDiesel.isPresent()) {
+                        diesel = existingDiesel.get();
+                        // If present, update values
+                        diesel.setOpen_meter((String) data.get("open_meter"));
+                        diesel.setClose_meter((String) data.get("close_meter"));
+                        diesel.setTesting((String) data.get("testing"));
+                        diesel.setRate((String) data.get("rate"));
+                        diesel.setTotal((String) data.get("total"));
+                        diesel.setTotal_sell((String) data.get("total_sell"));
+                        diesel.setDiesel_ltr((String) data.get("diesel_ltr"));
+                    } else {
+                        // If not present, create new
+                        diesel = new Dieselsell();
+                        diesel.setDate(date);
+                        diesel.setUserId(userId);
+                        diesel.setPump(pump);
+                        diesel.setOpen_meter((String) data.get("open_meter"));
+                        diesel.setClose_meter((String) data.get("close_meter"));
+                        diesel.setTesting((String) data.get("testing"));
+                        diesel.setRate((String) data.get("rate"));
+                        diesel.setTotal((String) data.get("total"));
+                        diesel.setTotal_sell((String) data.get("total_sell"));
+                        diesel.setDiesel_ltr((String) data.get("diesel_ltr"));
+                    }
+                    return diesel;
+                })
+                .collect(Collectors.toList());
+        dieselSellRepository.saveAll(dieselEntities);
+        ApiResponse response = new ApiResponse("Data saved/updated successfully!");
+        return ResponseEntity.ok(response);
+    } catch (Exception e) {
+        ApiResponse response = new ApiResponse("Failed to save fuel data: " + e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+}
+
+
