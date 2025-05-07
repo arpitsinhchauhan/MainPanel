@@ -58,19 +58,22 @@ export class MainPanelComponent implements OnInit {
   Total_Petrol: number = 0;
   Total_Diesel: number = 0;
 
+  PumpName : string = '';
+
   constructor(private dialog: MatDialog,private use:UserServiceService,
     private notificationService:NotificationService
   ) {}
-  
- 
 
   showSelectedDate() {
     const formatted = this.use.getFormattedDate(this.reportDate);
     console.log('Formatted Date:', formatted);
     this.getUgadtoStock(formatted, this.userId);
+    this.getPetrolStock(formatted, this.userId);
+    this.getDieselStock(formatted, this.userId);
   }
   
   ngOnInit() {
+    this.getUserName();
     this.petrolPumps = [
       { name: 'Petrol Pump 1', openingMeter: 0, closingMeter: 0, saleLtr: 0, testing: 0, ltr: 0, rate: 0,total_rs:0 },
       { name: 'Petrol Pump 2', openingMeter: 0, closingMeter: 0, saleLtr: 0, testing: 0, ltr: 0, rate: 0,total_rs:0 },
@@ -88,8 +91,84 @@ export class MainPanelComponent implements OnInit {
     ];
     this.updateTime();
     setInterval(() => this.updateTime(), 1000);
-    
   }
+  
+  getUserName(){
+    this.use.getUserName(this.userId).subscribe(
+      data => {
+        this.PumpName =data.message;
+      }
+    );
+  }
+
+  getPetrolStock(date: string, userId: string) {
+    this.use.getPetrolList(date, userId).subscribe((data: any[]) => {
+      // Reset petrolPumps array before mapping new data
+      this.petrolPumps.forEach(pump => {
+        pump.openingMeter = 0;
+        pump.closingMeter = 0;
+        pump.saleLtr = 0;
+        pump.testing = 0;
+        pump.ltr = 0;
+        pump.rate = 0;
+        pump.total_rs = 0;
+      });
+  
+      // Map the response data to petrolPumps based on pump name
+      data.forEach((item: any) => {
+        const pump = this.petrolPumps.find(p => p.name === item.pump);
+        if (pump) {
+          pump.openingMeter = +item.open_meter;
+          pump.closingMeter = +item.close_meter;
+          pump.testing = +item.testing;
+          pump.saleLtr = pump.closingMeter - pump.openingMeter;
+          pump.rate = +item.rate; // Assuming `rate` is in your response
+          pump.total_rs = pump.saleLtr * pump.rate;
+        }
+      });
+      this.calculateTotals();
+    });
+  }
+  
+  getDieselStock(date: string, userId: string) {
+    this.use.getDieselList(date, userId).subscribe((data: any[]) => {
+      console.log('Diesel Data:', data);
+  
+      // Reset dieselPumps array before mapping new data
+      this.dieselPumps.forEach(pump => {
+        pump.openingMeter = 0;
+        pump.closingMeter = 0;
+        pump.saleLtr = 0;
+        pump.testing = 0;
+        pump.ltr = 0;
+        pump.rate = 0;
+        pump.total_rs = 0;
+      });
+  
+      // Map the response data to dieselPumps based on pump name
+      data.forEach((item: any) => {
+        const pump = this.dieselPumps.find(p => p.name === item.pump);
+        if (pump) {
+          pump.openingMeter = +item.open_meter;
+          pump.closingMeter = +item.close_meter;
+          pump.testing = +item.testing;
+          pump.saleLtr = pump.closingMeter - pump.openingMeter;
+          pump.rate = +item.rate; // Assuming `rate` is in your response
+          pump.total_rs = pump.saleLtr * pump.rate;
+        }
+      });
+      this.calculateTotals();
+    });
+  }
+  calculateTotals() {
+    this.petrolTotalLTR = this.petrolPumps.reduce((sum, p) => sum + p.saleLtr, 0);
+    this.petrolTotalRS = this.petrolPumps.reduce((sum, p) => sum + p.total_rs, 0);
+  
+    this.dieselTotalLTR = this.dieselPumps.reduce((sum, p) => sum + p.saleLtr, 0);
+    this.dieselTotalRS = this.dieselPumps.reduce((sum, p) => sum + p.total_rs, 0);
+    this.totalRs = this.petrolTotalRS + this.dieselTotalRS;
+  }
+  
 
   updateTime() {
     const now = new Date();
@@ -320,10 +399,11 @@ const dieselInputData = this.dieselPumps
 
   this.use.savefuleData(petrolInputData,dieselInputData).subscribe({
     next: res => {
-      this.notificationService.success('Report succefully saved:');
-    },
-    error: err => {
-      this.notificationService.failure('Failed to save petrol data:');
+      if (res.message.includes('successfully')) {
+        this.notificationService.success("✅ " + res.message);
+    } else {
+        this.notificationService.failure("⚠️ " + res.message);
+    }
     }
   });
 
