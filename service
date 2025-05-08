@@ -364,3 +364,53 @@ public ResponseEntity<ApiResponse> saveFuelData(@RequestBody Map<String, Object>
 }
 
 
+/////////////////////////////////////
+ savePetrolStockData(userId: String, date: string, petrolRemaining: number): Observable<any> {
+    const payload = {
+      userId: userId,
+      date: date,
+      petrolRemaining: petrolRemaining,
+    };
+    return this.http.post(API_TOTAL_PERTOL_STOCK, payload);
+  }
+
+  saveDieselStockData(userId: String, date: string, dieselRemaining: number): Observable<any> {
+    const payload = {
+      userId: userId,
+      date: date,
+      dieselRemaining: dieselRemaining,
+    };
+    return this.http.post(API_TOTAL_DIESEL_STOCK, payload);
+  }
+export const API_TOTAL_PERTOL_STOCK: string = `${prefix}/portal/api/totalPetrolStock`;
+export const API_TOTAL_DIESEL_STOCK: string = `${prefix}/portal/api/totalDieselStock`;
+
+    @PostMapping(value = "/totalPetrolStock")
+    public ResponseEntity<ApiResponse> saveTotalPetrolStock(@RequestBody Map<String, Object> payload) {
+        String userId = (String) payload.get("userId");
+        String date = (String) payload.get("date");
+        double minP = Double.parseDouble(payload.get("petrolRemaining").toString());
+
+        if (dailyskockRepository.countByDate(date, userId) == 0) {
+            dailyskockRepository.insertDailyStock(date, minP, userId);
+            return ResponseEntity.ok(new ApiResponse("Petrol stock saved successfully."));
+        } else {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ApiResponse("Petrol stock for this date already exists."));
+        }
+    }
+ @PostMapping(value = "/totalDieselStock")
+    public ResponseEntity<ApiResponse> saveTotalDieselStock(@RequestBody Map<String, Object> payload) {
+        String userId = (String) payload.get("userId");
+        String date = (String) payload.get("date");
+        double minP = Double.parseDouble(payload.get("dieselRemaining").toString());
+ if (dailydieselstockRepository.countByDate(date, userId) == 0) {
+            dailydieselstockRepository.insertDailydieselstock(date, minP, userId);
+            System.out.println("Diesel stock saved for date " + date);
+            return ResponseEntity.ok(new ApiResponse("Diesel stock saved successfully."));
+        } else {
+            System.out.println("Daily diesel stock for date " + date + " already exists. Skipping save operation.");
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(new ApiResponse("Diesel stock for this date already exists."));
+        }
+    }
