@@ -70,7 +70,14 @@ export class MainPanelComponent implements OnInit {
     this.getUgadtoStock(formatted, this.userId);
     this.getPetrolStock(formatted, this.userId);
     this.getDieselStock(formatted, this.userId);
+    this.getoillist();
+    this.getTransactionlist();
+    this.getKharchlist();
+    this.getJamaBakilist();
+    this.getPurchaselist();
+    this.getDiplist();
   }
+  
   
   ngOnInit() {
     this.getUserName();
@@ -103,7 +110,6 @@ export class MainPanelComponent implements OnInit {
 
   getPetrolStock(date: string, userId: string) {
     this.use.getPetrolList(date, userId).subscribe((data: any[]) => {
-      // Reset petrolPumps array before mapping new data
       this.petrolPumps.forEach(pump => {
         pump.openingMeter = 0;
         pump.closingMeter = 0;
@@ -114,7 +120,6 @@ export class MainPanelComponent implements OnInit {
         pump.total_rs = 0;
       });
   
-      // Map the response data to petrolPumps based on pump name
       data.forEach((item: any) => {
         const pump = this.petrolPumps.find(p => p.name === item.pump);
         if (pump) {
@@ -122,8 +127,8 @@ export class MainPanelComponent implements OnInit {
           pump.closingMeter = +item.close_meter;
           pump.testing = +item.testing;
           pump.saleLtr = pump.closingMeter - pump.openingMeter;
-          pump.rate = +item.rate; // Assuming `rate` is in your response
-          pump.total_rs = pump.saleLtr * pump.rate;
+          pump.rate = +item.rate; 
+          pump.total_rs = pump.saleLtr * pump.rate;    
         }
       });
       this.calculateTotals();
@@ -160,6 +165,7 @@ export class MainPanelComponent implements OnInit {
       this.calculateTotals();
     });
   }
+
   calculateTotals() {
     this.petrolTotalLTR = this.petrolPumps.reduce((sum, p) => sum + p.saleLtr, 0);
     this.petrolTotalRS = this.petrolPumps.reduce((sum, p) => sum + p.total_rs, 0);
@@ -215,25 +221,38 @@ calculateDiesel(index: number) {
 updateTotalRs() {
   this.petrolTotalRS = this.petrolPumps.reduce((sum, p) => sum + (p.total_rs || 0), 0);
   this.dieselTotalRS = this.dieselPumps.reduce((sum, d) => sum + (d.total_rs || 0), 0);
-
   this.totalRs = this.petrolTotalRS + this.dieselTotalRS;
 }
 
-
 openOilsellBakComponent(): void {
-  const dialogRef =this.dialog.open(OilReportComponent, {
+  const formattedDate = this.use.getFormattedDate(this.reportDate);
+  const dialogRef = this.dialog.open(OilReportComponent, {
     width: '60%',
     height: '70%',
-    data: { date: this.use.getFormattedDate(this.reportDate)}
+    data: { date: formattedDate }
   });
   dialogRef.afterClosed().subscribe(result => {
-    this.use.getOillsellList(this.use.getFormattedDate(this.reportDate), this.userId).subscribe(
-      data => {
-        this.oilsellTotal=data[0];
-      }
-    );
+    this.getoillist();
   });
 }
+
+getoillist(){
+  const formattedDate = this.use.getFormattedDate(this.reportDate);
+  this.use.getOillsellList(formattedDate, this.userId).subscribe(
+    (data) => {
+      if (data && data.length > 0) {
+        this.oilsellTotal = data[0];
+      } else {
+        this.oilsellTotal = 0;
+      }
+    },
+    (error) => {
+      this.notificationService.failure("Failed to fetch oil sell data.");
+    }
+  );
+}
+
+
 
 openAtmBakComponent(){
   const dialogRef= this.dialog.open(TransactionReportComponent, {
@@ -242,12 +261,24 @@ openAtmBakComponent(){
     data: { date: this.use.getFormattedDate(this.reportDate)}
   });
   dialogRef.afterClosed().subscribe(result => {
-    this.use.getTransactionList(this.use.getFormattedDate(this.reportDate), this.userId).subscribe(
-      data => {
-        this.ATMTotal=data[0];
-      }
-    );
+    this.getTransactionlist();
   });
+}
+
+getTransactionlist(){
+  const formattedDate = this.use.getFormattedDate(this.reportDate);
+  this.use.getTransactionList(formattedDate, this.userId).subscribe(
+    (data) => {
+      if (data && data.length > 0) {
+        this.ATMTotal = data[0];
+      } else {
+        this.ATMTotal = 0;
+      }
+    },
+    (error) => {
+      this.notificationService.failure("Failed to fetch Transaction sell data.");
+    }
+  );
 }
 
 openKharchComponent(){
@@ -257,13 +288,31 @@ openKharchComponent(){
     data: { date: this.use.getFormattedDate(this.reportDate)}
   });
   dialogRef.afterClosed().subscribe(result => {
-    this.use.getKharchList(this.use.getFormattedDate(this.reportDate), this.userId).subscribe(
-      data => {
-        this.kharchTotal=data[0];
-      }
-    );
+    this.getKharchlist();
+    // this.use.getKharchList(this.use.getFormattedDate(this.reportDate), this.userId).subscribe(
+    //   data => {
+    //     this.kharchTotal=data[0];
+    //   }
+    // );
   });
 }
+
+getKharchlist(){
+  const formattedDate = this.use.getFormattedDate(this.reportDate);
+  this.use.getKharchList(formattedDate, this.userId).subscribe(
+    (data) => {
+      if (data && data.length > 0) {
+        this.kharchTotal = data[0];
+      } else {
+        this.kharchTotal = 0;
+      }
+    },
+    (error) => {
+      this.notificationService.failure("Failed to fetch Kharch data.");
+    }
+  );
+}
+
 openJamaBakiComponent(){
   const dialogRef=this.dialog.open(JamaBakiReportComponent, {
     width: '60%',
@@ -271,13 +320,32 @@ openJamaBakiComponent(){
     data: { date: this.use.getFormattedDate(this.reportDate)}
   });
   dialogRef.afterClosed().subscribe(result => {
-    this.use.getJamaBakiList(this.use.getFormattedDate(this.reportDate), this.userId).subscribe(
-      data => {
+    this.getJamaBakilist();
+    // this.use.getJamaBakiList(this.use.getFormattedDate(this.reportDate), this.userId).subscribe(
+    //   data => {
+    //     this.jamaTotal = data[0][0];
+    //     this.bakiTotal = data[0][1];
+    //   }
+    // );
+  });
+}
+
+getJamaBakilist(){
+  const formattedDate = this.use.getFormattedDate(this.reportDate);
+  this.use.getJamaBakiList(formattedDate, this.userId).subscribe(
+    (data) => {
+      if (data && data.length > 0) {
         this.jamaTotal = data[0][0];
         this.bakiTotal = data[0][1];
+      } else {
+        this.jamaTotal = 0;
+        this.bakiTotal = 0;
       }
-    );
-  });
+    },
+    (error) => {
+      this.notificationService.failure("Failed to fetch Jama&Baki data.");
+    }
+  );
 }
 
 getUgadtoStock(date:string,userId:string) {
@@ -298,14 +366,33 @@ openPurchase(data?: any): void {
     data: { date: this.use.getFormattedDate(this.reportDate)}
   });
   dialogRef.afterClosed().subscribe(result => {
-    this.use.getPurchaseiList(this.use.getFormattedDate(this.reportDate), this.userId).subscribe(
-      data => {
-        console.log(data);
+    this.getPurchaselist();
+    // this.use.getPurchaseiList(this.use.getFormattedDate(this.reportDate), this.userId).subscribe(
+    //   data => {
+    //     console.log(data);
+    //     this.petolQuantity = data[0];;
+    //     this.dieselQuantity = data[1];
+    //   }
+    // );
+  });
+}
+
+getPurchaselist(){
+  const formattedDate = this.use.getFormattedDate(this.reportDate);
+  this.use.getPurchaseiList(formattedDate, this.userId).subscribe(
+    (data) => {
+      if (data && data.length > 0) {
         this.petolQuantity = data[0];;
         this.dieselQuantity = data[1];
+      } else {
+        this.petolQuantity = 0;
+        this.dieselQuantity = 0;
       }
-    );
-  });
+    },
+    (error) => {
+      this.notificationService.failure("Failed to fetch Purchase data.");
+    }
+  );
 }
 
 get totalCase(): number {
@@ -324,23 +411,41 @@ dipstock(){
   const dialogRef=this.dialog.open(DipStockReportComponent, {
     width: '60%',
     height: '70%',
-    data: { date: this.use.getFormattedDate(this.reportDate)}
+    data: { date: this.use.getFormattedDate(this.reportDate),
+      petroldip: this.Petrol_dip,
+      pvalue: this.Petrol_stock,
+      dieseldip: this.Diesel_dip,
+      dvalue: this.Diesel_stock
+    }
+    
   });
+  
   dialogRef.afterClosed().subscribe(result => {
-    this.use.getDipList(this.use.getFormattedDate(this.reportDate), this.userId).subscribe(
-      data => {
-        console.log(data);
+    this.getDiplist();
+  });
+}
+
+getDiplist(){
+  const formattedDate = this.use.getFormattedDate(this.reportDate);
+  this.use.getDipList(formattedDate, this.userId).subscribe(
+    (data) => {
+      if (data && data.length > 0) {
         this.Petrol_dip = data[0][2];
         this.Petrol_stock = data[0][3];
         this.Diesel_dip = data[0][0];
         this.Diesel_stock = data[0][1];
-        
+      } else {
+        this.Petrol_dip = 0;
+        this.Petrol_stock = 0;
+        this.Diesel_dip = 0;
+        this.Diesel_stock = 0;
       }
-    );
-  });
+    },
+    (error) => {
+      this.notificationService.failure("Failed to fetch Purchase data.");
+    }
+  );
 }
-
-
 
 get TotalPetrolStock(): number {
   const petrolUgadto = Number(this.Petrol_Ugadto_Stock) || 0;
@@ -364,6 +469,7 @@ get TotalDieselRemaining(): number {
 
 
 Submit() {
+  const formattedDate = this.use.getFormattedDate(this.reportDate);
   const petrolInputData = this.petrolPumps
   .filter(p => !(p.openingMeter === 0 && p.closingMeter === 0 && p.testing === 0 && p.rate === 0 && p.saleLtr === 0 && p.total_rs === 0 && p.ltr === 0))
   .map(p => ({
@@ -394,19 +500,35 @@ const dieselInputData = this.dieselPumps
     total: String(d.ltr)                                     
   }));
 
-  console.log('Petrol Input Data:', petrolInputData);
-  console.log('Diesel Input Data:', dieselInputData);
-
   this.use.savefuleData(petrolInputData,dieselInputData).subscribe({
     next: res => {
       if (res.message.includes('successfully')) {
         this.notificationService.success("✅ " + res.message);
-    } else {
-        this.notificationService.failure("⚠️ " + res.message);
-    }
+    } else if (res.message.includes('already')){
+      this.notificationService.failure("⚠️ " + res.message);
+  }
     }
   });
 
+  this.use.savePetrolStockData(this.userId,formattedDate,this.TotalPetrolRemaining).subscribe({
+    next: res => {
+      if (res.message.includes('successfully')) {
+        this.notificationService.success("✅" + res.message);
+    } else if (res.message.includes('already')){
+        this.notificationService.failure("⚠️" + res.message);
+    }
+    }
+  });
+  
+  this.use.saveDieselStockData(this.userId,formattedDate,this.TotalDieselRemaining).subscribe({
+    next: res => {
+      if (res.message.includes('successfully')) {
+        this.notificationService.success("✅   " + res.message);
+     } else if (res.message.includes('already')){
+      this.notificationService.failure("⚠️" + res.message);
+     }
+    }
+  });
 }
 printReport() {
   window.print();
