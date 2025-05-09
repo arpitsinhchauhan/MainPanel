@@ -9,6 +9,8 @@ import { PurchaseReportComponent } from '../table-list/purchase-report/purchase-
 import { DipStockReportComponent } from '../dip-stock/dip-stock-report/dip-stock-report.component';
 import { NotificationService } from 'app/services/notification.service';
 
+
+
 @Component({
   selector: 'app-main-panel',
   templateUrl: './main-panel.component.html',
@@ -59,6 +61,25 @@ export class MainPanelComponent implements OnInit {
   Total_Diesel: number = 0;
 
   PumpName : string = '';
+  multipliers = {
+    twothousand: 0,
+    fivehundred: 0,
+    twohundred: 0,
+    onehundred: 0,
+    fifty: 0,
+    twenty: 0,
+    ten: 0
+  };
+
+  twothousand = 0;
+  fivehundred = 0;
+  twohundred = 0;
+  onehundred = 0;
+  fifty = 0;
+  twenty = 0;
+  ten = 0;
+  totalCaseCase = 0;
+  note : String = '';
 
   constructor(private dialog: MatDialog,private use:UserServiceService,
     private notificationService:NotificationService
@@ -78,7 +99,7 @@ export class MainPanelComponent implements OnInit {
     this.getDiplist();
   }
   
-  
+
   ngOnInit() {
     this.getUserName();
     this.petrolPumps = [
@@ -500,27 +521,45 @@ const dieselInputData = this.dieselPumps
     total: String(d.ltr)                                     
   }));
 
-  this.use.savefuleData(petrolInputData,dieselInputData).subscribe({
-    next: res => {
-      if (res.message.includes('successfully')) {
-        this.notificationService.success("✅ " + res.message);
-    } else if (res.message.includes('already')){
-      this.notificationService.failure("⚠️ " + res.message);
-  }
-    }
-  });
+  // this.use.savefuleData(petrolInputData,dieselInputData).subscribe({
+  //   next: res => {
+  //     if (res.message.includes('successfully')) {
+  //       this.notificationService.success("✅ " + res.message);
+  //   } else if (res.message.includes('already')){
+  //     this.notificationService.failure("⚠️ " + res.message);
+  // }
+  //   }
+  // });
 
-  this.use.savePetrolStockData(this.userId,formattedDate,this.TotalPetrolRemaining).subscribe({
-    next: res => {
-      if (res.message.includes('successfully')) {
-        this.notificationService.success("✅" + res.message);
-    } else if (res.message.includes('already')){
-        this.notificationService.failure("⚠️" + res.message);
-    }
-    }
-  });
+  // this.use.savePetrolStockData(this.userId,formattedDate,this.TotalPetrolRemaining).subscribe({
+  //   next: res => {
+  //     if (res.message.includes('successfully')) {
+  //       this.notificationService.success("✅" + res.message);
+  //   } else if (res.message.includes('already')){
+  //       this.notificationService.failure("⚠️" + res.message);
+  //   }
+  //   }
+  // });
   
-  this.use.saveDieselStockData(this.userId,formattedDate,this.TotalDieselRemaining).subscribe({
+  // this.use.saveDieselStockData(this.userId,formattedDate,this.TotalDieselRemaining).subscribe({
+  //   next: res => {
+  //     if (res.message.includes('successfully')) {
+  //       this.notificationService.success("✅   " + res.message);
+  //    } else if (res.message.includes('already')){
+  //     this.notificationService.failure("⚠️" + res.message);
+  //    }
+  //   }
+  // });
+  // this.saveTotalCase();
+  this.sendData();
+}
+printReport() {
+  window.print();
+}
+
+saveTotalCase() { 
+  const formattedDate = this.use.getFormattedDate(this.reportDate);
+  this.use.saveTotalCase(this.userId,formattedDate,this.totalCase).subscribe({
     next: res => {
       if (res.message.includes('successfully')) {
         this.notificationService.success("✅   " + res.message);
@@ -530,8 +569,52 @@ const dieselInputData = this.dieselPumps
     }
   });
 }
-printReport() {
-  window.print();
+
+
+calculateTotal() {
+  this.twothousand = 2000 * (this.multipliers.twothousand || 0);
+  this.fivehundred = 500 * (this.multipliers.fivehundred || 0);
+  this.twohundred = 200 * (this.multipliers.twohundred || 0);
+  this.onehundred = 100 * (this.multipliers.onehundred || 0);
+  this.fifty = 50 * (this.multipliers.fifty || 0);
+  this.twenty = 20 * (this.multipliers.twenty || 0);
+  this.ten = 10 * (this.multipliers.ten || 0);
+
+  // Calculate Total
+  this.totalCaseCase =
+    this.twothousand +
+    this.fivehundred +
+    this.twohundred +
+    this.onehundred +
+    this.fifty +
+    this.twenty +
+    this.ten;
+}
+
+sendData() {
+  const payload = {
+    note: this.note,
+    totalCaseCase: this.totalCaseCase,
+    denominations: [
+      { value: 2000, total: this.twothousand, count: this.multipliers.twothousand || 0 },
+      { value: 500, total: this.fivehundred, count: this.multipliers.fivehundred || 0 },
+      { value: 200, total: this.twohundred, count: this.multipliers.twohundred || 0 },
+      { value: 100, total: this.onehundred, count: this.multipliers.onehundred || 0 },
+      { value: 50, total: this.fifty, count: this.multipliers.fifty || 0 },
+      { value: 20, total: this.twenty, count: this.multipliers.twenty || 0 },
+      { value: 10, total: this.ten, count: this.multipliers.ten || 0 }
+    ]
+  };
+  console.log("Sending Payload: ", payload);
+  // this.use.saveMoneyDetails(payload).subscribe({
+  //   next: res => {
+  //     if (res.message.includes('successfully')) {
+  //       this.notificationService.success("✅   " + res.message);
+  //    } else if (res.message.includes('already')){
+  //     this.notificationService.failure("⚠️" + res.message);
+  //    }
+  //   }
+  // });
 }
 
 }
