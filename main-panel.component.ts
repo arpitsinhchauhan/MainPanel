@@ -8,7 +8,8 @@ import { JamaBakiReportComponent } from '../jama-baki/jama-baki-report/jama-baki
 import { PurchaseReportComponent } from '../table-list/purchase-report/purchase-report.component';
 import { DipStockReportComponent } from '../dip-stock/dip-stock-report/dip-stock-report.component';
 import { NotificationService } from 'app/services/notification.service';
-
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 
 @Component({
@@ -62,13 +63,13 @@ export class MainPanelComponent implements OnInit {
 
   PumpName : string = '';
   multipliers = {
-    twothousand: 0,
-    fivehundred: 0,
-    twohundred: 0,
-    onehundred: 0,
-    fifty: 0,
-    twenty: 0,
-    ten: 0
+    twothousand: null,
+    fivehundred: null,
+    twohundred: null,
+    onehundred: null,
+    fifty: null,
+    twenty: null,
+    ten: null
   };
 
   twothousand = 0;
@@ -103,19 +104,19 @@ export class MainPanelComponent implements OnInit {
   ngOnInit() {
     this.getUserName();
     this.petrolPumps = [
-      { name: 'Petrol Pump 1', openingMeter: 0, closingMeter: 0, saleLtr: 0, testing: 0, ltr: 0, rate: 0,total_rs:0 },
-      { name: 'Petrol Pump 2', openingMeter: 0, closingMeter: 0, saleLtr: 0, testing: 0, ltr: 0, rate: 0,total_rs:0 },
-      { name: 'Petrol Pump 3', openingMeter: 0, closingMeter: 0, saleLtr: 0, testing: 0, ltr: 0, rate: 0,total_rs:0 },
-      { name: 'Petrol Pump 4', openingMeter: 0, closingMeter: 0, saleLtr: 0, testing: 0, ltr: 0, rate: 0,total_rs:0 },
-      { name: 'Petrol Pump 5', openingMeter: 0, closingMeter: 0, saleLtr: 0, testing: 0, ltr: 0, rate: 0,total_rs:0 }
+      { name: 'Petrol Pump 1', openingMeter: null, closingMeter: null, saleLtr: 0, testing: null, ltr: 0, rate: null,total_rs:0 },
+      { name: 'Petrol Pump 2', openingMeter: null, closingMeter: null, saleLtr: 0, testing: null, ltr: 0, rate: null,total_rs:0 },
+      { name: 'Petrol Pump 3', openingMeter: null, closingMeter: null, saleLtr: 0, testing: null, ltr: 0, rate: null,total_rs:0 },
+      { name: 'Petrol Pump 4', openingMeter: null, closingMeter: null, saleLtr: 0, testing: null, ltr: 0, rate: null,total_rs:0 },
+      { name: 'Petrol Pump 5', openingMeter: null, closingMeter: null, saleLtr: 0, testing: null, ltr: 0, rate: null,total_rs:0 }
     ];
 
     this.dieselPumps = [
-      { name: 'Diesel Pump 1', openingMeter: 0, closingMeter: 0, saleLtr: 0, testing: 0, ltr: 0, rate: 0,total_rs:0 },
-      { name: 'Diesel Pump 2', openingMeter: 0, closingMeter: 0, saleLtr: 0, testing: 0, ltr: 0, rate: 0,total_rs:0 },
-      { name: 'Diesel Pump 3', openingMeter: 0, closingMeter: 0, saleLtr: 0, testing: 0, ltr: 0, rate: 0,total_rs:0 },
-      { name: 'Diesel Pump 4', openingMeter: 0, closingMeter: 0, saleLtr: 0, testing: 0, ltr: 0, rate: 0,total_rs:0 },
-      { name: 'Diesel Pump 5', openingMeter: 0, closingMeter: 0, saleLtr: 0, testing: 0, ltr: 0, rate: 0,total_rs:0 }
+      { name: 'Diesel Pump 1', openingMeter: null, closingMeter: null, saleLtr:0, testing: null, ltr: 0, rate: null,total_rs:0 },
+      { name: 'Diesel Pump 2', openingMeter: null, closingMeter: null, saleLtr:0, testing: null, ltr: 0, rate: null,total_rs:0 },
+      { name: 'Diesel Pump 3', openingMeter: null, closingMeter: null, saleLtr:0, testing: null, ltr: 0, rate: null,total_rs:0 },
+      { name: 'Diesel Pump 4', openingMeter: null, closingMeter: null, saleLtr:0, testing: null, ltr: 0, rate: null,total_rs:0 },
+      { name: 'Diesel Pump 5', openingMeter: null, closingMeter: null, saleLtr:0, testing: null, ltr: 0, rate: null,total_rs:0 }
     ];
     this.updateTime();
     setInterval(() => this.updateTime(), 1000);
@@ -262,7 +263,7 @@ getoillist(){
   this.use.getOillsellList(formattedDate, this.userId).subscribe(
     (data) => {
       if (data && data.length > 0) {
-        this.oilsellTotal = data[0];
+        this.oilsellTotal = data[0] ?? 0;
       } else {
         this.oilsellTotal = 0;
       }
@@ -291,7 +292,7 @@ getTransactionlist(){
   this.use.getTransactionList(formattedDate, this.userId).subscribe(
     (data) => {
       if (data && data.length > 0) {
-        this.ATMTotal = data[0];
+        this.ATMTotal = data[0] ?? 0;
       } else {
         this.ATMTotal = 0;
       }
@@ -323,7 +324,7 @@ getKharchlist(){
   this.use.getKharchList(formattedDate, this.userId).subscribe(
     (data) => {
       if (data && data.length > 0) {
-        this.kharchTotal = data[0];
+        this.kharchTotal = data[0] ?? 0;
       } else {
         this.kharchTotal = 0;
       }
@@ -356,8 +357,8 @@ getJamaBakilist(){
   this.use.getJamaBakiList(formattedDate, this.userId).subscribe(
     (data) => {
       if (data && data.length > 0) {
-        this.jamaTotal = data[0][0];
-        this.bakiTotal = data[0][1];
+        this.jamaTotal = data[0][0] ?? 0;
+        this.bakiTotal = data[0][1] ?? 0;
       } else {
         this.jamaTotal = 0;
         this.bakiTotal = 0;
@@ -403,8 +404,8 @@ getPurchaselist(){
   this.use.getPurchaseiList(formattedDate, this.userId).subscribe(
     (data) => {
       if (data && data.length > 0) {
-        this.petolQuantity = data[0];;
-        this.dieselQuantity = data[1];
+        this.petolQuantity = data[0] ?? 0;
+        this.dieselQuantity = data[1] ?? 0;
       } else {
         this.petolQuantity = 0;
         this.dieselQuantity = 0;
@@ -429,16 +430,32 @@ get totalCase(): number {
 
 
 dipstock(){
-  const dialogRef=this.dialog.open(DipStockReportComponent, {
+  const dataToSend: any = {
+    date: this.use.getFormattedDate(this.reportDate),
+  };
+
+  // Determine if the type should be 'edit' or 'add' based on whether any of the values are not null
+  if (this.Petrol_dip || this.Petrol_stock || this.Diesel_dip || this.Diesel_stock) {
+    // If any data exists, send 'edit' type and the data values
+    dataToSend.type = 'edit';
+    dataToSend.petroldip = this.Petrol_dip || null;
+    dataToSend.pvalue = this.Petrol_stock || null;
+    dataToSend.dieseldip = this.Diesel_dip || null;
+    dataToSend.dvalue = this.Diesel_stock || null;
+  } else {
+    // If all data values are null, send 'add' type only with date
+    dataToSend.type = 'add';
+    dataToSend.petroldip = this.Petrol_dip || null;
+    dataToSend.pvalue = this.Petrol_stock || null;
+    dataToSend.dieseldip = this.Diesel_dip || null;
+    dataToSend.dvalue = this.Diesel_stock || null;
+  }
+
+  // Open the dialog with the prepared data
+  const dialogRef = this.dialog.open(DipStockReportComponent, {
     width: '60%',
     height: '70%',
-    data: { date: this.use.getFormattedDate(this.reportDate),
-      petroldip: this.Petrol_dip,
-      pvalue: this.Petrol_stock,
-      dieseldip: this.Diesel_dip,
-      dvalue: this.Diesel_stock
-    }
-    
+    data: dataToSend
   });
   
   dialogRef.afterClosed().subscribe(result => {
@@ -451,10 +468,10 @@ getDiplist(){
   this.use.getDipList(formattedDate, this.userId).subscribe(
     (data) => {
       if (data && data.length > 0) {
-        this.Petrol_dip = data[0][2];
-        this.Petrol_stock = data[0][3];
-        this.Diesel_dip = data[0][0];
-        this.Diesel_stock = data[0][1];
+        this.Petrol_dip = data[0][2] ?? 0;
+        this.Petrol_stock = data[0][3] ?? 0;
+        this.Diesel_dip = data[0][0] ?? 0;
+        this.Diesel_stock = data[0][1] ?? 0;
       } else {
         this.Petrol_dip = 0;
         this.Petrol_stock = 0;
@@ -524,10 +541,10 @@ const dieselInputData = this.dieselPumps
   // this.use.savefuleData(petrolInputData,dieselInputData).subscribe({
   //   next: res => {
   //     if (res.message.includes('successfully')) {
-  //       this.notificationService.success("✅ " + res.message);
-  //   } else if (res.message.includes('already')){
-  //     this.notificationService.failure("⚠️ " + res.message);
-  // }
+  //       this.notificationService.success("✅" + res.message);
+  //     } else if (res.message.includes('already')){
+  //      this.notificationService.failure("⚠️" + res.message);
+  //     }
   //   }
   // });
 
@@ -535,26 +552,30 @@ const dieselInputData = this.dieselPumps
   //   next: res => {
   //     if (res.message.includes('successfully')) {
   //       this.notificationService.success("✅" + res.message);
-  //   } else if (res.message.includes('already')){
+  //     } else if (res.message.includes('already')){
   //       this.notificationService.failure("⚠️" + res.message);
-  //   }
+  //     }
   //   }
   // });
   
   // this.use.saveDieselStockData(this.userId,formattedDate,this.TotalDieselRemaining).subscribe({
   //   next: res => {
   //     if (res.message.includes('successfully')) {
-  //       this.notificationService.success("✅   " + res.message);
-  //    } else if (res.message.includes('already')){
+  //       this.notificationService.success("✅" + res.message);
+  //     } else if (res.message.includes('already')){
   //     this.notificationService.failure("⚠️" + res.message);
-  //    }
+  //     }
   //   }
   // });
   // this.saveTotalCase();
   this.sendData();
-}
+  }
 printReport() {
+  const originalTitle = document.title;
+  const formatted = this.use.getFormattedDate(this.reportDate);
+  document.title = `${this.PumpName} Report - ${formatted}`;
   window.print();
+  document.title = originalTitle;
 }
 
 saveTotalCase() { 
@@ -563,9 +584,9 @@ saveTotalCase() {
     next: res => {
       if (res.message.includes('successfully')) {
         this.notificationService.success("✅   " + res.message);
-     } else if (res.message.includes('already')){
-      this.notificationService.failure("⚠️" + res.message);
-     }
+      } else if (res.message.includes('already')){
+        this.notificationService.failure("⚠️" + res.message);
+      }
     }
   });
 }
@@ -603,18 +624,47 @@ sendData() {
       { value: 50, total: this.fifty, count: this.multipliers.fifty || 0 },
       { value: 20, total: this.twenty, count: this.multipliers.twenty || 0 },
       { value: 10, total: this.ten, count: this.multipliers.ten || 0 }
-    ]
+    ],
+    userId:this.userId
   };
   console.log("Sending Payload: ", payload);
   // this.use.saveMoneyDetails(payload).subscribe({
   //   next: res => {
   //     if (res.message.includes('successfully')) {
-  //       this.notificationService.success("✅   " + res.message);
+  //       this.notificationService.success("✅" + res.message);
   //    } else if (res.message.includes('already')){
   //     this.notificationService.failure("⚠️" + res.message);
   //    }
   //   }
   // });
+}
+downloadPDF() {
+  const data = document.getElementById('printable-content') as HTMLElement;
+  const formatted = this.use.getFormattedDate(this.reportDate);
+  html2canvas(data, { scale: 2 }).then(canvas => {
+    const imgWidth = 210; // A4 width in mm
+    const pageHeight = 297; // A4 height in mm
+    const imgHeight = (canvas.height * imgWidth) / canvas.width;
+    const contentDataURL = canvas.toDataURL('image/png');
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    
+    let position = 0;
+    if (imgHeight > pageHeight) {
+      // If content is taller than one page, loop through and add pages
+      let remainingHeight = imgHeight;
+      while (remainingHeight > 0) {
+        pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
+        remainingHeight -= pageHeight;
+        position -= pageHeight;
+        if (remainingHeight > 0) {
+          pdf.addPage();
+        }
+      }
+    } else {
+      pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
+    }
+    pdf.save(`${formatted}_Report.pdf`);
+  });
 }
 
 }
