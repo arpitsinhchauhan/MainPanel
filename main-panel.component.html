@@ -1,6 +1,5 @@
-
-<div class="main-content">
-  <div class="container-fluid" style="margin-top: -6%;">
+<div id="printable-content" class="main-content">
+  <div class="container-fluid" style="margin-top: -4%;">
 <div class="report-container">
   <div class="title">{{PumpName}}</div>
   <table>
@@ -40,13 +39,13 @@
       <!-- Petrol Rows -->
       <tr *ngFor="let petrol of petrolPumps; let i = index">
         <td>{{ petrol.name }}</td>
-        <td class="text"><input type="number" class="text" [(ngModel)]="petrol.closingMeter" (input)="calculatePetrol(i)" /></td>
-        <td class="text"><input type="number" class="text" [(ngModel)]="petrol.openingMeter" (input)="calculatePetrol(i)" /></td>
-        <td class="text"><input type="number" class="text" [(ngModel)]="petrol.testing" (input)="calculatePetrol(i)" /></td>
-        <td class="text"><input type="number" class="text" [(ngModel)]="petrol.rate" (input)="calculatePetrol(i)" /></td>
+        <td class="text"><input type="number" class="text" [(ngModel)]="petrol.closingMeter" (input)="calculatePetrol(i)" placeholder="0"/></td>
+        <td class="text"><input type="number" class="text" [(ngModel)]="petrol.openingMeter" (input)="calculatePetrol(i)" placeholder="0"/></td>
+        <td class="text"><input type="number" class="text" [(ngModel)]="petrol.testing" (input)="calculatePetrol(i)" placeholder="0"/></td>
+        <td class="text"><input type="number" class="text" [(ngModel)]="petrol.rate" (input)="calculatePetrol(i)" placeholder="0"/></td>
         <td><input type="number" [(ngModel)]="petrol.saleLtr" disabled /></td>
         <td colspan="2"><input type="number" [value]="petrol.saleLtr < 0 ? petrol.saleLtr * -1 : petrol.saleLtr" disabled /></td>
-        <td><input type="number" [(ngModel)]="petrol.total_rs" disabled /></td>
+        <td><input type="number" [(ngModel)]="petrol.total_rs" disabled placeholder="0"/></td>
       </tr>
       
   
@@ -60,10 +59,10 @@
       <!-- Diesel Rows -->
       <tr *ngFor="let diesel of dieselPumps; let i = index">
         <td>{{ diesel.name }}</td>
-        <td class="text"><input type="number" class="text" [(ngModel)]="diesel.closingMeter" (input)="calculateDiesel(i)" /></td>
-        <td class="text"><input type="number" class="text" [(ngModel)]="diesel.openingMeter" (input)="calculateDiesel(i)" /></td>
-        <td class="text"><input type="number" class="text" [(ngModel)]="diesel.testing" (input)="calculateDiesel(i)" /></td>
-        <td class="text"><input type="number" class="text" [(ngModel)]="diesel.rate" (input)="calculateDiesel(i)" /></td>
+        <td class="text"><input type="number" class="text" [(ngModel)]="diesel.closingMeter" (input)="calculateDiesel(i)" placeholder="0"/></td>
+        <td class="text"><input type="number" class="text" [(ngModel)]="diesel.openingMeter" (input)="calculateDiesel(i)" placeholder="0"/></td>
+        <td class="text"><input type="number" class="text" [(ngModel)]="diesel.testing" (input)="calculateDiesel(i)" placeholder="0"/></td>
+        <td class="text"><input type="number" class="text" [(ngModel)]="diesel.rate" (input)="calculateDiesel(i)" placeholder="0"/></td>
         <td><input type="number" [(ngModel)]="diesel.saleLtr" disabled /></td>
         <td colspan="2"><input type="number" [value]="diesel.saleLtr < 0 ? diesel.saleLtr * -1 : diesel.saleLtr" disabled /></td>
         <td><input type="number" [(ngModel)]="diesel.total_rs" disabled /></td>
@@ -89,7 +88,7 @@
     <tr>
       <td>2000</td>
       <td>
-        <input type="number" [(ngModel)]="multipliers.twothousand" (input)="calculateTotal()" placeholder="Enter value" />
+        <input type="number" [(ngModel)]="multipliers.twothousand" (input)="calculateTotal()" placeholder="0" />
       </td>
       <td>{{ twothousand | number:'1.2-2' }}</td>
       <td colspan="2" rowspan="8">
@@ -103,7 +102,7 @@
     <tr>
       <td>500</td>
       <td>
-        <input type="number" [(ngModel)]="multipliers.fivehundred" (input)="calculateTotal()" placeholder="Enter value" />
+        <input type="number" [(ngModel)]="multipliers.fivehundred" (input)="calculateTotal()" placeholder="0" />
       </td>
       <td>{{ fivehundred | number:'1.2-2' }}</td>
       <td colspan="2">Lube Oil Rs</td>
@@ -112,7 +111,7 @@
     <tr>
       <td>200</td>
       <td>
-        <input type="number" [(ngModel)]="multipliers.twohundred" (input)="calculateTotal()" placeholder="Enter value" />
+        <input type="number" [(ngModel)]="multipliers.twohundred" (input)="calculateTotal()" placeholder="0" />
       </td>
       <td>{{ twohundred | number:'1.2-2' }}</td>
       <td colspan="2">ATM & Wallet</td>
@@ -121,7 +120,7 @@
     <tr>
       <td>100</td>
       <td>
-        <input type="number" [(ngModel)]="multipliers.onehundred" (input)="calculateTotal()" placeholder="Enter value" />
+        <input type="number" [(ngModel)]="multipliers.onehundred" (input)="calculateTotal()" placeholder="0" />
       </td>
       <td>{{ onehundred | number:'1.2-2' }}</td>
       <td colspan="2">Indirect Expenses</td>
@@ -130,7 +129,7 @@
     <tr>
       <td>50</td>
       <td>
-        <input type="number" [(ngModel)]="multipliers.fifty" (input)="calculateTotal()" placeholder="Enter value" />
+        <input type="number" [(ngModel)]="multipliers.fifty" (input)="calculateTotal()" placeholder="0" />
       </td>
       <td>{{ fifty | number:'1.2-2' }}</td>
       <td colspan="2">Bill Jama Rs</td>
@@ -139,7 +138,7 @@
     <tr>
       <td>20</td>
       <td>
-        <input type="number" [(ngModel)]="multipliers.twenty" (input)="calculateTotal()" placeholder="Enter value" />
+        <input type="number" [(ngModel)]="multipliers.twenty" (input)="calculateTotal()" placeholder="0" />
       </td>
       <td>{{ twenty | number:'1.2-2' }}</td>
       <td colspan="2">Petrol Purchase LTR</td>
@@ -148,7 +147,7 @@
     <tr>
       <td>10</td>
       <td>
-        <input type="number" [(ngModel)]="multipliers.ten" (input)="calculateTotal()" placeholder="Enter value" />
+        <input type="number" [(ngModel)]="multipliers.ten" (input)="calculateTotal()" placeholder="0" />
       </td>
       <td>{{ ten | number:'1.2-2' }}</td>
       <td colspan="2">Diesel Purchase LTR</td>
@@ -224,12 +223,13 @@
     </table>
 
     <table>
-      <tr (click)="dipstock()"><td>Petrol Dip</td><td class="clickText">{{Petrol_dip}}</td>
+      <tr (click)="dipstock()"><td>Petrol Dip</td><td class="clickText" > {{Petrol_dip }}</td>
       <td>DIP PETROL Stock</td><td class="clickText">{{Petrol_stock}}</td></tr>
       <tr><td>Diesel Dip</td><td class="clickText">{{Diesel_dip}}</td>     
       <td>DIP DIESEL Stock</td><td class="clickText">{{Diesel_stock}}</td></tr>
     </table>
     <div class="button-container">
+      <button mat-raised-button type="button" class="btn btn-danger pull-right" (click)="downloadPDF()">Download PDF</button>
       <button mat-raised-button type="button" class="btn btn-danger pull-right" (click)="printReport()">Print</button>
       <button  mat-raised-button  type="button" class="btn btn-danger pull-right"  (click)="Submit()">Save</button>
     </div>
