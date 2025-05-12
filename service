@@ -414,3 +414,35 @@ export const API_TOTAL_DIESEL_STOCK: string = `${prefix}/portal/api/totalDieselS
                     .body(new ApiResponse("Diesel stock for this date already exists."));
         }
     }
+
+///////////////////////////
+if (data) {
+    this.purchaDipStockseDetails = { ...data };
+    this.pdip = data.petroldip;
+    this.pvalue = data.pvalue;
+    this.dieseldip = data.dieseldip;
+    this.dvalue = data.dvalue;
+
+    // Check if all values are null to set type
+    if (data.petroldip === null && data.pvalue === null && data.dieseldip === null && data.dvalue === null) {
+      data.type = 'add';  // Set type to 'add' if no values exist
+    } else if(data){
+      data.type = 'edit';  // Set type to 'edit' if there is data
+    }
+  }
+    <button 
+    mat-raised-button 
+    (click)="logData()" 
+    *ngIf="data?.type === 'add'" 
+    class="btn btn-danger pull-right">
+    Add
+  </button>
+  
+  <button 
+    mat-raised-button 
+    type="button" 
+    class="btn btn-danger pull-right" 
+    *ngIf="data?.type === 'edit'" 
+    (click)="Edit(purchaDipStockseDetails)">
+    Edit
+  </button>
