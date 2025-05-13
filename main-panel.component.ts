@@ -98,6 +98,7 @@ export class MainPanelComponent implements OnInit {
     this.getJamaBakilist();
     this.getPurchaselist();
     this.getDiplist();
+    this.getMoneyDetailsList();
   }
   
 
@@ -133,12 +134,12 @@ export class MainPanelComponent implements OnInit {
   getPetrolStock(date: string, userId: string) {
     this.use.getPetrolList(date, userId).subscribe((data: any[]) => {
       this.petrolPumps.forEach(pump => {
-        pump.openingMeter = 0;
-        pump.closingMeter = 0;
+        pump.openingMeter = null;
+        pump.closingMeter = null;
         pump.saleLtr = 0;
-        pump.testing = 0;
+        pump.testing = null;
         pump.ltr = 0;
-        pump.rate = 0;
+        pump.rate = null;
         pump.total_rs = 0;
       });
   
@@ -150,6 +151,7 @@ export class MainPanelComponent implements OnInit {
           pump.testing = +item.testing;
           pump.saleLtr = pump.closingMeter - pump.openingMeter;
           pump.rate = +item.rate; 
+          pump.ltr = +item.petrol_ltr; 
           pump.total_rs = pump.saleLtr * pump.rate;    
         }
       });
@@ -163,12 +165,12 @@ export class MainPanelComponent implements OnInit {
   
       // Reset dieselPumps array before mapping new data
       this.dieselPumps.forEach(pump => {
-        pump.openingMeter = 0;
-        pump.closingMeter = 0;
+        pump.openingMeter = null;
+        pump.closingMeter = null;
         pump.saleLtr = 0;
-        pump.testing = 0;
+        pump.testing = null;
         pump.ltr = 0;
-        pump.rate = 0;
+        pump.rate =null;
         pump.total_rs = 0;
       });
   
@@ -180,7 +182,8 @@ export class MainPanelComponent implements OnInit {
           pump.closingMeter = +item.close_meter;
           pump.testing = +item.testing;
           pump.saleLtr = pump.closingMeter - pump.openingMeter;
-          pump.rate = +item.rate; // Assuming `rate` is in your response
+          pump.rate = +item.rate; 
+          pump.ltr = +item.diesel_ltr; 
           pump.total_rs = pump.saleLtr * pump.rate;
         }
       });
@@ -189,10 +192,10 @@ export class MainPanelComponent implements OnInit {
   }
 
   calculateTotals() {
-    this.petrolTotalLTR = this.petrolPumps.reduce((sum, p) => sum + p.saleLtr, 0);
+    this.petrolTotalLTR = this.petrolPumps.reduce((sum, p) => sum + p.ltr, 0);
     this.petrolTotalRS = this.petrolPumps.reduce((sum, p) => sum + p.total_rs, 0);
   
-    this.dieselTotalLTR = this.dieselPumps.reduce((sum, p) => sum + p.saleLtr, 0);
+    this.dieselTotalLTR = this.dieselPumps.reduce((sum, p) => sum + p.ltr, 0);
     this.dieselTotalRS = this.dieselPumps.reduce((sum, p) => sum + p.total_rs, 0);
     this.totalRs = this.petrolTotalRS + this.dieselTotalRS;
   }
@@ -508,34 +511,78 @@ get TotalDieselRemaining(): number {
 
 Submit() {
   const formattedDate = this.use.getFormattedDate(this.reportDate);
-  const petrolInputData = this.petrolPumps
-  .filter(p => !(p.openingMeter === 0 && p.closingMeter === 0 && p.testing === 0 && p.rate === 0 && p.saleLtr === 0 && p.total_rs === 0 && p.ltr === 0))
+//   const petrolInputData = this.petrolPumps
+//   .filter(p => !(p.openingMeter === 0 && p.closingMeter === 0 && p.testing === 0 && p.rate === 0 && p.saleLtr === 0 && p.total_rs === 0 && p.ltr === 0))
+//   .map(p => ({
+//     date: String(this.use.getFormattedDate(this.reportDate)),      
+//     user_id: String(this.userId),                                  
+//     pump: String(p.name),                                          
+//     open_meter: String(p.openingMeter),                            
+//     close_meter: String(p.closingMeter),                           
+//     testing: String(p.testing),                                    
+//     rate: String(p.rate),                                          
+//     petrol_ltr: String(p.saleLtr),                                      
+//     total_sell: String(p.total_rs),                                
+//     total: String(p.ltr)                                      
+//   }));
+
+// const dieselInputData = this.dieselPumps
+//   .filter(d => !(d.openingMeter === 0 && d.closingMeter === 0 && d.testing === 0 && d.rate === 0 && d.saleLtr === 0 && d.total_rs === 0 && d.ltr === 0))
+//   .map(d => ({
+//     date: String(this.use.getFormattedDate(this.reportDate)),     
+//     user_id: String(this.userId),                                 
+//     pump: String(d.name),                                         
+//     open_meter: String(d.openingMeter),                           
+//     close_meter: String(d.closingMeter),                          
+//     testing: String(d.testing),                                   
+//     rate: String(d.rate),                                         
+//     diesel_ltr: String(d.saleLtr),                                     
+//     total_sell: String(d.total_rs),                               
+//     total: String(d.ltr)                                     
+//   }));
+const petrolInputData = this.petrolPumps
+  .filter(p => !(
+    (p.openingMeter === 0 || p.openingMeter === null) && 
+    (p.closingMeter === 0 || p.closingMeter === null) && 
+    (p.testing === 0 || p.testing === null) && 
+    (p.rate === 0 || p.rate === null) && 
+    (p.saleLtr === 0 || p.saleLtr === null) && 
+    (p.total_rs === 0 || p.total_rs === null) && 
+    (p.ltr === 0 || p.ltr === null)
+  ))
   .map(p => ({
     date: String(this.use.getFormattedDate(this.reportDate)),      
     user_id: String(this.userId),                                  
     pump: String(p.name),                                          
-    open_meter: String(p.openingMeter),                            
-    close_meter: String(p.closingMeter),                           
-    testing: String(p.testing),                                    
-    rate: String(p.rate),                                          
-    petrol_ltr: String(p.saleLtr),                                      
-    total_sell: String(p.total_rs),                                
-    total: String(p.ltr)                                      
+    open_meter: p.openingMeter !== null ? String(p.openingMeter) : '',                            
+    close_meter: p.closingMeter !== null ? String(p.closingMeter) : '',                           
+    testing: p.testing !== null ? String(p.testing) : '',                                    
+    rate: p.rate !== null ? String(p.rate) : '',                                          
+    petrol_ltr: p.saleLtr !== null ? String(p.saleLtr) : '',                                      
+    total_sell: p.total_rs !== null ? String(p.total_rs) : '',                                
+    total: p.ltr !== null ? String(p.ltr) : ''                                     
   }));
-
-const dieselInputData = this.dieselPumps
-  .filter(d => !(d.openingMeter === 0 && d.closingMeter === 0 && d.testing === 0 && d.rate === 0 && d.saleLtr === 0 && d.total_rs === 0 && d.ltr === 0))
+  const dieselInputData = this.dieselPumps
+  .filter(d => !(
+    (d.openingMeter === 0 || d.openingMeter === null) && 
+    (d.closingMeter === 0 || d.closingMeter === null) && 
+    (d.testing === 0 || d.testing === null) && 
+    (d.rate === 0 || d.rate === null) && 
+    (d.saleLtr === 0 || d.saleLtr === null) && 
+    (d.total_rs === 0 || d.total_rs === null) && 
+    (d.ltr === 0 || d.ltr === null)
+  ))
   .map(d => ({
     date: String(this.use.getFormattedDate(this.reportDate)),     
     user_id: String(this.userId),                                 
     pump: String(d.name),                                         
-    open_meter: String(d.openingMeter),                           
-    close_meter: String(d.closingMeter),                          
-    testing: String(d.testing),                                   
-    rate: String(d.rate),                                         
-    diesel_ltr: String(d.saleLtr),                                     
-    total_sell: String(d.total_rs),                               
-    total: String(d.ltr)                                     
+    open_meter: d.openingMeter !== null ? String(d.openingMeter) : '',                           
+    close_meter: d.closingMeter !== null ? String(d.closingMeter) : '',                          
+    testing: d.testing !== null ? String(d.testing) : '',                                   
+    rate: d.rate !== null ? String(d.rate) : '',                                         
+    diesel_ltr: d.saleLtr !== null ? String(d.saleLtr) : '',                                     
+    total_sell: d.total_rs !== null ? String(d.total_rs) : '',                               
+    total: d.ltr !== null ? String(d.ltr) : ''                                     
   }));
 
   // this.use.savefuleData(petrolInputData,dieselInputData).subscribe({
@@ -613,30 +660,32 @@ calculateTotal() {
 }
 
 sendData() {
+  const formatted = this.use.getFormattedDate(this.reportDate);
   const payload = {
+    date: formatted,
     note: this.note,
     totalCaseCase: this.totalCaseCase,
     denominations: [
-      { value: 2000, total: this.twothousand, count: this.multipliers.twothousand || 0 },
-      { value: 500, total: this.fivehundred, count: this.multipliers.fivehundred || 0 },
-      { value: 200, total: this.twohundred, count: this.multipliers.twohundred || 0 },
-      { value: 100, total: this.onehundred, count: this.multipliers.onehundred || 0 },
-      { value: 50, total: this.fifty, count: this.multipliers.fifty || 0 },
-      { value: 20, total: this.twenty, count: this.multipliers.twenty || 0 },
-      { value: 10, total: this.ten, count: this.multipliers.ten || 0 }
+      { value: 'twothousand', total: this.twothousand, count: this.multipliers.twothousand || 0 },
+      { value: 'fivehundred', total: this.fivehundred, count: this.multipliers.fivehundred || 0 },
+      { value: 'twohundred', total: this.twohundred, count: this.multipliers.twohundred || 0 },
+      { value: 'onehundred', total: this.onehundred, count: this.multipliers.onehundred || 0 },
+      { value: 'fifty',total: this.fifty, count: this.multipliers.fifty || 0 },
+      { value: 'twenty',total: this.twenty, count: this.multipliers.twenty || 0 },
+      { value: 'ten',total: this.ten, count: this.multipliers.ten || 0 }
     ],
     userId:this.userId
   };
   console.log("Sending Payload: ", payload);
-  // this.use.saveMoneyDetails(payload).subscribe({
-  //   next: res => {
-  //     if (res.message.includes('successfully')) {
-  //       this.notificationService.success("✅" + res.message);
-  //    } else if (res.message.includes('already')){
-  //     this.notificationService.failure("⚠️" + res.message);
-  //    }
-  //   }
-  // });
+  this.use.saveMoneyDetails(payload).subscribe({
+    next: res => {
+      if (res.message.includes('successfully')) {
+        this.notificationService.success("✅" + res.message);
+     } else if (res.message.includes('already')){
+      this.notificationService.failure("⚠️" + res.message);
+     }
+    }
+  });
 }
 downloadPDF() {
   const data = document.getElementById('printable-content') as HTMLElement;
@@ -650,7 +699,6 @@ downloadPDF() {
     
     let position = 0;
     if (imgHeight > pageHeight) {
-      // If content is taller than one page, loop through and add pages
       let remainingHeight = imgHeight;
       while (remainingHeight > 0) {
         pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
@@ -667,4 +715,25 @@ downloadPDF() {
   });
 }
 
+
+getMoneyDetailsList(){
+  const formattedDate = this.use.getFormattedDate(this.reportDate);
+  this.use.getMoneyList(formattedDate, this.userId).subscribe(
+    (data) => {
+      this.note=data[0].note;
+    this.totalCaseCase=data[0].totalCase;
+    this.multipliers.twothousand = data[0].twothousand;
+    this.multipliers.fivehundred = data[0].fivehundred;
+    this.multipliers.twohundred = data[0].twohundred;
+    this.multipliers.onehundred = data[0].onehundred;
+    this.multipliers.fifty = data[0].fifty;
+    this.multipliers.twenty = data[0].twenty;
+    this.multipliers.ten = data[0].ten;
+    this.calculateTotal();
+    },
+    (error) => {
+      this.notificationService.failure("Failed to fetch Purchase data.");
+    }
+  );
+}
 }
