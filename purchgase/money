@@ -237,3 +237,7 @@ export const API_MONEY_LIST: string = `${prefix}/portal/api/moneyDetailsList`;
         List<moneyDetails> moneyDetails = MoneyDetailsRepository.findByDateAndUserId(date,userId);
         return moneyDetails;
     }
+
+
+
+id	`date`	twothousand	fivehundred	twohundred	onehundred	fifty	twenty	ten	note	user_id	total_case
