@@ -1,0 +1,239 @@
+///////////////////////////////////
+export class PurchaseReportComponent implements OnInit {
+
+  isReload: boolean;
+  // userId: string;
+  userId = localStorage.getItem('userId');
+  row = [
+    {
+      type: 'Petrol',
+      quantity: '',
+      total: '',
+      vat: '',
+      cess: '',
+      total_purchase: '',
+      jtcpercentage: '',
+      date: '',
+      userId:this.userId
+    },
+    {
+      type: 'Diesel',
+      quantity: '',
+      total: '',
+      vat: '',
+      cess: '',
+      total_purchase: '',
+      jtcpercentage: "",
+      date: '',
+      userId:this.userId
+    }
+  ];
+
+  constructor(@Inject(MAT_DIALOG_DATA) public data: any,
+    private http: HttpClient,
+    private use: UserServiceService, @Inject(MAT_DIALOG_DATA) public purchase: any,
+    public dialogRef: MatDialogRef<PurchaseReportComponent>,
+    private notificationService: NotificationService) {
+  }
+  ngOnInit(): void {
+    if (this.purchase && this.purchase.date) {
+      this.purchaDipStockseDetails.date = this.purchase.date;
+    }
+  }
+
+  updateDate() {
+    // Update the date field in each row with the selected date
+    this.row.forEach(row => {
+      row.date = this.purchaDipStockseDetails.date;
+    });
+  }
+  purchaDipStockseDetails = {
+    date: ''
+  };
+
+
+  
+
+  addTable() {
+    this.row.push({
+      type: '',
+      quantity: '',
+      total: '',
+      vat: '',
+      cess: '',
+      total_purchase: '',
+      jtcpercentage: '',
+      date: this.purchaDipStockseDetails.date || '',
+      userId:this.userId
+    });
+  }
+
+  deleteRow(index: number) {
+    this.row.splice(index, 1);
+    this.notificationService.success('Purchase Data Succefully Delete.');
+  }
+
+  totalPrice() {
+    return this.row.reduce((acc, item) => acc + (parseFloat(item.total_purchase) || 0), 0);
+}
+
+  validateData(): boolean {
+    if (!this.purchaDipStockseDetails.date) {
+      this.notificationService.failure('Date is required.');
+      return false;
+    }
+    for (let item of this.row) {
+      if (!this.isNumber(item.quantity) || !this.isNumber(item.total) || !this.isNumber(item.vat) || !this.isNumber(item.cess) || !this.isNumber(item.jtcpercentage) || !this.isNumber(item.total_purchase)) {
+        this.notificationService.failure("All numeric fields must contain valid numbers.");
+        return false;
+      }
+      if (!item.type) {
+        this.notificationService.failure('Type field is required.');
+        return false;
+      }
+    }
+    return true;
+  }
+
+  order() {
+    if (!this.validateData()) {
+      return;
+    }
+    this.row.forEach(row => {
+      row.date = this.purchaDipStockseDetails.date;
+    });
+  
+    this.http.post<any>(API_PURCHASE_ADD, this.row)
+      .subscribe(response => {
+        if (response.length === 0) {
+          this.notificationService.failure("No data received from the server.");
+          this.row = [];
+          this.dialogRef.close();
+          return;
+        }
+        this.notificationService.success("Purchase data Succefully Add");
+        this.purchaDipStockseDetails.date = null;
+        this.row = [];
+        this.dialogRef.close();
+      });
+  }
+
+  Edit(purchaseDetails: any) {
+    // singupobj.ID=this.x.id;
+    this.use.getUpdatePurchase(purchaseDetails).subscribe(
+      (response) => {
+        this.notificationService.success('Purchase data updated successfully');
+      },
+      (error) => {
+        console.error('Error updating society data:', error);
+      }
+    );
+    location.reload();
+  }
+  isNumber(value: any): boolean {
+    return !isNaN(value) && value !== '';
+  }
+
+  cancel() {
+    this.dialogRef.close({ 'isReload': this.isReload });
+  }
+}
+
+
+/////////////////////////////////////////
+ saveMoneyDetails(payload: any): Observable<any> {
+      return this.http.post<any>(API_MONEY_DETAILS, payload);
+    }
+  
+    getMoneyList(date: string, userId: string):Observable<any> {
+      const params = new HttpParams()
+        .set('date', date)
+        .set('userId', userId);
+  
+      return this.http.get<any>(API_MONEY_LIST, { params }); 
+    }
+export const API_MONEY_DETAILS: string = `${prefix}/portal/api/moneyDetails`;
+export const API_MONEY_LIST: string = `${prefix}/portal/api/moneyDetailsList`;
+
+/// @PostMapping("/moneyDetails")
+    public ResponseEntity<ApiResponse> saveOrUpdateMoneyDetails(@RequestBody MoneyDetailsDto dto) {
+        try {
+            moneyDetails moneyDetails = MoneyDetailsRepository.findByDate(dto.getDate()).orElse(new moneyDetails());
+            moneyDetails.setNote(dto.getNote());
+            moneyDetails.setUserId(dto.getUserId());
+            moneyDetails.setDate(dto.getDate());
+            moneyDetails.setTotalCase(dto.getTotalCaseCase());
+            moneyDetails.setTwothousand(0);
+            moneyDetails.setFivehundred(0);
+            moneyDetails.setTwohundred(0);
+            moneyDetails.setOnehundred(0);
+            moneyDetails.setFifty(0);
+            moneyDetails.setTwenty(0);
+            moneyDetails.setTen(0);
+            for (MoneyDetailsDto.Denomination denomination : dto.getDenominations()) {
+                if (denomination.getTotal().equals(denomination.getCount() * getValue(denomination.getValue()))) {
+                    switch (denomination.getValue()) {
+                        case "twothousand":
+                            moneyDetails.setTwothousand(denomination.getCount());
+                            break;
+                        case "fivehundred":
+                            moneyDetails.setFivehundred(denomination.getCount());
+                            break;
+                        case "twohundred":
+                            moneyDetails.setTwohundred(denomination.getCount());
+                            break;
+                        case "onehundred":
+                            moneyDetails.setOnehundred(denomination.getCount());
+                            break;
+                        case "fifty":
+                            moneyDetails.setFifty(denomination.getCount());
+                            break;
+                        case "twenty":
+                            moneyDetails.setTwenty(denomination.getCount());
+                            break;
+                        case "ten":
+                            moneyDetails.setTen(denomination.getCount());
+                            break;
+                        default:
+                            throw new IllegalArgumentException("Invalid denomination: " + denomination.getValue());
+                    }
+                } else {
+                    throw new IllegalArgumentException("❌ Total amount does not match value * count for " + denomination.getValue());
+                }
+            }
+
+            MoneyDetailsRepository.save(moneyDetails);
+
+            String message = moneyDetails.getId() == null ? "Data added successfully" : "Data updated successfully";
+            return ResponseEntity.ok(new ApiResponse("✅ " + message));
+        } catch (Exception e) {
+            return ResponseEntity.ok(new ApiResponse("❌ Error saving data: " + e.getMessage()));
+        }
+    }
+
+    private int getValue(String denomination) {
+        switch (denomination) {
+            case "twothousand":
+                return 2000;
+            case "fivehundred":
+                return 500;
+            case "twohundred":
+                return 200;
+            case "onehundred":
+                return 100;
+            case "fifty":
+                return 50;
+            case "twenty":
+                return 20;
+            case "ten":
+                return 10;
+            default:
+                throw new IllegalArgumentException("Invalid denomination: " + denomination);
+        }
+    }
+
+    @GetMapping(value = "/moneyDetailsList")
+    public List<moneyDetails> getmoneyDetailsList(@RequestParam String date,@RequestParam String userId) {
+        List<moneyDetails> moneyDetails = MoneyDetailsRepository.findByDateAndUserId(date,userId);
+        return moneyDetails;
+    }
