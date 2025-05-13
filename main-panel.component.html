@@ -1,6 +1,6 @@
-<div id="printable-content" class="main-content">
-  <div class="container-fluid" style="margin-top: -4%;">
-<div class="report-container">
+<div  class="main-content">
+  <div class="container-fluid" style="margin-top: -6%;" id="printable-content">
+  <div class="report-container">
   <div class="title">{{PumpName}}</div>
   <table>
     <tr>
@@ -44,7 +44,7 @@
         <td class="text"><input type="number" class="text" [(ngModel)]="petrol.testing" (input)="calculatePetrol(i)" placeholder="0"/></td>
         <td class="text"><input type="number" class="text" [(ngModel)]="petrol.rate" (input)="calculatePetrol(i)" placeholder="0"/></td>
         <td><input type="number" [(ngModel)]="petrol.saleLtr" disabled /></td>
-        <td colspan="2"><input type="number" [value]="petrol.saleLtr < 0 ? petrol.saleLtr * -1 : petrol.saleLtr" disabled /></td>
+        <td colspan="2"><input type="number" [value]="petrol.ltr < 0 ? petrol.ltr * -1 : petrol.ltr" disabled /></td>
         <td><input type="number" [(ngModel)]="petrol.total_rs" disabled placeholder="0"/></td>
       </tr>
       
@@ -64,7 +64,7 @@
         <td class="text"><input type="number" class="text" [(ngModel)]="diesel.testing" (input)="calculateDiesel(i)" placeholder="0"/></td>
         <td class="text"><input type="number" class="text" [(ngModel)]="diesel.rate" (input)="calculateDiesel(i)" placeholder="0"/></td>
         <td><input type="number" [(ngModel)]="diesel.saleLtr" disabled /></td>
-        <td colspan="2"><input type="number" [value]="diesel.saleLtr < 0 ? diesel.saleLtr * -1 : diesel.saleLtr" disabled /></td>
+        <td colspan="2"><input type="number" [value]="diesel.ltr < 0 ? diesel.ltr * -1 : diesel.ltr" disabled /></td>
         <td><input type="number" [(ngModel)]="diesel.total_rs" disabled /></td>
       </tr>
       
@@ -233,6 +233,6 @@
       <button mat-raised-button type="button" class="btn btn-danger pull-right" (click)="printReport()">Print</button>
       <button  mat-raised-button  type="button" class="btn btn-danger pull-right"  (click)="Submit()">Save</button>
     </div>
-    </div>
+    </div>                  
   </div>
 </div>
