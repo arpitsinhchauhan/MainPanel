@@ -240,3 +240,37 @@ export const API_MONEY_LIST: string = `${prefix}/portal/api/moneyDetailsList`;
 
 
 id	`date`	twothousand	fivehundred	twohundred	onehundred	fifty	twenty	ten	note	user_id	total_case
+public class moneyDetails {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+ @Column(name = "date")
+    private String date;
+
+    @Column(name = "twothousand")
+    private Integer twothousand;@Column(name = "fivehundred")
+    private Integer fivehundred;
+
+    @Column(name = "twohundred")
+    private Integer twohundred;
+@Column(name = "onehundred")
+    private Integer onehundred;
+
+    @Column(name = "fifty")
+    private Integer fifty;
+
+    @Column(name = "twenty")
+    private Integer twenty;
+
+    @Column(name = "ten")
+    private Integer ten;
+
+    @Column(name = "note")
+    private String note;
+
+    @Column(name = "total_case")
+    private Integer totalCase;
+
+    @Column(name = "user_id")
+    private String userId;
