@@ -10,6 +10,21 @@ import { DipStockReportComponent } from '../dip-stock/dip-stock-report/dip-stock
 import { NotificationService } from 'app/services/notification.service';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { BackPageComponent } from '../back-page/back-page.component';
+import { API_BACKPAGE } from 'app/serviceult';
+import { HttpClient } from '@angular/common/http';
+
+
+interface BackPageResponse {
+  purchaseSellSummary: any;
+  petrolSellSummary: any;
+  dieselSellSummary: any;
+  oilSellSummary: any;
+  kharchSellSummary: [string, string][];
+  transactionSellSummary: [string, string][];
+  jamaSummary: [string, number][];
+  bakiSummary: [string, number][];
+}
 
 
 @Component({
@@ -19,7 +34,14 @@ import html2canvas from 'html2canvas';
 })
 export class MainPanelComponent implements OnInit {
 
-  reportDate:any; 
+  kharchSellSummary: any[];
+  transactionSellSummary: any[];
+  jamaSummary: [string, number][] = [];
+  bakiSummary: [string, number][] = [];
+  firstTableData: [string, number][] = [];
+  secondTableData: [string, number][] = [];
+
+  reportDate: any; 
   userId = localStorage.getItem('userId');
 
   currentTime: string = '';
@@ -74,7 +96,7 @@ export class MainPanelComponent implements OnInit {
 
   twothousand = 0;
   fivehundred = 0;
-  twohundred = 0;
+  twohundred =  0;
   onehundred = 0;
   fifty = 0;
   twenty = 0;
@@ -83,7 +105,7 @@ export class MainPanelComponent implements OnInit {
   note : String = '';
 
   constructor(private dialog: MatDialog,private use:UserServiceService,
-    private notificationService:NotificationService
+    private notificationService:NotificationService, private http: HttpClient
   ) {}
 
   showSelectedDate() {
@@ -99,6 +121,7 @@ export class MainPanelComponent implements OnInit {
     this.getPurchaselist();
     this.getDiplist();
     this.getMoneyDetailsList();
+    this.backPage();
   }
   
 
@@ -149,10 +172,10 @@ export class MainPanelComponent implements OnInit {
           pump.openingMeter = +item.open_meter;
           pump.closingMeter = +item.close_meter;
           pump.testing = +item.testing;
-          pump.saleLtr = pump.closingMeter - pump.openingMeter;
+          pump.saleLtr = +item.petrol_ltr;
           pump.rate = +item.rate; 
-          pump.ltr = +item.petrol_ltr; 
-          pump.total_rs = pump.saleLtr * pump.rate;    
+          pump.ltr = +item.total; 
+          pump.total_rs = +item.total_sell;    
         }
       });
       this.calculateTotals();
@@ -181,10 +204,10 @@ export class MainPanelComponent implements OnInit {
           pump.openingMeter = +item.open_meter;
           pump.closingMeter = +item.close_meter;
           pump.testing = +item.testing;
-          pump.saleLtr = pump.closingMeter - pump.openingMeter;
+          pump.saleLtr = +item.diesel_ltr ;
           pump.rate = +item.rate; 
-          pump.ltr = +item.diesel_ltr; 
-          pump.total_rs = pump.saleLtr * pump.rate;
+          pump.ltr = +item.total; 
+          pump.total_rs = +item.total_sell;
         }
       });
       this.calculateTotals();
@@ -251,14 +274,18 @@ updateTotalRs() {
 
 openOilsellBakComponent(): void {
   const formattedDate = this.use.getFormattedDate(this.reportDate);
-  const dialogRef = this.dialog.open(OilReportComponent, {
-    width: '60%',
-    height: '70%',
-    data: { date: formattedDate }
-  });
-  dialogRef.afterClosed().subscribe(result => {
-    this.getoillist();
-  });
+  if (this.reportDate) {
+    const dialogRef = this.dialog.open(OilReportComponent, {
+      width: '60%',
+      height: '70%',
+      data: { date: formattedDate }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      this.getoillist();
+    });
+  } else {
+    this.notificationService.failure("Select the Date ?");
+  }
 }
 
 getoillist(){
@@ -287,6 +314,7 @@ openAtmBakComponent(){
   });
   dialogRef.afterClosed().subscribe(result => {
     this.getTransactionlist();
+    this.backPage();
   });
 }
 
@@ -314,6 +342,7 @@ openKharchComponent(){
   });
   dialogRef.afterClosed().subscribe(result => {
     this.getKharchlist();
+    this.backPage();
     // this.use.getKharchList(this.use.getFormattedDate(this.reportDate), this.userId).subscribe(
     //   data => {
     //     this.kharchTotal=data[0];
@@ -346,6 +375,7 @@ openJamaBakiComponent(){
   });
   dialogRef.afterClosed().subscribe(result => {
     this.getJamaBakilist();
+    this.backPage();
     // this.use.getJamaBakiList(this.use.getFormattedDate(this.reportDate), this.userId).subscribe(
     //   data => {
     //     this.jamaTotal = data[0][0];
@@ -407,8 +437,8 @@ getPurchaselist(){
   this.use.getPurchaseiList(formattedDate, this.userId).subscribe(
     (data) => {
       if (data && data.length > 0) {
-        this.petolQuantity = data[0] ?? 0;
-        this.dieselQuantity = data[1] ?? 0;
+        this.petolQuantity = data[1] ?? 0;
+        this.dieselQuantity = data[0] ?? 0;
       } else {
         this.petolQuantity = 0;
         this.dieselQuantity = 0;
@@ -585,42 +615,42 @@ const petrolInputData = this.petrolPumps
     total: d.ltr !== null ? String(d.ltr) : ''                                     
   }));
 
-  // this.use.savefuleData(petrolInputData,dieselInputData).subscribe({
-  //   next: res => {
-  //     if (res.message.includes('successfully')) {
-  //       this.notificationService.success("✅" + res.message);
-  //     } else if (res.message.includes('already')){
-  //      this.notificationService.failure("⚠️" + res.message);
-  //     }
-  //   }
-  // });
+  this.use.savefuleData(petrolInputData,dieselInputData).subscribe({
+    next: res => {
+      if (res.message.includes('successfully')) {
+        this.notificationService.success("✅" + res.message);
+      } else if (res.message.includes('already')){
+       this.notificationService.failure("⚠️" + res.message);
+      }
+    }
+  });
 
-  // this.use.savePetrolStockData(this.userId,formattedDate,this.TotalPetrolRemaining).subscribe({
-  //   next: res => {
-  //     if (res.message.includes('successfully')) {
-  //       this.notificationService.success("✅" + res.message);
-  //     } else if (res.message.includes('already')){
-  //       this.notificationService.failure("⚠️" + res.message);
-  //     }
-  //   }
-  // });
+  this.use.savePetrolStockData(this.userId,formattedDate,this.TotalPetrolRemaining).subscribe({
+    next: res => {
+      if (res.message.includes('successfully')) {
+        this.notificationService.success("✅" + res.message);
+      } else if (res.message.includes('already')){
+        this.notificationService.failure("⚠️" + res.message);
+      }
+    }
+  });
   
-  // this.use.saveDieselStockData(this.userId,formattedDate,this.TotalDieselRemaining).subscribe({
-  //   next: res => {
-  //     if (res.message.includes('successfully')) {
-  //       this.notificationService.success("✅" + res.message);
-  //     } else if (res.message.includes('already')){
-  //     this.notificationService.failure("⚠️" + res.message);
-  //     }
-  //   }
-  // });
-  // this.saveTotalCase();
+  this.use.saveDieselStockData(this.userId,formattedDate,this.TotalDieselRemaining).subscribe({
+    next: res => {
+      if (res.message.includes('successfully')) {
+        this.notificationService.success("✅" + res.message);
+      } else if (res.message.includes('already')){
+      this.notificationService.failure("⚠️" + res.message);
+      }
+    }
+  });
+  this.saveTotalCase();
   this.sendData();
   }
 printReport() {
   const originalTitle = document.title;
   const formatted = this.use.getFormattedDate(this.reportDate);
-  document.title = `${this.PumpName} Report - ${formatted}`;
+  document.title = `${formatted}`;
   window.print();
   document.title = originalTitle;
 }
@@ -628,7 +658,7 @@ printReport() {
 saveTotalCase() { 
   const formattedDate = this.use.getFormattedDate(this.reportDate);
   this.use.saveTotalCase(this.userId,formattedDate,this.totalCase).subscribe({
-    next: res => {
+    next: res => {   
       if (res.message.includes('successfully')) {
         this.notificationService.success("✅   " + res.message);
       } else if (res.message.includes('already')){
@@ -676,9 +706,9 @@ sendData() {
     ],
     userId:this.userId
   };
-  console.log("Sending Payload: ", payload);
+  console.log("Sending Payload: ", payload);    
   this.use.saveMoneyDetails(payload).subscribe({
-    next: res => {
+    next: res => {  
       if (res.message.includes('successfully')) {
         this.notificationService.success("✅" + res.message);
      } else if (res.message.includes('already')){
@@ -711,7 +741,7 @@ downloadPDF() {
     } else {
       pdf.addImage(contentDataURL, 'PNG', 0, position, imgWidth, imgHeight);
     }
-    pdf.save(`${formatted}_Report.pdf`);
+    pdf.save(`${formatted}.pdf`);
   });
 }
 
@@ -733,7 +763,39 @@ getMoneyDetailsList(){
     },
     (error) => {
       this.notificationService.failure("Failed to fetch Purchase data.");
+  }
+  );
+}
+  
+backPage() {
+  const userId = localStorage.getItem('userId');
+  const formattedDate = this.use.getFormattedDate(this.reportDate);
+  const apiUrl = `${API_BACKPAGE}?date=${formattedDate}&userId=${userId}`;
+  
+  this.http.get<BackPageResponse>(apiUrl, {
+    headers: {
+      'Authorization': `Bearer ${userId}`
+    }
+  }).subscribe(
+    response => {
+      console.log(response);
+      this.kharchSellSummary = response.kharchSellSummary || [];
+      this.transactionSellSummary = response.transactionSellSummary || [];
+      this.jamaSummary = response.jamaSummary || [];
+      this.bakiSummary = response.bakiSummary || [];
+
+      this.firstTableData = this.jamaSummary;
+      this.secondTableData = this.bakiSummary;
+
+      // this.firstTableData = this.jamaSummary.filter(item => item[1] <= 10000);
+      // this.secondTableData = this.bakiSummary.filter(item => item[1] <= 10000);
+    },
+    error => {
+      console.error('Error fetching data', error);
+      this.firstTableData = [];
+      this.secondTableData = [];
     }
   );
 }
+
 }
