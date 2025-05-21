@@ -1,238 +1,338 @@
 <div  class="main-content">
   <div class="container-fluid" style="margin-top: -6%;" id="printable-content">
-  <div class="report-container">
-  <div class="title">{{PumpName}}</div>
-  <table>
-    <tr>
-      <td>
-        <mat-form-field appearance="outline">
-          <mat-label>Select Date</mat-label>
-          <input matInput [matDatepicker]="picker"
-          [(ngModel)]="reportDate"
-          name="reportDate"
-          (ngModelChange)="showSelectedDate()">
-          <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-          <mat-datepicker #picker></mat-datepicker>
-        </mat-form-field>
-      </td>        
-      <td class="text">
-        <div>Time To: {{ currentTime }}</div>
-      </td>
-    </tr>
-  </table>
-
-  <table class="no-border-table">
-    <thead>
-      <tr>
-        <th>Pump Name</th>
-        <th>Closing Meter</th>
-        <th>Opening Meter</th>
-        <th>Testing</th>
-        <th>Rate</th>
-        <th>Sale Ltr</th>
-        <th colspan="2">LTR</th>
-        <th>Total_Rs</th>
-      </tr>
-    </thead>
-  
-    <tbody>
-      <!-- Petrol Rows -->
-      <tr *ngFor="let petrol of petrolPumps; let i = index">
-        <td>{{ petrol.name }}</td>
-        <td class="text"><input type="number" class="text" [(ngModel)]="petrol.closingMeter" (input)="calculatePetrol(i)" placeholder="0"/></td>
-        <td class="text"><input type="number" class="text" [(ngModel)]="petrol.openingMeter" (input)="calculatePetrol(i)" placeholder="0"/></td>
-        <td class="text"><input type="number" class="text" [(ngModel)]="petrol.testing" (input)="calculatePetrol(i)" placeholder="0"/></td>
-        <td class="text"><input type="number" class="text" [(ngModel)]="petrol.rate" (input)="calculatePetrol(i)" placeholder="0"/></td>
-        <td><input type="number" [(ngModel)]="petrol.saleLtr" disabled /></td>
-        <td colspan="2"><input type="number" [value]="petrol.ltr < 0 ? petrol.ltr * -1 : petrol.ltr" disabled /></td>
-        <td><input type="number" [(ngModel)]="petrol.total_rs" disabled placeholder="0"/></td>
-      </tr>
-      
-  
-      <!-- Petrol Total Row -->
-      <tr class="highlight">
-        <td colspan="6"><strong>Petrol Total</strong></td>
-        <td colspan="2"><strong>{{ petrolTotalLTR }}</strong></td>
-        <td colspan="2"><strong>{{ petrolTotalRS }}</strong></td>
-      </tr>
-  
-      <!-- Diesel Rows -->
-      <tr *ngFor="let diesel of dieselPumps; let i = index">
-        <td>{{ diesel.name }}</td>
-        <td class="text"><input type="number" class="text" [(ngModel)]="diesel.closingMeter" (input)="calculateDiesel(i)" placeholder="0"/></td>
-        <td class="text"><input type="number" class="text" [(ngModel)]="diesel.openingMeter" (input)="calculateDiesel(i)" placeholder="0"/></td>
-        <td class="text"><input type="number" class="text" [(ngModel)]="diesel.testing" (input)="calculateDiesel(i)" placeholder="0"/></td>
-        <td class="text"><input type="number" class="text" [(ngModel)]="diesel.rate" (input)="calculateDiesel(i)" placeholder="0"/></td>
-        <td><input type="number" [(ngModel)]="diesel.saleLtr" disabled /></td>
-        <td colspan="2"><input type="number" [value]="diesel.ltr < 0 ? diesel.ltr * -1 : diesel.ltr" disabled /></td>
-        <td><input type="number" [(ngModel)]="diesel.total_rs" disabled /></td>
-      </tr>
-      
-  
-      <!-- Diesel Total Row -->
-      <tr class="highlight">
-        <td colspan="6"><strong>Diesel Total</strong></td>
-        <td colspan="2"><strong>{{ dieselTotalLTR }}</strong></td>
-        <td><strong>{{ dieselTotalRS }}</strong></td>
-      </tr>
-    </tbody>
-  </table>
-
-  <table>
-    <tr>
-      <th colspan="3">Money Details</th>
-      <th colspan="2">Note :</th>
-      <th colspan="2">Total Fuel Rs</th>
-      <th>{{totalRs}}</th>
-    </tr>
-    <tr>
-      <td>2000</td>
-      <td>
-        <input type="number" [(ngModel)]="multipliers.twothousand" (input)="calculateTotal()" placeholder="0" />
-      </td>
-      <td>{{ twothousand | number:'1.2-2' }}</td>
-      <td colspan="2" rowspan="8">
-        <div class="note-box">
-          <input type="text" [(ngModel)]="note" placeholder="Enter note here" style="width: 100%; height: 100%; border: none; outline: none;">
+     <div class="report-container">
+        <!-- <div class="title">{{PumpName}}</div> -->
+        <div class="title">
+          {{PumpName}}
         </div>
-      </td>
-      <td colspan="2">Bill Baki Rs</td>
-      <td (click)="openJamaBakiComponent()" class="clickText">{{ bakiTotal | number:'1.2-2' }}</td>
-    </tr>
-    <tr>
-      <td>500</td>
-      <td>
-        <input type="number" [(ngModel)]="multipliers.fivehundred" (input)="calculateTotal()" placeholder="0" />
-      </td>
-      <td>{{ fivehundred | number:'1.2-2' }}</td>
-      <td colspan="2">Lube Oil Rs</td>
-      <td (click)="openOilsellBakComponent()" class="clickText">{{ oilsellTotal | number:'1.2-2' }}</td>
-    </tr>
-    <tr>
-      <td>200</td>
-      <td>
-        <input type="number" [(ngModel)]="multipliers.twohundred" (input)="calculateTotal()" placeholder="0" />
-      </td>
-      <td>{{ twohundred | number:'1.2-2' }}</td>
-      <td colspan="2">ATM & Wallet</td>
-      <td (click)="openAtmBakComponent()" class="clickText">{{ ATMTotal | number:'1.2-2' }}</td>
-    </tr>
-    <tr>
-      <td>100</td>
-      <td>
-        <input type="number" [(ngModel)]="multipliers.onehundred" (input)="calculateTotal()" placeholder="0" />
-      </td>
-      <td>{{ onehundred | number:'1.2-2' }}</td>
-      <td colspan="2">Indirect Expenses</td>
-      <td  (click)="openKharchComponent()" class="clickText">{{ kharchTotal | number:'1.2-2' }}</td>
-    </tr>
-    <tr>
-      <td>50</td>
-      <td>
-        <input type="number" [(ngModel)]="multipliers.fifty" (input)="calculateTotal()" placeholder="0" />
-      </td>
-      <td>{{ fifty | number:'1.2-2' }}</td>
-      <td colspan="2">Bill Jama Rs</td>
-      <td (click)="openJamaBakiComponent()" class="clickText">{{ jamaTotal | number:'1.2-2' }}</td>
-    </tr>
-    <tr>
-      <td>20</td>
-      <td>
-        <input type="number" [(ngModel)]="multipliers.twenty" (input)="calculateTotal()" placeholder="0" />
-      </td>
-      <td>{{ twenty | number:'1.2-2' }}</td>
-      <td colspan="2">Petrol Purchase LTR</td>
-      <td (click)="openPurchase()" class="clickText"> {{petolQuantity}}</td>
-    </tr>
-    <tr>
-      <td>10</td>
-      <td>
-        <input type="number" [(ngModel)]="multipliers.ten" (input)="calculateTotal()" placeholder="0" />
-      </td>
-      <td>{{ ten | number:'1.2-2' }}</td>
-      <td colspan="2">Diesel Purchase LTR</td>
-      <td (click)="openPurchase()" class="clickText">{{dieselQuantity}}</td>
-    </tr>
-    <tr>
-      <td>Coin</td>
-      <td>-</td>
-      <td colspan="2"></td>
-      <td colspan="2"></td>
-      <td>-</td>
-    </tr>
-    <tr class="total-row">
-      <td>Total</td>
-      <td colspan="2" class="highlight">{{ totalCaseCase | number:'1.2-2' }}</td>
-      <td colspan="2"></td>
-      <td colspan="2">Total Cash Rs</td>
-      <td>{{ totalCase | number:'1.2-2' }}</td>
-    </tr>
-  </table>
-
-    <!-- <table>
-      <tr><td><strong>Total Fuel Rs</strong></td><td>{{totalRs}}</td></tr>
-      <tr (click)="openOilsellBakComponent()">
-        <td>Lube Oil Rs</td>
-        <td  class="clickText">{{ oilsellTotal | number:'1.2-2' }}</td>
-      </tr>
-
-      <tr (click)="openAtmBakComponent()">
-        <td>ATM & Wallet</td>
-        <td  class="clickText">{{ ATMTotal | number:'1.2-2' }}</td>
-      </tr>
-
-      <tr (click)="openKharchComponent()">
-        <td>Indirect Expenses</td>
-        <td class="clickText">{{ kharchTotal | number:'1.2-2' }}</td>
-      </tr>
-      <tr (click)="openJamaBakiComponent()">
-        <td>Bill_Bak_Rs / Bill_Jama_Rs</td>
-        <td class="clickText">{{ bakiTotal | number:'1.2-2' }}/{{ jamaTotal | number:'1.2-2' }}</td>
-      </tr>
-      <tr (click)="openPurchase()">
-        <td>Petrol Purchase LTR</td>
-        <td class="clickText"> 
-          {{petolQuantity}}
-         </td>
-      </tr>
-      <tr (click)="openPurchase()">
-        <td>Diesel Purchase LTR</td>
-        <td class="clickText">
-          {{dieselQuantity}}
-        </td>
-      </tr>
-      <tr><td>Total Case</td><td>{{ totalCase | number:'1.2-2' }}</td></tr>
-
-    </table> -->
-
-    <table>
-      <tr>
-        <th></th>
-        <th>Petrol</th>
-        <th>Diesel</th>
-      </tr>
-      <tr><td>Ugado Stock</td><td>{{Petrol_Ugadto_Stock}}</td><td>{{Diesel_Ugadto_Stock}}</td></tr>
-      <tr>
-        <td>Purchase LTR</td>
-        <td> {{petolQuantity}}</td>
-        <td> {{dieselQuantity}}</td>
-      </tr>
-      <tr><td>Total Stock</td><td>{{TotalPetrolStock}}</td><td>{{TotalDieselStock}}</td></tr>
-      <tr><td>Total Sales</td><td>{{petrolTotalLTR}}</td><td>{{dieselTotalLTR}}</td></tr>
-      <tr> <td>Remaining Stock</td><td>{{TotalPetrolRemaining}}</td><td>{{TotalDieselRemaining}}</td></tr> 
-    </table>
-
-    <table>
-      <tr (click)="dipstock()"><td>Petrol Dip</td><td class="clickText" > {{Petrol_dip }}</td>
-      <td>DIP PETROL Stock</td><td class="clickText">{{Petrol_stock}}</td></tr>
-      <tr><td>Diesel Dip</td><td class="clickText">{{Diesel_dip}}</td>     
-      <td>DIP DIESEL Stock</td><td class="clickText">{{Diesel_stock}}</td></tr>
-    </table>
-    <div class="button-container">
-      <button mat-raised-button type="button" class="btn btn-danger pull-right" (click)="downloadPDF()">Download PDF</button>
-      <button mat-raised-button type="button" class="btn btn-danger pull-right" (click)="printReport()">Print</button>
-      <button  mat-raised-button  type="button" class="btn btn-danger pull-right"  (click)="Submit()">Save</button>
-    </div>
-    </div>                  
+        
+        <table>
+           <tr>
+              <td>
+                 <mat-form-field appearance="outline">
+                    <mat-label>Select Date</mat-label>
+                    <input matInput [matDatepicker]="picker"
+                    [(ngModel)]="reportDate"
+                    name="reportDate"
+                    (ngModelChange)="showSelectedDate()">
+                    <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+                    <mat-datepicker #picker></mat-datepicker>
+                 </mat-form-field>
+              </td>
+              <td class="text">
+                 <div>Time To: {{ currentTime }}</div>
+              </td>
+           </tr>
+        </table>
+        <table class="no-border-table">
+           <thead>
+              <tr>
+                 <th>Pump Name</th>
+                 <th>Closing Meter</th>
+                 <th>Opening Meter</th>
+                 <th>Testing</th>
+                 <th>Rate</th>
+                 <th>Sale Ltr</th>
+                 <th colspan="2">LTR</th>
+                 <th>Total_Rs</th>
+              </tr>
+           </thead>
+           <tbody>
+              <!-- Petrol Rows -->
+              <tr *ngFor="let petrol of petrolPumps; let i = index">
+                 <td>{{ petrol.name }}</td>
+                 <td class="text"><input type="number" class="text" [(ngModel)]="petrol.closingMeter" (input)="calculatePetrol(i)" placeholder="0"/></td>
+                 <td class="text"><input type="number" class="text" [(ngModel)]="petrol.openingMeter" (input)="calculatePetrol(i)" placeholder="0"/></td>
+                 <td class="text"><input type="number" class="text" [(ngModel)]="petrol.testing" (input)="calculatePetrol(i)" placeholder="0"/></td>
+                 <td class="text"><input type="number" class="text" [(ngModel)]="petrol.rate" (input)="calculatePetrol(i)" placeholder="0"/></td>
+                 <td><input type="number" [(ngModel)]="petrol.saleLtr" disabled /></td>
+                 <td colspan="2"><input type="number" [value]="petrol.ltr < 0 ? petrol.ltr * -1 : petrol.ltr" disabled /></td>
+                 <td><input type="number" [(ngModel)]="petrol.total_rs" disabled placeholder="0"/></td>
+              </tr>
+              <!-- Petrol Total Row -->
+              <tr class="highlight">
+                 <td colspan="6"><strong>Petrol Total</strong></td>
+                 <td colspan="2"><strong>{{ petrolTotalLTR }}</strong></td>
+                 <td colspan="2"><strong>{{ petrolTotalRS }}</strong></td>
+              </tr>
+              <!-- Diesel Rows -->
+              <tr *ngFor="let diesel of dieselPumps; let i = index">
+                 <td>{{ diesel.name }}</td>
+                 <td class="text"><input type="number" class="text" [(ngModel)]="diesel.closingMeter" (input)="calculateDiesel(i)" placeholder="0"/></td>
+                 <td class="text"><input type="number" class="text" [(ngModel)]="diesel.openingMeter" (input)="calculateDiesel(i)" placeholder="0"/></td>
+                 <td class="text"><input type="number" class="text" [(ngModel)]="diesel.testing" (input)="calculateDiesel(i)" placeholder="0"/></td>
+                 <td class="text"><input type="number" class="text" [(ngModel)]="diesel.rate" (input)="calculateDiesel(i)" placeholder="0"/></td>
+                 <td><input type="number" [(ngModel)]="diesel.saleLtr" disabled /></td>
+                 <td colspan="2"><input type="number" [value]="diesel.ltr < 0 ? diesel.ltr * -1 : diesel.ltr" disabled /></td>
+                 <td><input type="number" [(ngModel)]="diesel.total_rs" disabled /></td>
+              </tr>
+              <!-- Diesel Total Row -->
+              <tr class="highlight">
+                 <td colspan="6"><strong>Diesel Total</strong></td>
+                 <td colspan="2"><strong>{{ dieselTotalLTR }}</strong></td>
+                 <td><strong>{{ dieselTotalRS }}</strong></td>
+              </tr>
+           </tbody>
+        </table>
+        <table>
+           <tr>
+              <th colspan="3">Money Details</th>
+              <th colspan="2">Note :</th>
+              <th colspan="2">Total Fuel Rs</th>
+              <th>{{totalRs}}</th>
+           </tr>
+           <tr>
+              <td>2000</td>
+              <td>
+                 <input type="number" [(ngModel)]="multipliers.twothousand" (input)="calculateTotal()" placeholder="0" />
+              </td>
+              <td>{{ twothousand | number:'1.2-2' }}</td>
+              <td colspan="2" rowspan="8">
+                 <div class="note-box">
+                    <input type="text" [(ngModel)]="note" placeholder="Enter note here" style="width: 100%; height: 100%; border: none; outline: none;">
+                 </div>
+              </td>
+              <td colspan="2">Bill Baki Rs</td>
+              <td (click)="openJamaBakiComponent()" class="clickText">{{ bakiTotal | number:'1.2-2' }}</td>
+           </tr>
+           <tr>
+              <td>500</td>
+              <td>
+                 <input type="number" [(ngModel)]="multipliers.fivehundred" (input)="calculateTotal()" placeholder="0" />
+              </td>
+              <td>{{ fivehundred | number:'1.2-2' }}</td>
+              <td colspan="2">Lube Oil Rs</td>
+              <td (click)="openOilsellBakComponent()" class="clickText">{{ oilsellTotal | number:'1.2-2' }}</td>
+           </tr>
+           <tr>
+              <td>200</td>
+              <td>
+                 <input type="number" [(ngModel)]="multipliers.twohundred" (input)="calculateTotal()" placeholder="0" />
+              </td>
+              <td>{{ twohundred | number:'1.2-2' }}</td>
+              <td colspan="2">ATM & Wallet</td>
+              <td (click)="openAtmBakComponent()" class="clickText">{{ ATMTotal | number:'1.2-2' }}</td>
+           </tr>
+           <tr>
+              <td>100</td>
+              <td>
+                 <input type="number" [(ngModel)]="multipliers.onehundred" (input)="calculateTotal()" placeholder="0" />
+              </td>
+              <td>{{ onehundred | number:'1.2-2' }}</td>
+              <td colspan="2">Indirect Expenses</td>
+              <td  (click)="openKharchComponent()" class="clickText">{{ kharchTotal | number:'1.2-2' }}</td>
+           </tr>
+           <tr>
+              <td>50</td>
+              <td>
+                 <input type="number" [(ngModel)]="multipliers.fifty" (input)="calculateTotal()" placeholder="0" />
+              </td>
+              <td>{{ fifty | number:'1.2-2' }}</td>
+              <td colspan="2">Bill Jama Rs</td>
+              <td (click)="openJamaBakiComponent()" class="clickText">{{ jamaTotal | number:'1.2-2' }}</td>
+           </tr>
+           <tr>
+              <td>20</td>
+              <td>
+                 <input type="number" [(ngModel)]="multipliers.twenty" (input)="calculateTotal()" placeholder="0" />
+              </td>
+              <td>{{ twenty | number:'1.2-2' }}</td>
+              <td colspan="2">Petrol Purchase LTR</td>
+              <td (click)="openPurchase()" class="clickText"> {{petolQuantity}}</td>
+           </tr>
+           <tr>
+              <td>10</td>
+              <td>
+                 <input type="number" [(ngModel)]="multipliers.ten" (input)="calculateTotal()" placeholder="0" />
+              </td>
+              <td>{{ ten | number:'1.2-2' }}</td>
+              <td colspan="2">Diesel Purchase LTR</td>
+              <td (click)="openPurchase()" class="clickText">{{dieselQuantity}}</td>
+           </tr>
+           <tr>
+              <td>Coin</td>
+              <td>-</td>
+              <td colspan="2"></td>
+              <td colspan="2"></td>
+              <td>-</td>
+           </tr>
+           <tr class="total-row">
+              <td>Total</td>
+              <td colspan="2" class="highlight">{{ totalCaseCase | number:'1.2-2' }}</td>
+              <td colspan="2"></td>
+              <td colspan="2">Total Cash Rs</td>
+              <td>{{ totalCase | number:'1.2-2' }}</td>
+           </tr>
+        </table>
+        <!-- <table>
+           <tr><td><strong>Total Fuel Rs</strong></td><td>{{totalRs}}</td></tr>
+           <tr (click)="openOilsellBakComponent()">
+             <td>Lube Oil Rs</td>
+             <td  class="clickText">{{ oilsellTotal | number:'1.2-2' }}</td>
+           </tr>
+           
+           <tr (click)="openAtmBakComponent()">
+             <td>ATM & Wallet</td>
+             <td  class="clickText">{{ ATMTotal | number:'1.2-2' }}</td>
+           </tr>
+           
+           <tr (click)="openKharchComponent()">
+             <td>Indirect Expenses</td>
+             <td class="clickText">{{ kharchTotal | number:'1.2-2' }}</td>
+           </tr>
+           <tr (click)="openJamaBakiComponent()">
+             <td>Bill_Bak_Rs / Bill_Jama_Rs</td>
+             <td class="clickText">{{ bakiTotal | number:'1.2-2' }}/{{ jamaTotal | number:'1.2-2' }}</td>
+           </tr>
+           <tr (click)="openPurchase()">
+             <td>Petrol Purchase LTR</td>
+             <td class="clickText"> 
+               {{petolQuantity}}
+              </td>
+           </tr>
+           <tr (click)="openPurchase()">
+             <td>Diesel Purchase LTR</td>
+             <td class="clickText">
+               {{dieselQuantity}}
+             </td>
+           </tr>
+           <tr><td>Total Case</td><td>{{ totalCase | number:'1.2-2' }}</td></tr>
+           
+           </table> -->
+        <table>
+           <tr>
+              <th></th>
+              <th>Petrol</th>
+              <th>Diesel</th>
+           </tr>
+           <tr>
+              <td>Ugado Stock</td>
+              <td>{{Petrol_Ugadto_Stock}}</td>
+              <td>{{Diesel_Ugadto_Stock}}</td>
+           </tr>
+           <tr>
+              <td>Purchase LTR</td>
+              <td> {{petolQuantity}}</td>
+              <td> {{dieselQuantity}}</td>
+           </tr>
+           <tr>
+              <td>Total Stock</td>
+              <td>{{TotalPetrolStock}}</td>
+              <td>{{TotalDieselStock}}</td>
+           </tr>
+           <tr>
+              <td>Total Sales</td>
+              <td>{{petrolTotalLTR}}</td>
+              <td>{{dieselTotalLTR}}</td>
+           </tr>
+           <tr>
+              <td>Remaining Stock</td>
+              <td>{{TotalPetrolRemaining}}</td>
+              <td>{{TotalDieselRemaining}}</td>
+           </tr>
+        </table>
+        <table>
+           <tr (click)="dipstock()">
+              <td>Petrol Dip</td>
+              <td class="clickText" > {{Petrol_dip }}</td>
+              <td>DIP PETROL Stock</td>
+              <td class="clickText">{{Petrol_stock}}</td>
+           </tr>
+           <tr>
+              <td>Diesel Dip</td>
+              <td class="clickText">{{Diesel_dip}}</td>
+              <td>DIP DIESEL Stock</td>
+              <td class="clickText">{{Diesel_stock}}</td>
+           </tr>
+        </table>
+        <div>
+           <div class="title">Back Page</div>
+           <div class="row">
+              <div class="col-md-6">
+                 <div class="table-wrapper">
+                    <table *ngIf="firstTableData && firstTableData.length > 0">
+                       <thead>
+                          <tr>
+                             <th class="column">Name</th>
+                             <th class="column">Jama</th>
+                          </tr>
+                       </thead>
+                       <tbody>
+                          <tr *ngFor="let item of firstTableData">
+                             <td>{{ item[0].trim() }}</td>
+                             <td>{{ item[1] | number: '1.0-2' }}</td>
+                          </tr>
+                       </tbody>
+                    </table>
+                    <p *ngIf="!firstTableData || firstTableData.length === 0">No data available.</p>
+                 </div>
+              </div>
+              <div class="col-md-6">
+                 <div class="table-wrapper">
+                    <table *ngIf="secondTableData && secondTableData.length > 0">
+                       <thead>
+                          <tr>
+                             <th class="column">Name</th>
+                             <th class="column">Baki</th>
+                          </tr>
+                       </thead>
+                       <tbody>
+                          <tr *ngFor="let item of secondTableData">
+                             <td>{{ item[0].trim() }}</td>
+                             <td>{{ item[1] | number: '1.0-2' }}</td>
+                          </tr>
+                       </tbody>
+                    </table>
+                    <p *ngIf="!secondTableData || secondTableData.length === 0">No data available.</p>
+                 </div>
+              </div>
+           </div>
+           <div class="row">
+              <div class="col-md-6">
+                 <div class="table-wrapper">
+                    <table *ngIf="kharchSellSummary && kharchSellSummary.length > 0">
+                       <thead>
+                          <tr>
+                             <th class="column">Name</th>
+                             <th class="column">Kharch</th>
+                          </tr>
+                       </thead>
+                       <tbody>
+                          <tr *ngFor="let item of kharchSellSummary">
+                             <td>{{ item[0].trim() }}</td>
+                             <td>{{ item[1] }}</td>
+                          </tr>
+                       </tbody>
+                    </table>
+                    <p *ngIf="!kharchSellSummary || kharchSellSummary.length === 0">No data available.</p>
+                 </div>
+              </div>
+              <div class="col-md-6">
+                 <div class="table-wrapper">
+                    <table *ngIf="transactionSellSummary && transactionSellSummary.length > 0">
+                       <thead>
+                          <tr>
+                             <th class="column">Name</th>
+                             <th class="column">Transaction Amount</th>
+                          </tr>
+                       </thead>
+                       <tbody>
+                          <tr *ngFor="let item of transactionSellSummary">
+                             <td>{{ item[0].trim() }}</td>
+                             <td>{{ item[1] }}</td>
+                          </tr>
+                       </tbody>
+                    </table>
+                    <p *ngIf="!transactionSellSummary || transactionSellSummary.length === 0">No data available.</p>
+                 </div>
+              </div>
+           </div>
+        </div>
+        <div class="button-container">
+           <button mat-raised-button type="button" class="btn btn-danger pull-right" (click)="downloadPDF()">Download PDF</button>
+           <!-- <button mat-raised-button type="button" class="btn btn-danger pull-right" (click)="printReport()">Print</button> -->
+           <button  mat-raised-button  type="button" class="btn btn-danger pull-right"  (click)="Submit()">Save</button>
+        </div>
+     </div>
   </div>
 </div>
