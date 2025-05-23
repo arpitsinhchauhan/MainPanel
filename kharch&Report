@@ -419,3 +419,331 @@ INSERT INTO expenseslist (expenses_list) VALUES
 ,('VYAJ')
 ,('REPORT KHARCH')
 ;
+
+
+//////////////////////////////////
+<td>
+                <mat-form-field style="margin-top: 4%; background-color: rgb(252, 252, 252); width: 100%;">
+                  <mat-label>Receiver</mat-label>
+                  <mat-select [(ngModel)]="item.name" (openedChange)="onReceiverOpened()">
+                    <!-- Search Box inside mat-select -->
+                    <mat-option disabled>
+                      <div class="search-box">
+                        <span class="search-icon">🔍</span>
+                        <input
+                          type="text"
+                          placeholder="Search receiver..."
+                          [(ngModel)]="receiverSearch"
+                          (ngModelChange)="filterReceivers()"
+                          class="search-input"
+                        />
+                      </div>
+                    </mat-option>
+              
+                    <!-- Filtered options -->
+                    <mat-option *ngFor="let name of filteredNames" [value]="name">
+                      {{ name }}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </td>
+			  
+  receiverSearch: string = '';
+  filteredNames: string[] = [];
+ getdata() {
+    if (this.jamaBaki && this.jamaBaki.date) {
+      this.purchaDipStockseDetails.date = this.jamaBaki.date;
+    }
+    this.userId = localStorage.getItem('userId');
+    const url = `${API_CUSTOMER_NAME}?userId=${this.userId}`;
+    this.http.get(url).subscribe((data) => {
+      this.names = Object.values(data).map((item: any) => item.name);
+    this.filteredNames = [...this.names]; 
+    });
+  }
+
+  filterReceivers() {
+    const searchLower = this.receiverSearch.toLowerCase();
+    this.filteredNames = this.names.filter(name =>
+      name.toLowerCase().includes(searchLower)
+    );
+  }
+  
+  // Optional: reset filter when dropdown is opened
+  onReceiverOpened() {
+    this.receiverSearch = '';
+    this.filteredNames = [...this.names];
+  }		
+
+
+////////////////////////////////////////////////////////////////////////////////////////////
+<div class="example-card">
+    <div class="card-header card-header-danger text-center" style="background-color: rgb(244, 75, 75);margin-top: -2%;">
+        <h4 class="card-title">Oil :-</h4>
+    </div>
+    <div style="display:inline;width:100%">
+        <div class="col-md-6">
+            <mat-form-field>
+                <input matInput [(ngModel)]="purchaDipStockseDetails.date" type="Date">
+            </mat-form-field>
+        </div>
+        <div style="display:inline;">
+            <button (click)="addTable()">Add Row</button>
+        </div>
+        <div style="display:inline;margin-left:25%">
+            <button (click)="cancel()">cancel</button>
+            <button (click)="order()">Add</button>
+        </div>
+    </div>
+    <br />
+    <table class="style">
+        <tr>
+            <th style="width: 16%;">RowId</th>
+            <th>OilType</th>
+            <th>Price</th>
+            <th>Delete</th>
+        </tr>
+        <tr *ngFor="let item of row; let i = index">
+            <td><input style="text-align: center;" type="text" [(ngModel)]="item.id" /></td>
+            <td>
+                <mat-form-field style="margin-top: 4%; background-color: rgb(252, 252, 252); width: 100%;">
+                  <mat-select [(ngModel)]="item.value" (openedChange)="onSelectOpened()">
+                    
+                    <!-- Static Search Box -->
+                    <mat-option disabled>
+                      <div style="display: flex; align-items: center; padding: 4px;">
+                        <span style="margin-right: 8px; font-size: 18px;">🔍</span>
+                        <input
+                          type="text"
+                          placeholder="Search..."
+                          [(ngModel)]="searchText"
+                          (ngModelChange)="onSearchChange()"
+                          style="padding: 6px 8px; font-size: 16px; width: 100%; border: none; outline: none; background: transparent;"
+                        />
+                      </div>
+                    </mat-option>
+              
+                    <!-- Filtered Options -->
+                    <mat-option *ngFor="let value of filteredExpenses" [value]="value">
+                      {{ value }}
+                    </mat-option>
+              
+                  </mat-select>
+                </mat-form-field>
+              </td>
+              
+            <td><input type="text" [(ngModel)]="item.price" /></td>
+            <td>
+                <button (click)="deleteRow(i)"><i class="fa fa-trash"></i></button>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">GrandTotal:</td>
+            <td><input type="text" [value]="totalPrice()" /></td>
+        </tr>
+    </table>
+</div>
+export class OilReportComponent implements OnInit {
+
+  searchText: string = "";
+  filteredExpenses: string[] = [];
+  total = 0;
+  isReload: boolean;
+  data: any = { name: [] };
+  selectedDate!: Date | null;
+  expenseFilterCtrl = new FormControl();
+  purchaDipStockseDetails: any = {
+    date: "",
+  };
+  filteredExpensesList: Observable<string[]>;
+  typeList: string[] = [
+    // "20 Ltr",
+    // "10 Ltr",
+    // "7.5 Ltr",
+    // "5 Ltr",
+    // "1 Ltr",
+    // "0.500 Ltr",
+    // "Tuti 1 Ltr",
+    // "Tuti 0.500",
+    // "4T 900",
+    // "Break. 0.500",
+    // "Break. 0.250",
+    // "Gear 5 Ltr",
+    // "Gear 1 Ltr",
+  ];
+  userId: string;
+
+  constructor(
+    private http: HttpClient,
+    public dialogRef: MatDialogRef<OilReportComponent>,
+    private notificationService: NotificationService,
+    private use: UserServiceService,
+    @Inject(MAT_DIALOG_DATA) public oilData: any
+  ) {}
+
+  ngOnInit() {
+    if (this.oilData && this.oilData.date) {
+      this.purchaDipStockseDetails.date = this.oilData.date;
+    }
+    this.getoilList();
+    this.row[0].id = "1";
+    // this.userId = localStorage.getItem('userId');
+    // this.row = [{ id: '0', date: this.purchaDipStockseDetails.date, value: '', price: '' }];
+  }
+
+  private _filterExpenses(value: string): string[] {
+    const filterValue = value.toLowerCase();
+    return this.typeList.filter((expense) =>
+      expense.toLowerCase().includes(filterValue)
+    );
+  }
+  order() {
+    const userId = localStorage.getItem("userId");
+    if (!this.purchaDipStockseDetails.date) {
+      this.notificationService.failure(
+        "Please select a date before placing the order."
+      );
+      return;
+    }
+    if (!this.isValidData()) {
+      this.notificationService.failure("Please fill all required fields.");
+      return;
+    }
+    const data = {
+      // userId: userId,
+      expenses: this.row,
+    };
+
+    // const data = {
+    //   userId: userId,
+    //   expenses: Array.isArray(this.row) ? this.row : [this.row]  // Ensure it's an array
+    // };
+    // Send data to backend
+    this.http
+      .post<any>(API_OILSELL_ADD, data.expenses)
+      .subscribe((response) => {
+        // const responseData = response.expenses;
+        this.notificationService.success("Oilsell Data succefully add..");
+        this.purchaDipStockseDetails.date = null;
+        this.row = [];
+        this.dialogRef.close();
+      });
+  }
+  isValidData(): boolean {
+    if (!this.purchaDipStockseDetails.date) {
+      return false;
+    }
+
+    for (let item of this.row) {
+      if (!item.id || !item.value || !item.price) {
+        return false;
+      }
+    }
+    return true;
+  }
+  purchaseDetails: any = {
+    date: "", // You can set default date if needed
+  };
+  row: any[] = [];
+  lastRowId: number = 0;
+
+  addTable() {
+    if (this.purchaDipStockseDetails.date) {
+      this.lastRowId++;
+      this.userId = localStorage.getItem("userId");
+      // this.row.push({ id: '', date: this.purchaDipStockseDetails.date, notes: '', price: '' });
+      const newRow = {
+        id: this.lastRowId,
+        date: this.purchaDipStockseDetails.date,
+        value: "",
+        price: "",
+        userId: this.userId,
+      };
+      this.row.push(newRow);
+    } else {
+      this.notificationService.failure(
+        "Please fill in all the required fields before adding a new row."
+      );
+    }
+  }
+
+  deleteRow(index: number) {
+    // Remove a row from the table
+    this.row.splice(index, 1);
+  }
+
+  totalPrice() {
+    let sum = 0;
+    this.row.forEach((item) => {
+      sum += parseInt(item.price || "0", 10);
+    });
+    return sum;
+  }
+
+  cancel() {
+    this.dialogRef.close({ isReload: this.isReload });
+  }
+
+  getoilList() {
+    this.use.getoilList().subscribe((response) => {
+      // Assuming response is array of objects with oilSellList as string values
+      this.typeList = response.map((item: any) => item.oilSellList);
+      this.filteredExpenses = [...this.typeList];
+    });
+  }
+  
+  onSearchChange() {
+    const query = this.searchText.toLowerCase();
+    this.filteredExpenses = this.typeList.filter(expense =>
+      expense.toLowerCase().includes(query)
+    );
+  }
+  
+  onSelectOpened() {
+    this.searchText = '';
+    this.filteredExpenses = [...this.typeList];
+  }
+
+}
+
+
+getoilList(): Observable<any> {
+    return this.http.get<any>(API_OILSELL_LIST_REPORT);
+  }
+
+export const API_OILSELL_LIST_REPORT: string = `${prefix}/portal/api/oillist`;
+
+
+ @GetMapping(value = "/oillist")
+    public List<OilsellList> getoillist() {
+        List<OilsellList> oillist = oilsellListRepository.findAll();
+        return oillist;
+    }
+
+
+public class OilsellList {
+
+
+    @Id
+    @GeneratedValue
+    private Integer id;
+    @Column(name = "oil_sell_list")
+    private String OilSellList;
+
+INSERT INTO oilselllist (id,oil_sell_list) VALUES 
+(1,'20 Ltr')
+,(2,'10 Ltr')
+,(3,'7.5 Ltr')
+,(4,'5 Ltr')
+,(5,'1 Ltr')
+,(6,'0.500 Ltr')
+,(7,'Tuti 1 Ltr')
+,(8,'Tuti 0.500')
+,(9,'4T 900')
+,(10,'Break. 0.500')
+;
+INSERT INTO oilselllist (id,oil_sell_list) VALUES 
+(11,'Break. 0.250')
+,(12,'Gear 5 Ltr')
+,(13,'Gear 1 Ltr')
+;	
