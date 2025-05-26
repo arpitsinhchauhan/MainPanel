@@ -1,749 +1,318 @@
- public ResponseEntity<ApiResponse> saveOrUpdateTotalPetrolStock(@RequestBody PetrolStockRequest request) {
-        String userId = request.getUserId();
-        String date = request.getDate();
-        double minP = request.getPetrolRemaining();
-
-        if (dailyskockRepository.countByDate(date, userId) == 0) {
-            dailyskockRepository.insertDailyStock(date, minP, userId);
-            return ResponseEntity.ok(new ApiResponse("Petrol stock saved successfully."));
-        } else {
-            dailyskockRepository.updateDailyStock(date, minP, userId); // New update method
-            return ResponseEntity.ok(new ApiResponse("Petrol stock updated successfully."));
-        }
-    }
-
-
-  @Modifying
-    @Transactional
-    @Query(value = "UPDATE dailystock SET openstock = :openstock WHERE date = :date AND user_id = :userId", nativeQuery = true)
-    void updateDailyStock(@Param("date") String date,
-                          @Param("openstock") double openstock,
-                          @Param("userId") String userId);
-//////////////////////////////////////
- public ResponseEntity<ApiResponse> saveOrUpdateDieselStock(@RequestBody DieselStockRequest request) {
-        String userId = request.getUserId();
-        String date = request.getDate();
-        double minP = request.getDieselRemaining();
-  if (dailydieselstockRepository.countByDate(date, userId) == 0) {
-            dailydieselstockRepository.insertDailydieselstock(date, minP, userId);
-            System.out.println("Diesel stock saved for date " + date);
-            return ResponseEntity.ok(new ApiResponse("Diesel stock saved successfully."));
-        } else {
-            dailydieselstockRepository.updateDailydieselstock(date, minP, userId);
-            System.out.println("Diesel stock updated for date " + date);
-            return ResponseEntity.ok(new ApiResponse("Diesel stock updated successfully."));
-        }
-    }
- @Modifying
-    @Transactional
-    @Query("UPDATE dailydieselstock d SET d.dieselopenstock = :dieselopenstock WHERE d.date = :date AND d.user_id = :userId")
-    void updateDailydieselstock(@Param("date") String date,
-                                @Param("dieselopenstock") double dieselopenstock,
-                                @Param("userId") String userId);
-///////////////////////////////////////////////////////////////////////////
-
-<div class="example-card">
-    <div class="card-header card-header-danger text-center" style="background-color: rgb(244, 75, 75);margin-top: -2%;">
-       <h4 class="card-title">Kharch :-</h4>
-    </div>
-    <div style="display:inline;width:100%">
-       <div class="d-flex align-items-center" style="gap: 36%;">
-          <mat-form-field appearance="fill" style="width: 50%;">   
-             <input matInput [(ngModel)]="purchaDipStockseDetails.date" type="date" placeholder="Select Date" />
-          </mat-form-field>
-          <button mat-raised-button color="primary" (click)="expense()">Expenses Add</button>
-       </div>
-       <div style="display:inline;">
-          <button (click)="addTable()">Add Row</button>
-       </div>
-       <div style="display:inline;margin-left:25%">
-          <button (click)="cancel()">cancel</button>
-          <button (click)="order()">Add</button>
-       </div>
-    </div>
-    <br />
-    <table class="style">
-       <tr>
-          <th style="width: 16%;">RowId</th>
-          <th>Indirect Expenses</th>
-          <th>Price</th>
-          <th>Note</th>
-          <th>Delete</th>
-       </tr>
-       <tr *ngFor="let item of row; let i = index">
-          <td><input style="text-align: center;" type="text" [(ngModel)]="item.idkharch" /></td>
-          <td>
-             <mat-form-field style="margin-top: 4%; background-color: rgb(252, 252, 252); width: 100%;">
-                <mat-select [(ngModel)]="item.expenses" (openedChange)="onSelectOpened()">
-                <!-- Static Search Box -->
-                <mat-option disabled>
-                   <div style="display: flex; align-items: center; padding: 4px;">
-                      <span style="margin-right: 8px; font-size: 18px;">🔍</span>
-                      <input
-                      type="text"
-                      placeholder="Search..."
-                      [(ngModel)]="searchText"
-                      (ngModelChange)="onSearchChange()"
-                      style="
-                      padding: 6px 8px;
-                      font-size: 19px;
-                      border: none;
-                      "
-                      />
+<div class="card">
+                   <div class="card-header card-header-danger">
+                      <h4 class="card-title">Expenses Details :-</h4>
                    </div>
-                </mat-option>
-                <!-- Filtered options -->
-                <mat-option *ngFor="let expense of filteredExpenses" [value]="expense">
-                {{ expense }}
-                </mat-option>
-                </mat-select>
-             </mat-form-field>
-          </td>
-          <td><input type="number" [(ngModel)]="item.price" pattern="[0-9]*" /></td>
-          <td><input type="text" [(ngModel)]="item.notes" /></td>
-          <td>
-             <button (click)="deleteRow(i)"><i class="fa fa-trash"></i></button>
-          </td>
-       </tr>
-       <tr>
-          <td colspan="2">GrandTotal:</td>
-          <td><input type="text" [value]="totalPrice()" /></td>
-       </tr>
-    </table>
- </div>
-//////////////////////////////////////////
-export class KharchReportComponent implements OnInit {
-  total = 0;
-  isReload: boolean;
-  data: any = { name: [] };
-  selectedDate!: Date | null;
-  expenseFilterCtrl = new FormControl();
-  purchaDipStockseDetails: any = {
-    date: "",
-  };
-  searchText: string = "";
-  filteredExpenses: string[] = [];
-  // filteredExpensesList: Observable<string[]>;
-  expensesList: string[] = [
-    // "ASSOSIASAN FEE EXP",
-    // "BANK CHARGES",
-    // "BANK INTREST",
-    // "BREAK FAST OPANING EXP AC",
-    // "BSNL RECHARG EXP",
-    // "BUILDING MARAMAT EXP",
-    // "VISAN CEMERA EXP",
-    // "ELETRIC BILL EXP",
-    // "FIRE BOTTEL",
-    // "LISAN FEES EXP",
-    // "MATI PURANI EXP",
-    // "PAINTING BUILDING EXP",
-    // "PROFESONAL VERO EXP",
-    // "SBI GENERAL INSURANCE EXP",
-    // "RENT TID GJ001158 SBI POS MASHIN CHARGES",
-    // "SAFAI EXP A/C",
-    // "SALERY EXP A/C",
-    // "STEMPING EXP",
-    // "STESANARY EXP A/C",
-    // "UNIFORM EXP",
-    // "TRAVELING EXP A/C",
-    // "VAKIL FEES EXP",
-    // "VAT A/C",
-    // "VYAJ",
-    // "REPORT KHARCH",
-  ];
-  userId: string;
-
-  constructor(
-    private http: HttpClient,
-    public dialogRef: MatDialogRef<KharchReportComponent>,
-    private notificationService: NotificationService,
-    private use: UserServiceService,
-    @Inject(MAT_DIALOG_DATA) public kharch: any,private dialog: MatDialog
-  ) {}
-
-  ngOnInit() {
-    if (this.kharch && this.kharch.date) {
-      this.purchaDipStockseDetails.date = this.kharch.date;
-    }
-    this.getexpensesList();
-    this.row[0].idkharch = "1";
-  }
-
-  private _filterExpenses(value: string): string[] {
-    const filterValue = value.toLowerCase();
-    return this.expensesList.filter((expense) =>
-      expense.toLowerCase().includes(filterValue)
-    );
-  }
-
-  order() {
-    if (!this.isFormValid()) {
-      this.notificationService.failure("Please fill all required fields.");
-      return;
-    }
-    const data = {
-      // date: this.purchaDipStockseDetails.date,
-      expenses: this.row,
-    };
-    // Send data to backend
-    this.http.post<any>(API_KHARCH_ADD, this.row).subscribe((response) => {
-      // const responseData = response.expenses;
-      this.notificationService.success("Kharch data succefully add.");
-      this.purchaDipStockseDetails.date = null;
-      this.row = [];
-      this.dialogRef.close();
+                   <div class="card-body">
+                      <div class="row">
+                         <div class="col-md-4">
+                            <label for="start-date">Start Date:</label>
+                            <input type="date" id="start-date" [(ngModel)]="startDateJb" class="form-control" required />
+                         </div>
+                         <div class="col-md-4">
+                            <label for="end-date">End Date:</label>
+                            <input type="date" id="end-date" [(ngModel)]="endDateJb" class="form-control" required />
+                         </div>
+                      </div>
+                      <div class="row" *ngIf="startDateJb && endDateJb">
+                        <div class="col-md-8">
+                            <mat-form-field appearance="fill" style="width: 100%;">
+                              <mat-label>Select Expense</mat-label>
+                              <mat-select placeholder="Select Expense"
+                                          [(ngModel)]="selectedExpense"
+                                          (selectionChange)="expensesExcel($event)">
+                                <mat-option *ngFor="let expense of expensesList" [value]="expense">
+                                  {{ expense }}
+                                </mat-option>
+                              </mat-select>
+                            </mat-form-field>
+                          </div>
+                          
+                      </div>
+                   </div>
+                </div>
+				
+				expensesExcel(event: any): void {
+    const dialogRef = this.dialog.open(ExpensesExcelComponent, {
+      width: "50%",
+      height: "50%",
+      data: {
+        expense: this.selectedExpense,
+        startDate: this.startDateJb,
+        endDate: this.endDateJb,
+      },
     });
-  }
-  isFormValid(): boolean {
-    if (!this.purchaDipStockseDetails.date) {
-      return false;
-    }
-    for (let item of this.row) {
-      if (!item.idkharch || !item.expenses || !item.price || !item.notes) {
-        return false;
-      }
-    }
-    return true;
-  }
-  purchaseDetails: any = {
-    date: "", // You can set default date if needed
-  };
-  row: any[] = [];
-  lastRowId: number = 0;
-
-  addTable() {
-    // Add a new row to the table
-    if (this.purchaDipStockseDetails.date) {
-      this.lastRowId++;
-      this.userId = localStorage.getItem("userId");
-      // this.row.push({ id: '', date: this.purchaDipStockseDetails.date, notes: '', price: '' });
-      const newRow = {
-        idkharch: this.lastRowId,
-        date: this.purchaDipStockseDetails.date,
-        expenses: "",
-        price: "",
-        notes: "",
-        userId: this.userId,
-      };
-      this.row.push(newRow);
-    } else {
-      this.notificationService.failure(
-        "Please fill in all the required fields before adding a new row."
-      );
-    }
-  }
-
-  deleteRow(index: number) {
-    // Remove a row from the table
-    this.row.splice(index, 1);
-  }
-
-  totalPrice() {
-    let sum = 0;
-    this.row.forEach((item) => {
-      sum += parseInt(item.price || "0", 10);
-    });
-    return sum;
-  }
-
-  cancel() {
-    this.dialogRef.close({ isReload: this.isReload });
-  }
-
-  getexpensesList() {
-    this.use.getexpensesList().subscribe((response) => {
-      this.expensesList = response.map((item) => item.expensesList);
-      this.filteredExpenses = [...this.expensesList]; // clone full list
-    });
-  }
-
-  onSearchChange() {
-    const query = this.searchText.toLowerCase();
-    this.filteredExpenses = this.expensesList.filter((expense) =>
-      expense.toLowerCase().includes(query)
-    );
-  }
-
-  onSelectOpened() {
-    this.searchText = "";
-    this.filteredExpenses = [...this.expensesList];
-  }
-
-  expense() {
-    const dialogRef = this.dialog.open(ExpensesListComponent, {
-      width: "40%",
-      height: "30%",
-      disableClose: true,
-    });
-
     dialogRef.afterClosed().subscribe((result) => {
-      this.getexpensesList();
+      if (result) {
+        location.reload();
+      }
     });
   }
-}
-/////////////////////////////////////
-export class ExpensesListComponent implements OnInit {
+  
+  
+  export class ExpensesExcelComponent implements OnInit {
 
   isReload: boolean;
-  inputValue: string = '';
-
-  constructor(public dialogRef: MatDialogRef<ExpensesListComponent>,
-    private user:UserServiceService,private notificationService:NotificationService
-  ) { }
+  expenseList: any[] = [];
+  
+  constructor(@Inject(MAT_DIALOG_DATA) public data: any,
+    private user: UserServiceService, private dialogRef: MatDialogRef<ExpensesExcelComponent>) {
+  }
 
   ngOnInit(): void {
+    this.fetchExpence();
   }
 
- logInput() {
-  const payload = { expensesList: this.inputValue };
-  this.user.addExpence(payload).subscribe({
-    next: res => {
-      if (res) {
-        this.notificationService.success("✅ Data saved successfully.");
-        this.dialogRef.close({ isReload: this.isReload });
-      }
-    },
-    error: (err) => console.error('Error saving:', err),
-  });
- }
+  fetchExpence(): void {
+    this.user.getExpenses(this.data.expense, this.data.startDate, this.data.endDate).subscribe((data: any[]) => {
+    this.expenseList = data.map(item => ({
+      date: item.date,
+      expenses: item.expenses,
+      price: item.price
+    }));
+    });
+
+  }
+
+
+  printTable() {
+    const printContent = document.getElementById('ExpenseTable')?.outerHTML;
+    const originalContent = document.body.innerHTML;
+
+    document.body.innerHTML = printContent ?? '';
+    window.print();
+    document.body.innerHTML = originalContent;
+    window.location.reload(); // To reload the page and reset the original content
+  }
+
+  exportToExcel() {
+    // Convert HTML table to workbook
+    const ws: XLSX.WorkSheet = XLSX.utils.table_to_sheet(document.getElementById('ExpenseTable')!);
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+
+    // Save the workbook
+    XLSX.writeFile(wb, 'Expense_Data.xlsx');
+  }
 
   cancel() {
-    this.dialogRef.close({ isReload: this.isReload });
+    this.dialogRef.close({ 'isReload': this.isReload });
   }
 
 }
-/////////////////////////////
-<div class="input-container">
-  <input [(ngModel)]="inputValue" placeholder="Enter text" />
-  <button (click)="logInput()">Add</button>
-  <button (click)="cancel()">Cancel</button>
-</div>
-.input-container {
+
+
+
+<div class="button-group">
+    <button mat-raised-button  (click)="exportToExcel()">
+      <mat-icon>file_download</mat-icon>
+      Export to Excel
+    </button>
+    <button mat-raised-button  (click)="printTable()">
+      <mat-icon>picture_as_pdf</mat-icon>
+      PDF
+    </button>
+    <button mat-raised-button  (click)="cancel()">
+      <mat-icon>cancel</mat-icon>
+      Cancel
+    </button>
+  </div>
+
+<p>Expense Name : -{{data.expense}}</p>
+<table id="ExpenseTable">
+    <thead>
+      <tr>
+        <th scope="col">Date</th>
+        <th scope="col">Expense</th>
+        <th scope="col">Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let item of expenseList">
+        <td>{{ item.date }}</td>
+        <td>{{ item.expenses }}</td>
+        <td>{{ item.price }}</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  
+  
+  .button-group {
     display: flex;
-    align-items: center;
+    justify-content: flex-end;
     gap: 10px;
-    margin: 10px 0;
+    margin-bottom: 15px;
   }
   
-  .input-container input {
-    padding: 6px 12px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    flex: 1;
+  .button-group button {
+    width: 140px;
   }
   
-  .input-container button {
-    padding: 6px 12px;
-    border: none;
-    border-radius: 4px;
-    background-color: #1976d2;
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 16px;
+    text-align: left;
+}
+
+th, td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+}
+
+th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tr:hover {
+    background-color: #f1f1f1;
+}
+
+strong {
+    font-weight: bold;
+}
+
+td[colspan="2"] {
+    text-align: center;
+}
+
+table tr:last-child td {
+    border-bottom: 2px solid #ddd;
+}
+
+.table-header {
+    background-color: #4CAF50;
     color: white;
-    cursor: pointer;
-    transition: background-color 0.2s ease;
-  }
-  
-  .input-container button:hover {
-    background-color: #1565c0;
-  }
-  
-  .input-container button:nth-child(3) {
-    background-color: #9e9e9e;
-  }
-  
-  .input-container button:nth-child(3):hover {
-    background-color: #757575;
-  }
-  ////////////////////
-getexpensesList():Observable<any> {
-      return this.http.get<any>(API_EXPENSES_LIST); 
-  }
-  
-  addExpence(payload: { expensesList: string }) {
-    return this.http.post(API_EXPENSES_ADD, payload);
-  }
+}
 
-export const API_EXPENSES_LIST: string = `${prefix}/portal/api/expenseslist`;
-export const API_EXPENSES_ADD: string = `${prefix}/portal/api/addexpenses`;
+.total-row {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
 
-////////////////////
- @GetMapping(value = "/expenseslist")
-    public List<Expenses> getexpenseslist() {
-        List<Expenses> expenses = expensesRepository.findAll();
-        return expenses;
-    }
-
-
-    @PostMapping(value = "/addexpenses")
-    public ResponseEntity<ApiResponse> saveExpense(@RequestBody  Expenses expense) {
-        expensesRepository.save(expense);
-        return ResponseEntity.ok(new ApiResponse("Data saved successfully."));
-    }
-////////////////////////////////////////////////////////////////////////////
-public class Expenses {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-
-    @Column(name = "expenses_list")
-    private String expensesList;
-////////////////////////////////////////////////////////////////////////
-INSERT INTO expenseslist (expenses_list) VALUES 
-('ASSOSIASAN FEE EXP')
-,('BANK CHARGES')
-,('BANK INTREST')
-,('BREAK FAST OPANING EXP AC')
-,('BSNL RECHARG EXP')
-,('BUILDING MARAMAT EXP')
-,('VISAN CEMERA EXP')
-,('ELETRIC BILL EXP')
-,('FIRE BOTTEL')
-,('LISAN FEES EXP')
-;
-INSERT INTO expenseslist (expenses_list) VALUES 
-('MATI PURANI EXP')
-,('PAINTING BUILDING EXP')
-,('PROFESONAL VERO EXP')
-,('SBI GENERAL INSURANCE EXP')
-,('RENT TID GJ001158 SBI POS MASHIN CHARGES')
-,('SAFAI EXP A/C')
-,('SALERY EXP A/C')
-,('STEMPING EXP')
-,('STESANARY EXP A/C')
-,('UNIFORM EXP')
-;
-INSERT INTO expenseslist (expenses_list) VALUES 
-('TRAVELING EXP A/C')
-,('VAKIL FEES EXP')
-,('VAT A/C')
-,('VYAJ')
-,('REPORT KHARCH')
-;
-
-
-//////////////////////////////////
-<td>
-                <mat-form-field style="margin-top: 4%; background-color: rgb(252, 252, 252); width: 100%;">
-                  <mat-label>Receiver</mat-label>
-                  <mat-select [(ngModel)]="item.name" (openedChange)="onReceiverOpened()">
-                    <!-- Search Box inside mat-select -->
-                    <mat-option disabled>
-                      <div class="search-box">
-                        <span class="search-icon">🔍</span>
-                        <input
-                          type="text"
-                          placeholder="Search receiver..."
-                          [(ngModel)]="receiverSearch"
-                          (ngModelChange)="filterReceivers()"
-                          class="search-input"
-                        />
-                      </div>
-                    </mat-option>
-              
-                    <!-- Filtered options -->
-                    <mat-option *ngFor="let name of filteredNames" [value]="name">
-                      {{ name }}
-                    </mat-option>
-                  </mat-select>
-                </mat-form-field>
-              </td>
-			  
-  receiverSearch: string = '';
-  filteredNames: string[] = [];
- getdata() {
-    if (this.jamaBaki && this.jamaBaki.date) {
-      this.purchaDipStockseDetails.date = this.jamaBaki.date;
-    }
-    this.userId = localStorage.getItem('userId');
-    const url = `${API_CUSTOMER_NAME}?userId=${this.userId}`;
-    this.http.get(url).subscribe((data) => {
-      this.names = Object.values(data).map((item: any) => item.name);
-    this.filteredNames = [...this.names]; 
-    });
-  }
-
-  filterReceivers() {
-    const searchLower = this.receiverSearch.toLowerCase();
-    this.filteredNames = this.names.filter(name =>
-      name.toLowerCase().includes(searchLower)
-    );
-  }
-  
-  // Optional: reset filter when dropdown is opened
-  onReceiverOpened() {
-    this.receiverSearch = '';
-    this.filteredNames = [...this.names];
-  }		
-
-
-////////////////////////////////////////////////////////////////////////////////////////////
-<div class="example-card">
-    <div class="card-header card-header-danger text-center" style="background-color: rgb(244, 75, 75);margin-top: -2%;">
-        <h4 class="card-title">Oil :-</h4>
-    </div>
-    <div style="display:inline;width:100%">
-        <div class="col-md-6">
-            <mat-form-field>
-                <input matInput [(ngModel)]="purchaDipStockseDetails.date" type="Date">
-            </mat-form-field>
-        </div>
-        <div style="display:inline;">
-            <button (click)="addTable()">Add Row</button>
-        </div>
-        <div style="display:inline;margin-left:25%">
-            <button (click)="cancel()">cancel</button>
-            <button (click)="order()">Add</button>
-        </div>
-    </div>
-    <br />
-    <table class="style">
-        <tr>
-            <th style="width: 16%;">RowId</th>
-            <th>OilType</th>
-            <th>Price</th>
-            <th>Delete</th>
-        </tr>
-        <tr *ngFor="let item of row; let i = index">
-            <td><input style="text-align: center;" type="text" [(ngModel)]="item.id" /></td>
-            <td>
-                <mat-form-field style="margin-top: 4%; background-color: rgb(252, 252, 252); width: 100%;">
-                  <mat-select [(ngModel)]="item.value" (openedChange)="onSelectOpened()">
-                    
-                    <!-- Static Search Box -->
-                    <mat-option disabled>
-                      <div style="display: flex; align-items: center; padding: 4px;">
-                        <span style="margin-right: 8px; font-size: 18px;">🔍</span>
-                        <input
-                          type="text"
-                          placeholder="Search..."
-                          [(ngModel)]="searchText"
-                          (ngModelChange)="onSearchChange()"
-                          style="padding: 6px 8px; font-size: 16px; width: 100%; border: none; outline: none; background: transparent;"
-                        />
-                      </div>
-                    </mat-option>
-              
-                    <!-- Filtered Options -->
-                    <mat-option *ngFor="let value of filteredExpenses" [value]="value">
-                      {{ value }}
-                    </mat-option>
-              
-                  </mat-select>
-                </mat-form-field>
-              </td>
-              
-            <td><input type="text" [(ngModel)]="item.price" /></td>
-            <td>
-                <button (click)="deleteRow(i)"><i class="fa fa-trash"></i></button>
-            </td>
-        </tr>
-        <tr>
-            <td colspan="2">GrandTotal:</td>
-            <td><input type="text" [value]="totalPrice()" /></td>
-        </tr>
-    </table>
-</div>
-export class OilReportComponent implements OnInit {
-
-  searchText: string = "";
-  filteredExpenses: string[] = [];
-  total = 0;
-  isReload: boolean;
-  data: any = { name: [] };
-  selectedDate!: Date | null;
-  expenseFilterCtrl = new FormControl();
-  purchaDipStockseDetails: any = {
-    date: "",
-  };
-  filteredExpensesList: Observable<string[]>;
-  typeList: string[] = [
-    // "20 Ltr",
-    // "10 Ltr",
-    // "7.5 Ltr",
-    // "5 Ltr",
-    // "1 Ltr",
-    // "0.500 Ltr",
-    // "Tuti 1 Ltr",
-    // "Tuti 0.500",
-    // "4T 900",
-    // "Break. 0.500",
-    // "Break. 0.250",
-    // "Gear 5 Ltr",
-    // "Gear 1 Ltr",
-  ];
-  userId: string;
-
-  constructor(
-    private http: HttpClient,
-    public dialogRef: MatDialogRef<OilReportComponent>,
-    private notificationService: NotificationService,
-    private use: UserServiceService,
-    @Inject(MAT_DIALOG_DATA) public oilData: any
-  ) {}
-
-  ngOnInit() {
-    if (this.oilData && this.oilData.date) {
-      this.purchaDipStockseDetails.date = this.oilData.date;
-    }
-    this.getoilList();
-    this.row[0].id = "1";
-    // this.userId = localStorage.getItem('userId');
-    // this.row = [{ id: '0', date: this.purchaDipStockseDetails.date, value: '', price: '' }];
-  }
-
-  private _filterExpenses(value: string): string[] {
-    const filterValue = value.toLowerCase();
-    return this.typeList.filter((expense) =>
-      expense.toLowerCase().includes(filterValue)
-    );
-  }
-  order() {
-    const userId = localStorage.getItem("userId");
-    if (!this.purchaDipStockseDetails.date) {
-      this.notificationService.failure(
-        "Please select a date before placing the order."
-      );
-      return;
-    }
-    if (!this.isValidData()) {
-      this.notificationService.failure("Please fill all required fields.");
-      return;
-    }
-    const data = {
-      // userId: userId,
-      expenses: this.row,
-    };
-
-    // const data = {
-    //   userId: userId,
-    //   expenses: Array.isArray(this.row) ? this.row : [this.row]  // Ensure it's an array
-    // };
-    // Send data to backend
-    this.http
-      .post<any>(API_OILSELL_ADD, data.expenses)
-      .subscribe((response) => {
-        // const responseData = response.expenses;
-        this.notificationService.success("Oilsell Data succefully add..");
-        this.purchaDipStockseDetails.date = null;
-        this.row = [];
-        this.dialogRef.close();
-      });
-  }
-  isValidData(): boolean {
-    if (!this.purchaDipStockseDetails.date) {
-      return false;
-    }
-
-    for (let item of this.row) {
-      if (!item.id || !item.value || !item.price) {
-        return false;
-      }
-    }
-    return true;
-  }
-  purchaseDetails: any = {
-    date: "", // You can set default date if needed
-  };
-  row: any[] = [];
-  lastRowId: number = 0;
-
-  addTable() {
-    if (this.purchaDipStockseDetails.date) {
-      this.lastRowId++;
-      this.userId = localStorage.getItem("userId");
-      // this.row.push({ id: '', date: this.purchaDipStockseDetails.date, notes: '', price: '' });
-      const newRow = {
-        id: this.lastRowId,
-        date: this.purchaDipStockseDetails.date,
-        value: "",
-        price: "",
-        userId: this.userId,
-      };
-      this.row.push(newRow);
-    } else {
-      this.notificationService.failure(
-        "Please fill in all the required fields before adding a new row."
-      );
-    }
-  }
-
-  deleteRow(index: number) {
-    // Remove a row from the table
-    this.row.splice(index, 1);
-  }
-
-  totalPrice() {
-    let sum = 0;
-    this.row.forEach((item) => {
-      sum += parseInt(item.price || "0", 10);
-    });
-    return sum;
-  }
-
-  cancel() {
-    this.dialogRef.close({ isReload: this.isReload });
-  }
-
-  getoilList() {
-    this.use.getoilList().subscribe((response) => {
-      // Assuming response is array of objects with oilSellList as string values
-      this.typeList = response.map((item: any) => item.oilSellList);
-      this.filteredExpenses = [...this.typeList];
-    });
-  }
-  
-  onSearchChange() {
-    const query = this.searchText.toLowerCase();
-    this.filteredExpenses = this.typeList.filter(expense =>
-      expense.toLowerCase().includes(query)
-    );
-  }
-  
-  onSelectOpened() {
-    this.searchText = '';
-    this.filteredExpenses = [...this.typeList];
-  }
-
+.total-amount-row {
+    background-color: #e2e2e2;
+    font-weight: bold;
 }
 
 
-getoilList(): Observable<any> {
-    return this.http.get<any>(API_OILSELL_LIST_REPORT);
+getExpenses(
+    expense: string,
+    startDate: string,
+    endDate: string
+  ): Observable<any[]> {
+    const userId = localStorage.getItem("userId");
+    let params = new HttpParams()
+      .set("expense", expense)
+      .set("startDate", startDate)
+      .set("endDate", endDate)
+      .set("userId", userId);
+
+    return this.http.get<any[]>(API_EXPENSE_EXCEL, { params });
   }
-
-export const API_OILSELL_LIST_REPORT: string = `${prefix}/portal/api/oillist`;
-
-
- @GetMapping(value = "/oillist")
-    public List<OilsellList> getoillist() {
-        List<OilsellList> oillist = oilsellListRepository.findAll();
-        return oillist;
+  
+  export const API_EXPENSE_EXCEL: string = `${prefix}/portal/api/expensesExcel`;
+  
+  
+   @GetMapping("/expensesExcel")
+    public List<kharch> getExpenses(
+            @RequestParam("startDate") String startDate,
+            @RequestParam("endDate") String endDate,
+            @RequestParam("expense") String expense,
+            @RequestParam("userId") String userId) {
+        return kharchrepository.findByDateBetweenAndExpensesLikeAndUserId(startDate, endDate, expense, userId);
     }
-
-
-public class OilsellList {
-
-
-    @Id
-    @GeneratedValue
-    private Integer id;
-    @Column(name = "oil_sell_list")
-    private String OilSellList;
-
-INSERT INTO oilselllist (id,oil_sell_list) VALUES 
-(1,'20 Ltr')
-,(2,'10 Ltr')
-,(3,'7.5 Ltr')
-,(4,'5 Ltr')
-,(5,'1 Ltr')
-,(6,'0.500 Ltr')
-,(7,'Tuti 1 Ltr')
-,(8,'Tuti 0.500')
-,(9,'4T 900')
-,(10,'Break. 0.500')
-;
-INSERT INTO oilselllist (id,oil_sell_list) VALUES 
-(11,'Break. 0.250')
-,(12,'Gear 5 Ltr')
-,(13,'Gear 1 Ltr')
-;	
+	
+	  @Query("SELECT j FROM kharch j WHERE j.date BETWEEN :startDate AND :endDate AND j.expenses LIKE :expenses AND j.userId = :userId")
+    List<kharch> findByDateBetweenAndExpensesLikeAndUserId(
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate,
+            @Param("expenses") String expense,
+            @Param("userId") String userId
+    );
+	
+	
+	
+	
+	////////////////////////////////////////////////////
+	getTotalPetrolSell(): number {
+    return this.PetrolSelltList.reduce((total, product) => 
+      total + (parseFloat(product.total_sell) || 0), 0
+    );
+  }
+  
+  <td style="background-color: #d0b6b6;"><strong>{{ getTotalDiesel() | number:'1.2-2' }}</strong></td>
+   getTotalDiesel(): number {
+      return this.DieselSelltList.reduce((sum, product) => 
+        sum + (parseFloat(product.total_sell) || 0), 0
+      );
+  }
+  
+  
+    getTotalOilSell(): number {
+      return this.OilsellList.reduce((total, product) => 
+        total + (parseFloat(product.price) || 0), 0
+      );
+  }
+  
+  getKharch(): number {
+      return this.kharchlist.reduce((total, product) => 
+        total + (parseFloat(product.price) || 0), 0
+      );
+  }
+  
+   getTransaction(): number {
+      return this.transaction.reduce((total, product) => 
+        total + (parseFloat(product.amount) || 0), 0
+      );
+  }
+  
+  //////////////////////////////////////////////////////////////////////////////
+   <div class="card">
+               <div>
+                  <canvasjs-chart [options]="chartOptions2" [styles]="{width: '100%', height:'360px'}"></canvasjs-chart>    
+              </div>                        
+            </div>
+			
+			chartOptions2: any = {
+    animationEnabled: true,
+    title: {
+      text: "Fuel & Baki Distribution"
+    },
+    data: [{
+      type: "pie",
+      startAngle: 240,
+      // yValueFormatString: "##0.00\"%\"",
+      indexLabel: "{label} - {y}%",
+      dataPoints: []
+    }]
+  };
+  
+  updatePieChart() {
+    this.chartOptions2 = {
+      ...this.chartOptions2,
+      data: [{
+        type: "pie",
+        startAngle: 240,
+        // yValueFormatString: "##0.00\"%\"",
+        indexLabel: "{label} - {y}",
+        dataPoints: [
+          { y: this.petrollabel, label: "Petrol ($)" },
+          { y: this.diesellabel, label: "Diesel ($)" },
+          { y: this.jamabakilabel, label: "Baki ($)" }
+        ]
+      }]
+    };
+  }
+  CanvasJSAngularChartsModule
+  import { CanvasJSAngularChartsModule } from '@canvasjs/angular-charts';
+  
+  
+  
