@@ -316,3 +316,29 @@ getExpenses(
   
   
   
+getPurchaselist(){
+  const formattedDate = this.use.getFormattedDate(this.reportDate);
+  this.use.getPurchaseiList(formattedDate, this.userId).subscribe(
+    (data) => {
+      if (data && data.length > 0) {
+        for (const item of data) {
+          const [quantity, type] = item;
+          if (type === 'Petrol') {
+            this.petolQuantity = quantity;
+          } else if (type === 'Diesel') {
+            this.dieselQuantity = quantity;
+          }
+        }
+      } else {
+        this.petolQuantity = 0;
+        this.dieselQuantity = 0;
+      }      
+    },
+    (error) => {
+      this.notificationService.failure("Failed to fetch Purchase data.");
+    }
+  );
+}
+
+    @Query("SELECT t1.Quantity,t1.type FROM Purchase t1 WHERE t1.date = :date AND t1.userId = :userId")
+    List<Purchase> getPurchase(@Param("date") String date, @Param("userId") String userId);
