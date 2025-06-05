@@ -342,3 +342,31 @@ getPurchaselist(){
 
     @Query("SELECT t1.Quantity,t1.type FROM Purchase t1 WHERE t1.date = :date AND t1.userId = :userId")
     List<Purchase> getPurchase(@Param("date") String date, @Param("userId") String userId);
+/////////////////////////
+
+  deleteUser(id) {
+     this.use.deleteUser(id).subscribe((result) => {
+      this.userList = result;
+      this.notificationService.success('User deleted successfully');
+      this.getdata();
+    });
+  }
+  
+  deleteUser(id: string): Observable<any> {
+    return this.http.delete(`${API_USER_DELETE}/${id}`);
+  }
+  
+  export const API_USER_DELETE: string = `${prefix}/portal/api/deleteUser`;
+  
+  @DeleteMapping("/deleteUser/{id}")
+    public ResponseEntity<ApiResponse> deleteUser(@PathVariable Long id) {
+        try {
+            userRepository.deleteById(id);
+            ApiResponse response = new ApiResponse("User deleted successfully");
+            return ResponseEntity.ok(response);
+        } catch (EmptyResultDataAccessException ex) {
+            return ResponseEntity.notFound().build(); 
+        }
+    }
+	
+void deleteById(Long id);
