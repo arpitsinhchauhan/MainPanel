@@ -370,3 +370,90 @@ getPurchaselist(){
     }
 	
 void deleteById(Long id);
+
+
+//Sidebar
+ngOnInit() {
+    const userId = localStorage.getItem('userId');
+    this.role = localStorage.getItem('role') || '';
+  
+    this.userService.getUserPump(userId).subscribe(response => {
+      const data = response?.data || {};
+  
+      const xpPetrolEnabled = data?.xp_petrol_nozzle !== '0';
+      const powerDieselEnabled = data?.powe_diesel_nozzle !== '0';
+  
+      // ✅ Step 1: Apply nozzle conditions
+      let filteredRoutes = ROUTES.filter(item => {
+        if (item.path === '/XPpetrol' && !xpPetrolEnabled) return false;
+        if (item.path === '/powerDiesel' && !powerDieselEnabled) return false;
+        if ((item.path === '/extraDipp' || item.path === '/extraPurchasedetails') &&
+            !xpPetrolEnabled && !powerDieselEnabled) return false;
+        return true;
+      });
+  
+      // ✅ Step 2: Apply role-based filter *on top of* nozzle filter
+      if (this.role === 'admin') {
+        this.menuItems = filteredRoutes.filter(item => item.path === '/User');
+      } else if (this.role === 'user') {
+        this.menuItems = filteredRoutes.filter(item => item.path !== '/User');
+      } else {
+        this.menuItems = filteredRoutes;
+      }
+  
+      // ✅ Step 3: Initialize scrollbar
+      if (window.matchMedia(`(min-width: 960px)`).matches && !this.isMac()) {
+        const elemSidebar = <HTMLElement>document.querySelector('.sidebar .sidebar-wrapper');
+        this.ps = new PerfectScrollbar(elemSidebar);
+      }
+    });
+  }
+  
+  
+  //server
+  @SpringBootApplication
+@EnableAutoConfiguration
+@EnableScheduling
+public class PumpManagmentApplication extends SpringBootServletInitializer {
+
+    public static void main(String[] args) {
+        SpringApplication.run(PumpManagmentApplication.class, args);
+    }
+
+}
+package pumpManagment.sedular;
+
+import java.text.ParseException;
+import java.time.LocalDateTime;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+
+/**
+ *
+ * @author Arpitsinh Chauhan
+ */
+@Service
+public class DailyTotalCleanup {
+
+    // Runs every 1 minute
+     @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    // Scheduled to run every 1 minute
+    @Scheduled(cron = "0 * * * * *", zone = "Asia/Kolkata")
+    public void DailyTotalCleanup() {
+        String sql = "DELETE FROM dailytotal " +
+                 "WHERE (date, user_id) NOT IN ( " +
+                 "SELECT DISTINCT date, user_id FROM petrolsell " +
+                 "UNION " +
+                 "SELECT DISTINCT date, user_id FROM xppetrol " +
+                 "UNION " +
+                 "SELECT DISTINCT date, user_id FROM dieselsell " +
+                 "UNION " +
+                 "SELECT DISTINCT date, user_id FROM powerdiesel " +
+                 ")";
+         int rowsDeleted = jdbcTemplate.update(sql);
+    }
+}
