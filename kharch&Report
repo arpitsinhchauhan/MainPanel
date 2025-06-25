@@ -457,3 +457,174 @@ public class DailyTotalCleanup {
          int rowsDeleted = jdbcTemplate.update(sql);
     }
 }
+
+
+ <input type="date" [(ngModel)]="startDatePdf">
+             <input type="date" [(ngModel)]="endDatePdf">
+             <button (click)="pdf()">PDF</button>
+			 
+pdf() {
+    const pdfLogData = {
+      userid: this.userId,
+      downloadTime: new Date().toISOString(),
+      fileType: 'PDF',
+      fileName: `Profit&Loss`+this.startDatePdf +`to`+this.endDatePdf+`.pdf`
+    };
+    this.use.downloadPdf(this.userId, this.startDatePdf, this.endDatePdf).subscribe(blob => {
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = pdfLogData.fileName;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      this.loaderService.display(false);
+    },
+    (error) => {
+      console.error('Error downloading the file', error);
+      this.loaderService.display(false);
+    }
+  );
+}
+
+downloadPdf(userId: any, startDate: any, endDate: any): Observable<Blob> {
+    return this.http.get(`${API_PROFIT_LOSS_PDF}/${userId}/${startDate}/${endDate}`, {
+      responseType: 'blob'
+    });
+    
+  }
+  
+  
+  export const API_PROFIT_LOSS_PDF = `${prefix}/portal/api/generatePdf`;
+  
+   @GetMapping(path = "/generatePdf/{userId}/{startDate}/{endDate}")
+public ResponseEntity<byte[]> generatePdf(
+        @PathVariable Long userId,
+        @PathVariable String startDate,
+        @PathVariable String endDate) throws ParseException {
+        ResponseEntity<byte[]> response = profitLossService.generatePdf(userId, startDate, endDate);
+        byte[] pdfBytes = response.getBody();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.add("Content-Disposition", "attachment; filename=LicenseList.pdf");
+
+        return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+
+    }
+	
+public interface ProfitLossService {
+    
+   ResponseEntity<byte[]> generatePdf(Long userId, String startDate, String endDate) throws ParseException;
+
+    
+}
+
+
+
+@Service
+public class MyReportGenerator implements ProfitLossService {
+
+    @Override
+    public ResponseEntity<byte[]> generatePdf(Long userId, String startDate, String endDate) throws ParseException {
+        try {
+            final Context ctx = new Context();
+
+            ctx.setVariable("customerInfo", "");
+
+            ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
+            resolver.setPrefix("templates/");
+            resolver.setSuffix(".html");
+            resolver.setTemplateMode(TemplateMode.HTML);
+            resolver.setCharacterEncoding("UTF-8");
+
+            // 3. Process template
+            TemplateEngine templateEngine = new TemplateEngine();
+            templateEngine.setTemplateResolver(resolver);
+            String html = templateEngine.process("ItReturn", ctx);
+
+            // 4. Generate PDF
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ITextRenderer renderer = new ITextRenderer();
+            renderer.setDocumentFromString(html);
+            renderer.layout();
+
+            renderer.createPDF(outputStream);
+
+            byte[] pdfBytes = outputStream.toByteArray();
+
+            String desktopPath = System.getProperty("user.home") + "/Desktop/Personal/";
+            String fileName = "Profit&Loss_.pdf";
+            Path outputPath = Paths.get(desktopPath + fileName);
+
+            Files.createDirectories(outputPath.getParent());
+
+            try {
+                // Write PDF file
+                Files.write(outputPath, pdfBytes);
+            } catch (IOException ex) {
+                Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.add("Content-Disposition", "attachment; filename=Profit&Loss.pdf");
+            System.out.println("PDF saved to: " + outputPath.toAbsolutePath());
+            return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+        } catch (IOException ex) {
+            Logger.getLogger(MyReportGenerator.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (DocumentException ex) {
+            Logger.getLogger(MyReportGenerator.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+}
+
+ <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>RELEASE</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.28</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.xhtmlrenderer</groupId>
+            <artifactId>flying-saucer-pdf</artifactId>
+            <version>9.1.22</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>ognl</groupId>
+            <artifactId>ognl</artifactId>
+            <version>3.2.21</version> <!-- or latest available -->
+        </dependency>
+        <dependency>
+            <groupId>org.thymeleaf</groupId>
+            <artifactId>thymeleaf</artifactId>
+            <version>3.1.2.RELEASE</version> <!-- adjust as needed -->
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.15.3</version> <!-- Or the latest stable version -->
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.15.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.15.3</version>
+        </dependency>
+░
