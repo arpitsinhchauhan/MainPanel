@@ -628,3 +628,1324 @@ public class MyReportGenerator implements ProfitLossService {
             <version>2.15.3</version>
         </dependency>
 ░
+///////////////////////////////////
+@PostMapping("/addPurchase")
+    public ResponseEntity<List<Purchase>> updatePurchase(@RequestBody List<Purchase> expenses) {
+        List<Purchase> updatedExpenses = new ArrayList<>();
+
+//        for (Purchase expense : expenses) {
+//            Optional<Purchase> existingEntry = purchaseRepository.findByDateAndType(expense.getDate(), expense.getType());
+        for (Purchase expense : expenses) {
+            Optional<Purchase> existingEntry = purchaseRepository.findByDateAndTypeAndUserId(
+                    expense.getDate(), expense.getType(), expense.getUserId()
+            );
+            if (existingEntry.isPresent()) {
+                Purchase existingExpense = existingEntry.get();
+
+                // Perform arithmetic addition instead of string concatenation
+                existingExpense.setQuantity(String.valueOf(Long.parseLong(existingExpense.getQuantity()) + Long.parseLong(expense.getQuantity())));
+                existingExpense.setTotal(String.valueOf(Long.parseLong(existingExpense.getTotal()) + Long.parseLong(expense.getTotal())));
+                existingExpense.setVat(String.valueOf(Long.parseLong(existingExpense.getVat()) + Long.parseLong(expense.getVat())));
+                existingExpense.setCess(String.valueOf(Long.parseLong(existingExpense.getCess()) + Long.parseLong(expense.getCess())));
+                existingExpense.setJtcpercentage(String.valueOf(Long.parseLong(existingExpense.getJtcpercentage()) + Long.parseLong(expense.getJtcpercentage())));
+                existingExpense.setTotal_purchase(existingExpense.getTotal_purchase() + expense.getTotal_purchase());
+
+                // Save the updated expense
+                Purchase savedExpense = purchaseRepository.save(existingExpense);
+                updatedExpenses.add(savedExpense);
+
+            } else {
+                // If it doesn't exist, it is saved as a new entry
+                Purchase savedExpense = purchaseRepository.save(expense);
+                updatedExpenses.add(savedExpense);
+            }
+        }
+        return ResponseEntity.ok(updatedExpenses);
+    }
+	
+	
+	Optional<Purchase> findByDateAndTypeAndUserId(String date, String type, String userId);
+	
+	
+	/////////////////////////////////////
+	<div>
+            <div class="title">Back Page</div>
+            <div class="row">
+               <div class="col-md-6">
+                  <div class="table-wrapper">
+                     <table *ngIf="firstTableData && firstTableData.length > 0">
+                        <thead>
+                           <tr>
+                              <th class="column">Name</th>
+                              <th class="column">Jama</th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           <tr *ngFor="let item of firstTableData">
+                              <td>{{ item[0].trim() }}</td>
+                              <td>{{ item[1] | number: '1.0-2' }}</td>
+                           </tr>
+                           <tr class="totalR">
+                              <td><strong>Total</strong></td>
+                              <td><strong>{{ jamaTotal | number: '1.0-2' }}</strong></td>
+                            </tr>
+                        </tbody>
+                     </table>
+                     <p *ngIf="!firstTableData || firstTableData.length === 0">No data available.</p>
+                  </div>
+               </div>
+               <div class="col-md-6">
+                  <div class="table-wrapper">
+                     <table *ngIf="secondTableData && secondTableData.length > 0">
+                        <thead>
+                           <tr>
+                              <th class="column">Name</th>
+                              <th class="column">Baki</th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           <tr *ngFor="let item of secondTableData">
+                              <td>{{ item[0].trim() }}</td>
+                              <td>{{ item[1] | number: '1.0-2' }}</td>
+                           </tr>
+                           <tr class="totalR">
+                              <td><strong>Total</strong></td>
+                              <td><strong>{{ bakiTotal | number: '1.0-2' }}</strong></td>
+                            </tr>
+                        </tbody>
+                     </table>
+                     <p *ngIf="!secondTableData || secondTableData.length === 0">No data available.</p>
+                  </div>
+               </div>
+            </div>
+            <div class="row">
+               <div class="col-md-6">
+                  <div class="table-wrapper">
+                     <table *ngIf="kharchSellSummary && kharchSellSummary.length > 0">
+                        <thead>
+                           <tr>
+                              <th class="column">Name</th>
+                              <th class="column">Kharch</th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           <tr *ngFor="let item of kharchSellSummary">
+                              <td>{{ item[0].trim() }}</td>
+                              <td>{{ item[1] }}</td>
+                           </tr>
+                           <tr class="totalR" >
+                              <td><strong>Total</strong></td>
+                              <td><strong>{{ kharchTotal | number: '1.0-2' }}</strong></td>
+                            </tr>
+                        </tbody>
+                     </table>
+                     <p *ngIf="!kharchSellSummary || kharchSellSummary.length === 0">No data available.</p>
+                  </div>
+               </div>
+               <div class="col-md-6">
+                  <div class="table-wrapper">
+                     <table *ngIf="transactionSellSummary && transactionSellSummary.length > 0">
+                        <thead>
+                           <tr>
+                              <th class="column">Name</th>
+                              <th class="column">Transaction Amount</th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                           <tr *ngFor="let item of transactionSellSummary">
+                              <td>{{ item[0].trim() }}</td>
+                              <td>{{ item[1] }}</td>
+                           </tr>
+                           <tr class="totalR">
+                              <td><strong>Total</strong></td>
+                              <td><strong>{{ ATMTotal | number: '1.0-2' }}</strong></td>
+                            </tr>
+                        </tbody>
+                     </table>
+                     <p *ngIf="!transactionSellSummary || transactionSellSummary.length === 0">No data available.</p>
+                  </div>
+               </div>
+            </div>
+         </div>
+		 
+		 
+		 
+		 
+		 //////////////////////////
+		 
+		 <!-- data-display.component.html -->
+<div *ngIf="productList.length > 0">
+  <button (click)="exportToExcel()">Export to Excel</button>
+  <table>
+     <tr>
+        <th>Date</th>
+        <th class="petrol">Petrol Total Close Meter</th>
+        <th>Petrol Total Open Meter</th>
+        <th>Petrol Total Sum</th>
+        <th>Petrol Total Testing</th>
+        <th>Petrol Ltr</th>
+        <th>Petrol Rate</th>
+        <th>Petrol Total Sell</th>
+        <th>Diesel Total Close Meter</th>
+        <th>Diesel Total Open Meter</th>
+        <th>Diesel Total Sum</th>
+        <th>Diesel Total Testing</th>
+        <th>Diesel Ltr</th>
+        <th>Diesel Rate</th>
+        <th>Diesel Total Sell</th>
+        <th>Oil Total Price</th>
+        <th>Kharch Total</th>
+        <th>P Type</th>
+        <th>Petrol Quantity</th>
+        <th>Petrol Total</th>
+        <th>Petrol Vat</th>
+        <th>Petrol Cess</th>
+        <th>Petrol Jtcpercentage</th>
+        <th>Petrol Total Purchase</th>
+        <th>D Type</th>
+        <th>Diesel Quantity</th>
+        <th>Diesel Total</th>
+        <th>Diesel Vat</th>
+        <th>Diesel Cess</th>
+        <th>Diesel Jtcpercentage</th>
+        <th>Diesel Total Purchase</th>
+        <th>ATM Total</th>
+        <th>Jama Total</th>
+        <th>Baki Total</th>
+        <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">XP Petrol Close Meter</th>
+        <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">XP Petrol Open Meter</th>
+        <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">XP Petrol Ltr</th>
+        <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">XP Petrol Total Sum</th>
+        <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">XP Petrol Rate</th>
+        <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">XP Petrol Testing</th>
+        <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">XP Petrol Total Sell</th>
+        <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">Power Diesel Close Meter</th>
+        <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">Power Diesel Open Meter</th>
+        <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">Power Diesel Ltr</th>
+        <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">Power Diesel Total Sum</th>
+        <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">Power Diesel Rate</th>
+        <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">Power Diesel Testing</th>
+        <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">Power Diesel Total Sell</th>
+        <!-- ✅ New XP Petrol Purchase -->
+        <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">XP Petrol Quantity</th>
+        <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">XP Petrol Total</th>
+        <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">XP Petrol VAT</th>
+        <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">XP Petrol CESS</th>
+        <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">XP Petrol JTC%</th>
+        <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">XP Petrol Total Purchase</th>
+        <!-- ✅ New Power Diesel Purchase -->
+        <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">Power Diesel Quantity</th>
+        <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">Power Diesel Total</th>
+        <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">Power Diesel VAT</th>
+        <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">Power Diesel CESS</th>
+        <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">Power Diesel JTC%</th>
+        <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">Power Diesel Total Purchase</th>
+     </tr>
+     <tr *ngFor="let item of productList">
+        <td>{{ item.date }}</td>
+        <td>{{ item.petrolTotalCloseMeter }}</td>
+        <td>{{ item.petrolTotalOpenMeter }}</td>
+        <td>{{ item.petrolTotalSum }}</td>
+        <td>{{ item.petrolTotalTesting }}</td>
+        <td>{{ item.petrolLtr }}</td>
+        <td>{{ item.petrolRate }}</td>
+        <td>{{ item.petrolTotalTotalSell }}</td>
+        <td>{{ item.dieselTotalCloseMeter }}</td>
+        <td>{{ item.dieselTotalOpenMeter }}</td>
+        <td>{{ item.dieselTotalSum }}</td>
+        <td>{{ item.dieselTotalTesting }}</td>
+        <td>{{ item.dieselLtr }}</td>
+        <td>{{ item.dieselRate }}</td>
+        <td>{{ item.dieselTotalTotalSell }}</td>
+        <td>{{ item.oilTotalPrice }}</td>
+        <td>{{ item.kharchTotal }}</td>
+        <td>{{ item.pType }}</td>
+        <td>{{ item.petrolQuantity }}</td>
+        <td>{{ item.petrolTotal }}</td>
+        <td>{{ item.petrolVat }}</td>
+        <td>{{ item.petrolCess }}</td>
+        <td>{{ item.petrolJtcpercentage }}</td>
+        <td>{{ item.petrolTotalPurchase }}</td>
+        <td>{{ item.dType }}</td>
+        <td>{{ item.dieselQuantity }}</td>
+        <td>{{ item.dieselTotal }}</td>
+        <td>{{ item.dieselVat }}</td>
+        <td>{{ item.dieselCess }}</td>
+        <td>{{ item.dieselJtcpercentage }}</td>
+        <td>{{ item.dieselTotalPurchase }}</td>
+        <td>{{ item.amountTotal }}</td>
+        <td>{{ item.jamaTotal }}</td>
+        <td>{{ item.bakiTotal }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.xppetrolCloseMeter }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.xppetrolOpenMeter }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.xppetrolLtr }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.xppetrolTotalSum }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.xppetrolRate }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.xppetrolTotalTesting }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.xppetrolTotalSell }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.powerdieselCloseMeter }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.powerdieselOpenMeter }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.powerdieselLtr }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.powerdieselTotalSum }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.powerdieselRate }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.powerdieselTotalTesting }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.powerdieselTotalSell }}</td>
+        <!-- ✅ New XP Petrol Purchase -->
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.xppetrolQuantity }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.xppetrolTotal }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.xppetrolVat }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.xppetrolCess }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.xppetrolJtcpercentage }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.xppetrolTotalPurchase }}</td>
+        <!-- ✅ New Power Diesel Purchase -->
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.powerdieselQuantity }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.powerdieselTotal }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.powerdieselVat }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.powerdieselCess }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.powerdieselJtcpercentage }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.powerdieselTotalPurchase }}</td>
+     </tr>
+     <tr>
+        <td colspan="3"></td>
+        <td>{{ totalPetrolSum }}</td>
+        <td></td>
+        <td>{{ totalPetrolltr }}</td>
+        <td></td>
+        <td>{{ totalPetroltotalsum }}</td>
+        <td></td>
+        <td></td>
+        <td>{{ totalDieselsum }}</td>
+        <td></td>
+        <td>{{ totalDieselltr }}</td>
+        <td></td>
+        <td>{{ totalDieseltotalSum }}</td>
+        <td>{{ totalOilTotalPrice }}</td>
+        <td>{{ totalKharchTotal }}</td>
+        <td></td>
+        <td>{{ totalPetrolQuantity }}</td>
+        <td>{{ totalPetrolTotal }}</td>
+        <td>{{ totalPetrolVat }}</td>
+        <td>{{ totalPetrolCess }}</td>
+        <td>{{ totalPetrolJtcpercentage }}</td>
+        <td>{{ totalPetrolTotalPurchase }}</td>
+        <td></td>
+        <td>{{ totalDieselQuantity }}</td>
+        <td>{{ totalDieselTotal }}</td>
+        <td>{{ totalDieselVat }}</td>
+        <td>{{ totalDieselCess }}</td>
+        <td>{{ totalDieselJtcpercentage }}</td>
+        <td>{{ totalDieselTotalPurchase }}</td>
+        <td>{{ totalAmountTotal }}</td>
+        <td>{{ totalJamaTotal }}</td>
+        <td>{{ totalBakiTotal }}</td>
+        <!-- XP Petrol Totals -->
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0"></td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0"></td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalXpPetrolLtr }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalXpPetrolTotalSum }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0"></td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0"></td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalXpPetrolTotalSell }}</td>
+        <!-- Power Diesel Totals -->
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0"></td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0"></td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalPowerDieselLtr }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalPowerDieselTotalSum }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0"></td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0"></td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalPowerDieselTotalSell }}</td>
+        <!-- XP Petrol Purchase Totals -->
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalXpPetrolQuantity }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalXpPetrolTotal }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalXpPetrolVat }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalXpPetrolCess }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalXpPetrolJtcpercentage }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalXpPetrolTotalPurchase }}</td>
+        <!-- Power Diesel Purchase Totals -->
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalPowerDieselQuantity }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalPowerDieselTotal }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalPowerDieselVat }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalPowerDieselCess }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalPowerDieselJtcpercentage }}</td>
+        <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalPowerDieselTotalPurchase }}</td>
+     </tr>
+  </table>
+</div>
+<div *ngIf="productList.length === 0">
+  No data available.
+</div>
+
+
+///////////////
+
+export class PumpDetailComponent implements OnInit {
+  // productList: any = [];
+  startDate: string;
+  totalPetrolSum: number = 0;
+  endDate: string;
+  combinedSummary: any[] = [];
+  productList: AggregatedDataDTO[] = [];
+  totalPetrolltr: number = 0;
+  totalPetroltotalsum: number = 0;
+  totalDieselsum: number = 0;
+  totalDieselltr: number = 0;
+  totalDieseltotalSum: number = 0;
+  totalOilTotalPrice: number = 0;
+  totalKharchTotal: number = 0;
+  totalPetrolQuantity: number = 0;
+  totalPetrolTotal: number = 0;
+  totalPetrolVat: number = 0;
+  totalPetrolCess: number = 0;
+  totalPetrolJtcpercentage: number = 0;
+  totalPetrolTotalPurchase: number = 0;
+  totalDieselQuantity: number = 0;
+  totalDieselTotal: number = 0;
+  totalDieselVat: number = 0;
+  totalDieselCess: number = 0;
+  totalDieselJtcpercentage: number = 0;
+  totalDieselTotalPurchase: number = 0;
+  totalAmountTotal: number = 0;
+  totalJamaTotal: number = 0;
+  totalBakiTotal: number = 0;
+  // XP Petrol Totals
+  totalXpPetrolLtr: number = 0;
+  totalXpPetrolTotalSum: number = 0;
+  totalXpPetrolTotalSell: number = 0;
+  totalXpPetrolQuantity: number = 0;
+  totalXpPetrolTotal: number = 0;
+  totalXpPetrolVat: number = 0;
+  totalXpPetrolCess: number = 0;
+  totalXpPetrolJtcpercentage: number = 0;
+  totalXpPetrolTotalPurchase: number = 0;
+
+  // Power Diesel Totals
+  totalPowerDieselLtr: number = 0;
+  totalPowerDieselTotalSum: number = 0;
+  totalPowerDieselTotalSell: number = 0;
+  totalPowerDieselQuantity: number = 0;
+  totalPowerDieselTotal: number = 0;
+  totalPowerDieselVat: number = 0;
+  totalPowerDieselCess: number = 0;
+  totalPowerDieselJtcpercentage: number = 0;
+  totalPowerDieselTotalPurchase: number = 0;
+  xp_petrol_nozzle: number;
+  powe_diesel_nozzle: number;
+  userId = localStorage.getItem("userId");
+
+  constructor(
+    private http: HttpClient,
+    private use: UserServiceService,
+    private dialog: MatDialog,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) {
+    this.startDate = data.startDate;
+    this.endDate = data.endDate;
+  }
+
+  ngOnInit(): void {
+    this.getPurchase();
+    this.getUserName();
+  }
+
+  getUserName() {
+    this.use.getUserNameAndNozzle(this.userId).subscribe((data) => {
+      this.xp_petrol_nozzle = Number(data.data.xp_petrol_nozzle);
+      this.powe_diesel_nozzle = Number(data.data.powe_diesel_nozzle);
+    });
+  }
+
+  getPurchase() {
+    const userId = localStorage.getItem("userId");
+    const params = new HttpParams()
+      .set("startDate", this.startDate.toString().split("T")[0])
+      .set("endDate", this.endDate.toString().split("T")[0])
+      .set("userId", userId);
+
+    this.http
+      .get<AggregatedDataDTO[]>(API_AGGREGATED_DATA, { params })
+      .subscribe(
+        (data) => {
+          this.productList = data;
+          this.calculateTotals();
+        },
+        (error) => {
+          console.error("Error fetching data:", error);
+        }
+      );
+  }
+
+  calculateTotals() {
+    this.totalPetrolSum = this.productList.reduce((sum, item) => {
+      return sum + item.petrolTotalSum;
+    }, 0);
+    this.totalPetrolltr = this.productList.reduce(
+      (sum, item) => sum + item.petrolLtr,
+      0
+    );
+    this.totalPetroltotalsum = this.productList.reduce(
+      (sum, item) => sum + item.petrolTotalTotalSell,
+      0
+    );
+    this.totalDieselsum = this.productList.reduce(
+      (sum, item) => sum + item.dieselTotalSum,
+      0
+    );
+    this.totalDieselltr = this.productList.reduce(
+      (sum, item) => sum + item.dieselLtr,
+      0
+    );
+    this.totalDieseltotalSum = this.productList.reduce(
+      (sum, item) => sum + item.dieselTotalTotalSell,
+      0
+    );
+
+    this.totalOilTotalPrice = this.productList.reduce(
+      (sum, item) => sum + item.oilTotalPrice,
+      0
+    );
+    this.totalKharchTotal = this.productList.reduce(
+      (sum, item) => sum + item.kharchTotal,
+      0
+    );
+    this.totalPetrolQuantity = this.productList.reduce(
+      (sum, item) => sum + item.petrolQuantity,
+      0
+    );
+    this.totalPetrolTotal = this.productList.reduce(
+      (sum, item) => sum + item.petrolTotal,
+      0
+    );
+    this.totalPetrolVat = this.productList.reduce(
+      (sum, item) => sum + item.petrolVat,
+      0
+    );
+    this.totalPetrolCess = this.productList.reduce(
+      (sum, item) => sum + item.petrolCess,
+      0
+    );
+    this.totalPetrolJtcpercentage = this.productList.reduce(
+      (sum, item) => sum + item.petrolJtcpercentage,
+      0
+    );
+    this.totalPetrolTotalPurchase = this.productList.reduce(
+      (sum, item) => sum + item.petrolTotalPurchase,
+      0
+    );
+    this.totalDieselQuantity = this.productList.reduce(
+      (sum, item) => sum + item.dieselQuantity,
+      0
+    );
+    this.totalDieselTotal = this.productList.reduce(
+      (sum, item) => sum + item.dieselTotal,
+      0
+    );
+    this.totalDieselVat = this.productList.reduce(
+      (sum, item) => sum + item.dieselVat,
+      0
+    );
+    this.totalDieselCess = this.productList.reduce(
+      (sum, item) => sum + item.dieselCess,
+      0
+    );
+    this.totalDieselJtcpercentage = this.productList.reduce(
+      (sum, item) => sum + item.dieselJtcpercentage,
+      0
+    );
+    this.totalDieselTotalPurchase = this.productList.reduce(
+      (sum, item) => sum + item.dieselTotalPurchase,
+      0
+    );
+    this.totalAmountTotal = this.productList.reduce(
+      (sum, item) => sum + item.amountTotal,
+      0
+    );
+    this.totalJamaTotal = this.productList.reduce(
+      (sum, item) => sum + item.jamaTotal,
+      0
+    );
+    this.totalBakiTotal = this.productList.reduce(
+      (sum, item) => sum + item.bakiTotal,
+      0
+    );
+    // XP Petrol totals
+    this.totalXpPetrolLtr = this.productList.reduce(
+      (sum, item) => sum + item.xppetrolLtr,
+      0
+    );
+    this.totalXpPetrolTotalSum = this.productList.reduce(
+      (sum, item) => sum + item.xppetrolTotalSum,
+      0
+    );
+    this.totalXpPetrolTotalSell = this.productList.reduce(
+      (sum, item) => sum + item.xppetrolTotalSell,
+      0
+    );
+    this.totalXpPetrolQuantity = this.productList.reduce(
+      (sum, item) => sum + item.xppetrolQuantity,
+      0
+    );
+    this.totalXpPetrolTotal = this.productList.reduce(
+      (sum, item) => sum + item.xppetrolTotal,
+      0
+    );
+    this.totalXpPetrolVat = this.productList.reduce(
+      (sum, item) => sum + item.xppetrolVat,
+      0
+    );
+    this.totalXpPetrolCess = this.productList.reduce(
+      (sum, item) => sum + item.xppetrolCess,
+      0
+    );
+    this.totalXpPetrolJtcpercentage = this.productList.reduce(
+      (sum, item) => sum + item.xppetrolJtcpercentage,
+      0
+    );
+    this.totalXpPetrolTotalPurchase = this.productList.reduce(
+      (sum, item) => sum + item.xppetrolTotalPurchase,
+      0
+    );
+
+    // Power Diesel totals
+    this.totalPowerDieselLtr = this.productList.reduce(
+      (sum, item) => sum + item.powerdieselLtr,
+      0
+    );
+    this.totalPowerDieselTotalSum = this.productList.reduce(
+      (sum, item) => sum + item.powerdieselTotalSum,
+      0
+    );
+    this.totalPowerDieselTotalSell = this.productList.reduce(
+      (sum, item) => sum + item.powerdieselTotalSell,
+      0
+    );
+    this.totalPowerDieselQuantity = this.productList.reduce(
+      (sum, item) => sum + item.powerdieselQuantity,
+      0
+    );
+    this.totalPowerDieselTotal = this.productList.reduce(
+      (sum, item) => sum + item.powerdieselTotal,
+      0
+    );
+    this.totalPowerDieselVat = this.productList.reduce(
+      (sum, item) => sum + item.powerdieselVat,
+      0
+    );
+    this.totalPowerDieselCess = this.productList.reduce(
+      (sum, item) => sum + item.powerdieselCess,
+      0
+    );
+    this.totalPowerDieselJtcpercentage = this.productList.reduce(
+      (sum, item) => sum + item.powerdieselJtcpercentage,
+      0
+    );
+    this.totalPowerDieselTotalPurchase = this.productList.reduce(
+      (sum, item) => sum + item.powerdieselTotalPurchase,
+      0
+    );
+  }
+
+  exportToExcel(): void {
+    const totalsRow = {
+      date: "Total",
+      petrolTotalCloseMeter: "",
+      petrolTotalOpenMeter: "",
+      petrolTotalSum: this.totalPetrolSum,
+      petrolTotalTesting: "",
+      petrolLtr: this.totalPetrolltr,
+      petrolRate: "",
+      petrolTotalTotalSell: this.totalPetroltotalsum,
+      dieselTotalCloseMeter: "",
+      dieselTotalOpenMeter: "",
+      dieselTotalSum: this.totalDieselsum,
+      dieselTotalTesting: "",
+      dieselLtr: this.totalDieselltr,
+      dieselRate: "",
+      dieselTotalTotalSell: this.totalDieseltotalSum,
+      oilTotalPrice: this.totalOilTotalPrice,
+      kharchTotal: this.totalKharchTotal,
+      pType: "",
+      petrolQuantity: this.totalPetrolQuantity,
+      petrolTotal: this.totalPetrolTotal,
+      petrolVat: this.totalPetrolVat,
+      petrolCess: this.totalPetrolCess,
+      petrolJtcpercentage: this.totalPetrolJtcpercentage,
+      petrolTotalPurchase: this.totalPetrolTotalPurchase,
+      dType: "",
+      dieselQuantity: this.totalDieselQuantity,
+      dieselTotal: this.totalDieselTotal,
+      dieselVat: this.totalDieselVat,
+      dieselCess: this.totalDieselCess,
+      dieselJtcpercentage: this.totalDieselJtcpercentage,
+      dieselTotalPurchase: this.totalDieselTotalPurchase,
+      amountTotal: this.totalAmountTotal,
+      jamaTotal: this.totalJamaTotal,
+      bakiTotal: this.totalBakiTotal,
+      xppetrolCloseMeter: "", // leave blank if not calculated
+      xppetrolOpenMeter: "",
+      xppetrolLtr: this.totalXpPetrolLtr,
+      xppetrolTotalSum: this.totalXpPetrolTotalSum,
+      xppetrolRate: "", 
+      xppetrolTotalTesting: "",
+      xppetrolTotalSell: this.totalXpPetrolTotalSell,
+      xppetrolQuantity: this.totalXpPetrolQuantity,
+      xppetrolTotal: this.totalXpPetrolTotal,
+      xppetrolVat: this.totalXpPetrolVat,
+      xppetrolCess: this.totalXpPetrolCess,
+      xppetrolJtcpercentage: this.totalXpPetrolJtcpercentage,
+      xppetrolTotalPurchase: this.totalXpPetrolTotalPurchase,
+
+      // Power Diesel Totals
+      powerdieselCloseMeter: "",
+      powerdieselOpenMeter: "",
+      powerdieselLtr: this.totalPowerDieselLtr,
+      powerdieselTotalSum: this.totalPowerDieselTotalSum,
+      powerdieselRate: "",
+      powerdieselTotalTesting: "",
+      powerdieselTotalSell: this.totalPowerDieselTotalSell,
+      powerdieselQuantity: this.totalPowerDieselQuantity,
+      powerdieselTotal: this.totalPowerDieselTotal,
+      powerdieselVat: this.totalPowerDieselVat,
+      powerdieselCess: this.totalPowerDieselCess,
+      powerdieselJtcpercentage: this.totalPowerDieselJtcpercentage,
+      powerdieselTotalPurchase: this.totalPowerDieselTotalPurchase,
+    };
+
+    const dataWithTotals = [...this.productList, totalsRow];
+
+    // Define the headers you want in specific order
+    const headerOrder = [
+      "date",
+      "petrolTotalCloseMeter",
+      "petrolTotalOpenMeter",
+      "petrolTotalSum",
+      "petrolTotalTesting",
+      "petrolLtr",
+      "petrolRate",
+      "petrolTotalTotalSell",
+      "dieselTotalCloseMeter",
+      "dieselTotalOpenMeter",
+      "dieselTotalSum",
+      "dieselTotalTesting",
+      "dieselLtr",
+      "dieselRate",
+      "dieselTotalTotalSell",
+      "oilTotalPrice",
+      "kharchTotal",
+      "pType",
+      "petrolQuantity",
+      "petrolTotal",
+      "petrolVat",
+      "petrolCess",
+      "petrolJtcpercentage",
+      "petrolTotalPurchase",
+      "dType",
+      "dieselQuantity",
+      "dieselTotal",
+      "dieselVat",
+      "dieselCess",
+      "dieselJtcpercentage",
+      "dieselTotalPurchase",
+      "amountTotal",
+      "jamaTotal",
+      "bakiTotal",
+      "xppetrolCloseMeter",
+      "xppetrolOpenMeter",
+      "xppetrolLtr",
+      "xppetrolRate",
+      "xppetrolTotalSum",
+      "xppetrolTotalTesting",
+      "xppetrolTotalSell",
+      "xppetrolQuantity",
+      "xppetrolTotal",
+      "xppetrolVat",
+      "xppetrolCess",
+      "xppetrolJtcpercentage",
+      "xppetrolTotalPurchase",
+
+      "powerdieselCloseMeter",
+      "powerdieselOpenMeter",
+      "powerdieselLtr",
+      "powerdieselRate",
+      "powerdieselTotalSum",
+      "powerdieselTotalTesting",
+      "powerdieselTotalSell",
+      "powerdieselQuantity",
+      "powerdieselTotal",
+      "powerdieselVat",
+      "powerdieselCess",
+      "powerdieselJtcpercentage",
+      "powerdieselTotalPurchase",
+    ];
+
+    // Map custom labels to headers (optional)
+    const headerLabels = {
+      date: "Date",
+      petrolTotalCloseMeter: "Petrol Close Meter",
+      petrolTotalOpenMeter: "Petrol Open Meter",
+      petrolTotalSum: "Petrol Sum",
+      petrolTotalTesting: "Petrol Testing",
+      petrolLtr: "Petrol Liters",
+      petrolRate: "Petrol Rate",
+      petrolTotalTotalSell: "Petrol Total Sell",
+      dieselTotalCloseMeter: "Diesel Close Meter",
+      dieselTotalOpenMeter: "Diesel Open Meter",
+      dieselTotalSum: "Diesel Sum",
+      dieselTotalTesting: "Diesel Testing",
+      dieselLtr: "Diesel Liters",
+      dieselRate: "Diesel Rate",
+      dieselTotalTotalSell: "Diesel Total Sell",
+      oilTotalPrice: "Oil Total Price",
+      kharchTotal: "Expenses Total",
+      pType: "Petrol Type",
+      petrolQuantity: "Petrol Quantity",
+      petrolTotal: "Petrol Total",
+      petrolVat: "Petrol VAT",
+      petrolCess: "Petrol Cess",
+      petrolJtcpercentage: "Petrol JTC %",
+      petrolTotalPurchase: "Petrol Purchase Total",
+      dType: "Diesel Type",
+      dieselQuantity: "Diesel Quantity",
+      dieselTotal: "Diesel Total",
+      dieselVat: "Diesel VAT",
+      dieselCess: "Diesel Cess",
+      dieselJtcpercentage: "Diesel JTC %",
+      dieselTotalPurchase: "Diesel Purchase Total",
+      amountTotal: "Amount Total",
+      jamaTotal: "Jama Total",
+      bakiTotal: "Baki Total",
+      xppetrolCloseMeter: "XP Petrol Close Meter",
+      xppetrolOpenMeter: "XP Petrol Open Meter",
+      xppetrolLtr: "XP Petrol Liters",
+      xppetrolTotalSum: "XP Petrol Sum",
+      xppetrolRate: "XP Petrol Rate",
+      xppetrolTotalTesting: "XP Petrol Testing",
+      xppetrolTotalSell: "XP Petrol Total Sell",
+      xppetrolQuantity: "XP Petrol Quantity",
+      xppetrolTotal: "XP Petrol Total",
+      xppetrolVat: "XP Petrol VAT",
+      xppetrolCess: "XP Petrol Cess",
+      xppetrolJtcpercentage: "XP Petrol JTC %",
+      xppetrolTotalPurchase: "XP Petrol Purchase Total",
+
+      powerdieselCloseMeter: "Power Diesel Close Meter",
+      powerdieselOpenMeter: "Power Diesel Open Meter",
+      powerdieselLtr: "Power Diesel Liters",
+      powerdieselTotalSum: "Power Diesel Sum",
+      powerdieselRate: "Power Diesel Rate",
+      powerdieselTotalTesting: "Power Diesel Testing",
+      powerdieselTotalSell: "Power Diesel Total Sell",
+      powerdieselQuantity: "Power Diesel Quantity",
+      powerdieselTotal: "Power Diesel Total",
+      powerdieselVat: "Power Diesel VAT",
+      powerdieselCess: "Power Diesel Cess",
+      powerdieselJtcpercentage: "Power Diesel JTC %",
+      powerdieselTotalPurchase: "Power Diesel Purchase Total",
+    
+
+    };
+
+    // Convert JSON to sheet with header order
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(dataWithTotals, {
+      header: headerOrder,
+    });
+
+    // Replace headers with custom labels
+    const range = XLSX.utils.decode_range(worksheet["!ref"] || "");
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+      const cell_address = { c: C, r: 0 };
+      const cell_ref = XLSX.utils.encode_cell(cell_address);
+      const originalHeader = worksheet[cell_ref]?.v;
+      if (originalHeader && headerLabels[originalHeader]) {
+        worksheet[cell_ref].v = headerLabels[originalHeader];
+      }
+    }
+
+    const workbook: XLSX.WorkBook = {
+      Sheets: { data: worksheet },
+      SheetNames: ["data"],
+    };
+
+    XLSX.writeFile(workbook, "ProductList.xlsx");
+  }
+}
+
+
+//////////////
+
+export interface AggregatedDataDTO {
+  date: string;
+  PetrolTotalCloseMeter: number;
+  petrolTotalOpenMeter: number;
+  petrolTotalSum: number;
+  petrolTotalTesting: number;
+  petrolLtr: number;
+  petrolRate: number;
+  petrolTotalTotalSell: number;
+  dieselTotalCloseMeter: number;
+  dieselTotalOpenMeter: number;
+  dieselTotalSum: number;
+  dieselTotalTesting: number;
+  dieselLtr: number;
+  dieselRate: number;
+  dieselTotalTotalSell: number;
+  oilTotalPrice: number;
+  kharchTotal: number;
+  pType: String ;
+  petrolQuantity: number;
+  petrolTotal: number;
+  petrolVat: number;
+  petrolCess: number;
+  petrolJtcpercentage: number;
+  petrolTotalPurchase: number;
+  dType: String ;
+  dieselQuantity: number;
+  dieselTotal: number;
+  dieselVat: number;
+  dieselCess: number;
+  dieselJtcpercentage: number;
+  dieselTotalPurchase: number;
+  amountTotal: number;
+  jamaTotal: number;
+  bakiTotal: number;
+  xppetrolCloseMeter: number;
+  xppetrolOpenMeter: number;
+  xppetrolLtr: number;
+  xppetrolTotalSum: number;
+  xppetrolTotalTesting: number;
+  xppetrolTotalSell: number;
+
+  powerdieselCloseMeter: number;
+  powerdieselOpenMeter: number;
+  powerdieselLtr: number;
+  powerdieselTotalSum: number;
+  powerdieselTotalTesting: number;
+  powerdieselTotalSell: number;
+
+ // ✅ New XP Petrol purchase fields
+  xppetrolQuantity: number;
+  xppetrolTotal: number;
+  xppetrolVat: number;
+  xppetrolCess: number;
+  xppetrolJtcpercentage: number;
+  xppetrolTotalPurchase: number;
+
+  // ✅ New Power Diesel purchase fields
+  powerdieselQuantity: number;
+  powerdieselTotal: number;
+  powerdieselVat: number;
+  powerdieselCess: number;
+  powerdieselJtcpercentage: number;
+  powerdieselTotalPurchase: number;
+}
+
+
+/////////
+ @GetMapping("/aggregated-data-alldata")
+    public List<AggregatedDataDTO> getAggregatedData(
+            @RequestParam String startDate,
+            @RequestParam String endDate,
+            @RequestParam String userId) {
+
+        UserNozzleDTO userData = userRepository.getUserData(Long.parseLong(userId));
+
+        boolean includeXpPetrol = userData != null
+                && parseIntSafe(userData.getXp_petrol_nozzle()) > 0;
+
+        boolean includePowerDiesel = userData != null
+                && parseIntSafe(userData.getPowe_diesel_nozzle()) > 0;
+
+        List<Map<String, Object>> myobj = queryThis(startDate, endDate, userId);
+        List<AggregatedDataDTO> result = new ArrayList<>();
+        for (Map<String, Object> map : myobj) {
+            AggregatedDataDTO dto = new AggregatedDataDTO();
+            dto.setDate((String) map.get("date"));
+            dto.setPetrolTotalCloseMeter(convertToDouble(map.get("petrol_total_close_meter")));
+            dto.setPetrolTotalOpenMeter(convertToDouble(map.get("petrol_total_open_meter")));
+            dto.setPetrolTotalSum(convertToDouble(map.get("petrol_total_sum")));
+            dto.setPetrolTotalTesting(convertToDouble(map.get("petrol_total_testing")));
+            dto.setPetrolLtr(convertToDouble(map.get("petrol_ltr")));
+            dto.setPetrolRate(convertToDouble(map.get("petrol_rate")));
+            dto.setPetrolTotalTotalSell(convertToDouble(map.get("petrol_total_total_sell")));
+            dto.setDieselTotalCloseMeter(convertToDouble(map.get("diesel_total_close_meter")));
+            dto.setDieselTotalOpenMeter(convertToDouble(map.get("diesel_total_open_meter")));
+            dto.setDieselTotalSum(convertToDouble(map.get("diesel_total_sum")));
+            dto.setDieselTotalTesting(convertToDouble(map.get("diesel_total_testing")));
+            dto.setDieselLtr(convertToDouble(map.get("diesel_ltr")));
+            dto.setDieselRate(convertToDouble(map.get("diesel_rate")));
+            dto.setDieselTotalTotalSell(convertToDouble(map.get("diesel_total_total_sell")));
+            dto.setOilTotalPrice(convertToDouble(map.get("oil_total_price")));
+            dto.setKharchTotal(convertToDouble(map.get("Kharch_Total")));
+            dto.setpType((String) map.get("PType"));
+            dto.setPetrolQuantity(convertToDouble(map.get("Petrol_Quantity")));
+            dto.setPetrolTotal(convertToDouble(map.get("Petrol_Total")));
+            dto.setPetrolVat(convertToDouble(map.get("Petrol_Vat")));
+            dto.setPetrolCess(convertToDouble(map.get("Petrol_Cess")));
+            dto.setPetrolJtcpercentage(convertToDouble(map.get("Petrol_Jtcpercentage")));
+            dto.setPetrolTotalPurchase(convertToDouble(map.get("Petrol_Total_purchase")));
+            dto.setdType((map.get("DType")).toString());
+            dto.setDieselQuantity(convertToDouble(map.get("Diesel_Quantity")));
+            dto.setDieselTotal(convertToDouble(map.get("Diesel_Total")));
+            dto.setDieselVat(convertToDouble(map.get("Diesel_Vat")));
+            dto.setDieselCess(convertToDouble(map.get("Diesel_Cess")));
+            dto.setDieselJtcpercentage(convertToDouble(map.get("Diesel_Jtcpercentage")));
+            dto.setDieselTotalPurchase(convertToDouble(map.get("Diesel_Total_Purchase")));
+            dto.setAmountTotal(convertToDouble(map.get("Amount_Total")));
+            dto.setJamaTotal(convertToDouble(map.get("Jama_Total")));
+            dto.setBakiTotal(convertToDouble(map.get("Baki_Total")));
+//            dto.setUser_id((String) map.get("user_id"));
+            if (includeXpPetrol) {
+                dto.setXppetrolCloseMeter(convertToDouble(map.get("xppetrol_close_meter")));
+                dto.setXppetrolOpenMeter(convertToDouble(map.get("xppetrol_open_meter")));
+                dto.setXppetrolLtr(convertToDouble(map.get("xppetrol_ltr")));
+                dto.setXppetrolTotalSum(convertToDouble(map.get("xppetrol_total_sum")));
+                dto.setXppetrolRate(convertToDouble(map.get("xppetrol_rate"))); 
+                dto.setXppetrolTotalTesting(convertToDouble(map.get("xppetrol_total_testing")));
+                dto.setXppetrolTotalSell(convertToDouble(map.get("xppetrol_total_sell")));
+                
+                // XP Petrol Purchase fields
+                dto.setXppetrolQuantity(convertToDouble(map.get("xppetrol_quantity")));
+                dto.setXppetrolTotal(convertToDouble(map.get("xppetrol_total")));
+                dto.setXppetrolVat(convertToDouble(map.get("xppetrol_vat")));
+                dto.setXppetrolCess(convertToDouble(map.get("xppetrol_cess")));
+                dto.setXppetrolJtcpercentage(convertToDouble(map.get("xppetrol_jtcpercentage")));
+                dto.setXppetrolTotalPurchase(convertToDouble(map.get("xppetrol_total_purchase")));
+            }
+
+            if (includePowerDiesel) {
+                dto.setPowerdieselCloseMeter(convertToDouble(map.get("powerdiesel_close_meter")));
+                dto.setPowerdieselOpenMeter(convertToDouble(map.get("powerdiesel_open_meter")));
+                dto.setPowerdieselLtr(convertToDouble(map.get("powerdiesel_ltr")));
+                dto.setPowerdieselTotalSum(convertToDouble(map.get("powerdiesel_total_sum")));
+                dto.setPowerdieselRate(convertToDouble(map.get("powerdiesel_rate")));
+                dto.setPowerdieselTotalTesting(convertToDouble(map.get("powerdiesel_total_testing")));
+                dto.setPowerdieselTotalSell(convertToDouble(map.get("powerdiesel_total_sell")));
+// Power Diesel Purchase fields
+                dto.setPowerdieselQuantity(convertToDouble(map.get("powerdiesel_quantity")));
+                dto.setPowerdieselTotal(convertToDouble(map.get("powerdiesel_total")));
+                dto.setPowerdieselVat(convertToDouble(map.get("powerdiesel_vat")));
+                dto.setPowerdieselCess(convertToDouble(map.get("powerdiesel_cess")));
+                dto.setPowerdieselJtcpercentage(convertToDouble(map.get("powerdiesel_jtcpercentage")));
+                dto.setPowerdieselTotalPurchase(convertToDouble(map.get("powerdiesel_total_purchase")));
+            }
+            result.add(dto);
+        }
+        return result;
+    }
+	
+	
+	
+	
+	/////////////////
+	private List<Map<String, Object>> queryThis(String startDate, String endDate, String userId) {
+        String sql = "SELECT "
+                + "p.date, "
+                + "COALESCE(p.total_close_meter, 0) AS petrol_total_close_meter, "
+                + "COALESCE(p.total_open_meter, 0) AS petrol_total_open_meter, "
+                + "COALESCE(p.total_sum, 0) AS petrol_total_sum, "
+                + "COALESCE(p.total_testing, 0) AS petrol_total_testing, "
+                + "COALESCE(p.petrol_ltr, 0) AS petrol_ltr, "
+                + "COALESCE(p.rate, 0) AS petrol_rate, "
+                + "COALESCE(p.total_total_sell, 0) AS petrol_total_total_sell, "
+                + "COALESCE(d.total_close_meter, 0) AS diesel_total_close_meter, "
+                + "COALESCE(d.total_open_meter, 0) AS diesel_total_open_meter, "
+                + "COALESCE(d.total_sum, 0) AS diesel_total_sum, "
+                + "COALESCE(d.total_testing, 0) AS diesel_total_testing, "
+                + "COALESCE(d.diesel_ltr, 0) AS diesel_ltr, "
+                + "COALESCE(d.rate, 0) AS diesel_rate, "
+                + "COALESCE(d.total_total_sell, 0) AS diesel_total_total_sell, "
+                // xppetrol
+                + "COALESCE(xp.total_close_meter, 0) AS xppetrol_close_meter, "
+                + "COALESCE(xp.total_open_meter, 0) AS xppetrol_open_meter, "
+                + "COALESCE(xp.xppetrol_ltr, 0) AS xppetrol_ltr, "
+                + "COALESCE(xp.total_sum, 0) AS xppetrol_total_sum, "
+                + "COALESCE(xp.rate, 0) AS xppetrol_rate, "
+                + "COALESCE(xp.total_testing, 0) AS xppetrol_total_testing, "
+                + "COALESCE(xp.total_sell, 0) AS xppetrol_total_sell, "
+                // powerdiesel
+                + "COALESCE(pd.total_close_meter, 0) AS powerdiesel_close_meter, "
+                + "COALESCE(pd.total_open_meter, 0) AS powerdiesel_open_meter, "
+                + "COALESCE(pd.powerdiesel_ltr, 0) AS powerdiesel_ltr, "
+                + "COALESCE(pd.total_sum, 0) AS powerdiesel_total_sum, "
+                + "COALESCE(pd.rate, 0) AS powerdiesel_rate, "
+                + "COALESCE(pd.total_testing, 0) AS powerdiesel_total_testing, "
+                + "COALESCE(pd.total_sell, 0) AS powerdiesel_total_sell, "
+                
+                + "COALESCE(o.total_price, 0) AS oil_total_price, "
+                + "COALESCE(k.Kharch_Total, 0) AS Kharch_Total, "
+                + "COALESCE(pp.type, 0) AS PType, "
+                + "COALESCE(pp.petrol_quantity, 0) AS Petrol_Quantity, "
+                + "COALESCE(pp.petrol_total, 0) AS Petrol_Total, "
+                + "COALESCE(pp.petrol_vat, 0) AS Petrol_Vat, "
+                + "COALESCE(pp.petrol_cess, 0) AS Petrol_Cess, "
+                + "COALESCE(pp.petrol_jtcpercentage, 0) AS Petrol_Jtcpercentage, "
+                + "COALESCE(pp.petrol_total_purchase, 0) AS Petrol_Total_Purchase, "
+                + "COALESCE(dp.type, 0) AS DType, "
+                + "COALESCE(dp.diesel_quantity, 0) AS Diesel_Quantity, "
+                + "COALESCE(dp.diesel_total, 0) AS Diesel_Total, "
+                + "COALESCE(dp.diesel_vat, 0) AS Diesel_Vat, "
+                + "COALESCE(dp.diesel_cess, 0) AS Diesel_Cess, "
+                + "COALESCE(dp.diesel_jtcpercentage, 0) AS Diesel_Jtcpercentage, "
+                + "COALESCE(dp.diesel_total_purchase, 0) AS Diesel_Total_Purchase, "
+                + "COALESCE(t.Amount_Total, 0) AS Amount_Total, "
+                + "COALESCE(j.Jama_Total, 0) AS Jama_Total, "
+                + "COALESCE(j.Baki_Total, 0) AS Baki_Total, "
+                //Xp
+                + "COALESCE(xpp.xppetrol_quantity, 0) AS xppetrol_quantity, "
+                + "COALESCE(xpp.xppetrol_total, 0) AS xppetrol_total, "
+                + "COALESCE(xpp.xppetrol_cess, 0) AS xppetrol_cess, "
+                + "COALESCE(xpp.xppetrol_jtcpercentage, 0) AS xppetrol_jtcpercentage, "
+                + "COALESCE(xpp.xppetrol_total_purchase, 0) AS xppetrol_total_purchase, "
+                + "COALESCE(xpp.xppetrol_vat, 0) AS xppetrol_vat, "
+                //Power
+                + "COALESCE(pdp.powerdiesel_quantity, 0) AS powerdiesel_quantity, "
+                + "COALESCE(pdp.powerdiesel_total, 0) AS powerdiesel_total, "
+                + "COALESCE(pdp.powerdiesel_cess, 0) AS powerdiesel_cess, "
+                + "COALESCE(pdp.powerdiesel_jtcpercentage, 0) AS powerdiesel_jtcpercentage, "
+                + "COALESCE(pdp.powerdiesel_total_purchase, 0) AS powerdiesel_total_purchase, "
+                + "COALESCE(pdp.powerdiesel_vat, 0) AS powerdiesel_vat "
+                + "FROM "
+                + "(SELECT "
+                + "date, "
+                + "SUM(close_meter) AS total_close_meter, "
+                + "SUM(open_meter) AS total_open_meter, "
+                + "SUM(total) AS total_sum, "
+                + "SUM(testing) AS total_testing, "
+                + "SUM(petrol_ltr) AS petrol_ltr, "
+                + "rate, "
+                + "SUM(total_sell) AS total_total_sell "
+                + "FROM "
+                + "managment.petrolsell "
+                + "WHERE "
+                + "date BETWEEN '" + startDate + "' AND '" + endDate + "' "
+                + "AND user_id = '" + userId + "' " // Filter by userId
+                + "GROUP BY "
+                + "date, rate) p "
+                + "JOIN "
+                + "(SELECT "
+                + "date, "
+                + "SUM(close_meter) AS total_close_meter, "
+                + "SUM(open_meter) AS total_open_meter, "
+                + "SUM(total) AS total_sum, "
+                + "SUM(testing) AS total_testing, "
+                + "SUM(diesel_ltr) AS diesel_ltr, "
+                + "rate, "
+                + "SUM(total_sell) AS total_total_sell "
+                + "FROM "
+                + "managment.dieselsell "
+                + "WHERE "
+                + "date BETWEEN  '" + startDate + "' AND '" + endDate + "' "
+                + "AND user_id = '" + userId + "' " // Filter by userId
+                + "GROUP BY "
+                + "date, rate) d "
+                + "ON "
+                + "p.date = d.date "
+                + "LEFT JOIN "
+                + "(SELECT "
+                + "date, "
+                + "SUM(price) AS total_price "
+                + "FROM "
+                + "managment.OilSell "
+                + "WHERE "
+                + "date BETWEEN  '" + startDate + "' AND '" + endDate + "' "
+                + "AND user_id = '" + userId + "' " // Filter by userId
+                + "GROUP BY "
+                + "date) o "
+                + "ON "
+                + "p.date = o.date "
+                + "LEFT JOIN "
+                + "(SELECT "
+                + "date, "
+                + "SUM(price) AS Kharch_Total "
+                + "FROM "
+                + "managment.kharch "
+                + "WHERE "
+                + "date BETWEEN '" + startDate + "' AND '" + endDate + "' "
+                + "AND user_id = '" + userId + "' " // Filter by userId
+                + "GROUP BY "
+                + "date) k "
+                + "ON "
+                + "p.date = k.date "
+                + "LEFT JOIN "
+                + "(SELECT "
+                + "date, type, "
+                + "quantity AS petrol_quantity, "
+                + "total AS petrol_total, "
+                + "vat AS petrol_vat, "
+                + "cess AS petrol_cess, "
+                + "jtcpercentage AS petrol_jtcpercentage, "
+                + "total_purchase AS petrol_total_purchase "
+                + "FROM "
+                + "managment.purchase "
+                + "WHERE "
+                + "type = 'petrol' AND user_id = '" + userId + "') pp " // Filter by userId
+                + "ON "
+                + "p.date = pp.date "
+                + "LEFT JOIN "
+                + "(SELECT "
+                + "date, "
+                + "SUM(amount) AS Amount_Total "
+                + "FROM "
+                + "managment.transaction "
+                + "WHERE "
+                + "date BETWEEN '" + startDate + "' AND '" + endDate + "' "
+                + "AND user_id = '" + userId + "' " // Filter by userId
+                + "GROUP BY "
+                + "date) t "
+                + "ON "
+                + "p.date = t.date "
+                + "LEFT JOIN "
+                + "(SELECT "
+                + "date, type, "
+                + "quantity AS diesel_quantity, "
+                + "total AS diesel_total, "
+                + "vat AS diesel_vat, "
+                + "cess AS diesel_cess, "
+                + "jtcpercentage AS diesel_jtcpercentage, "
+                + "total_purchase AS diesel_total_purchase "
+                + "FROM "
+                + "managment.purchase "
+                + "WHERE "
+                + "type = 'diesel'  AND user_id = '" + userId + "') dp " // Filter by userId
+                + "ON "
+                + "d.date = dp.date "
+                + "LEFT JOIN ("
+                + "SELECT date, "
+                + "extra_cess AS xppetrol_cess, "
+                + "extra_jtcpercentage AS xppetrol_jtcpercentage, "
+                + "extra_quantity AS xppetrol_quantity, "
+                + "extra_total AS xppetrol_total, "
+                + "extra_total_purchase AS xppetrol_total_purchase, "
+                + "extra_vat AS xppetrol_vat "
+                + "FROM managment.extrapurchases "
+                + "WHERE extra_type = 'XP Petrol' "
+                + "AND user_id = '" + userId + "' "
+                + "AND date BETWEEN '" + startDate + "' AND '" + endDate + "'"
+                + ") xpp ON p.date = xpp.date "
+                + "LEFT JOIN ("
+                + "SELECT date, "
+                + "extra_cess AS powerdiesel_cess, "
+                + "extra_jtcpercentage AS powerdiesel_jtcpercentage, "
+                + "extra_quantity AS powerdiesel_quantity, "
+                + "extra_total AS powerdiesel_total, "
+                + "extra_total_purchase AS powerdiesel_total_purchase, "
+                + "extra_vat AS powerdiesel_vat "
+                + "FROM managment.extrapurchases "
+                + "WHERE extra_type = 'Power Diesel' "
+                + "AND user_id = '" + userId + "' "
+                + "AND date BETWEEN '" + startDate + "' AND '" + endDate + "'"
+                + ") pdp ON p.date = pdp.date "
+                + "LEFT JOIN "
+                + "(SELECT "
+                + "date, "
+                + "SUM(jama) AS Jama_Total, "
+                + "SUM(baki) AS Baki_Total "
+                + "FROM "
+                + "managment.jamabakireport "
+                + "WHERE "
+                + "date BETWEEN '" + startDate + "' AND '" + endDate + "' "
+                + "AND user_id = '" + userId + "' " // Filter by userId
+                + "GROUP BY "
+                + "date) j "
+                + "ON "
+                + " p.date = j.date "
+                + "LEFT JOIN (SELECT date, "
+                + "SUM(close_meter) AS total_close_meter, "
+                + "SUM(open_meter) AS total_open_meter, "
+                + "SUM(xppetrol_ltr) AS xppetrol_ltr, "
+                + "SUM(testing) AS total_testing, "
+                + "SUM(total) AS total_sum, "
+                + "SUM(total_sell) AS total_sell, "
+                + "rate "
+                + "FROM managment.xppetrol "
+                + "WHERE date BETWEEN '" + startDate + "' AND '" + endDate + "' "
+                + "AND user_id = '" + userId + "' "
+                + "GROUP BY date,rate) xp ON p.date = xp.date "
+                // ✅ LEFT JOIN powerdiesel
+                + "LEFT JOIN (SELECT date, "
+                + "SUM(close_meter) AS total_close_meter, "
+                + "SUM(open_meter) AS total_open_meter, "
+                + "SUM(powerdiesel_ltr) AS powerdiesel_ltr, "
+                + "SUM(testing) AS total_testing, "
+                + "SUM(total) AS total_sum, "
+                + "SUM(total_sell) AS total_sell, "
+                + "rate "
+                + "FROM managment.powerdiesel "
+                + "WHERE date BETWEEN '" + startDate + "' AND '" + endDate + "' "
+                + "AND user_id = '" + userId + "' "
+                + "GROUP BY date,rate) pd ON p.date = pd.date "
+                + "ORDER BY "
+                + "p.date;";
+
+        return jdbcTemplate.queryForList(sql);
+    }
+/////////////////
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class AggregatedDataDTO {
+
+    private String date;
+    private Double petrolTotalCloseMeter;
+    private Double petrolTotalOpenMeter;
+    private Double petrolTotalSum;
+    private Double petrolTotalTesting;
+    private Double petrolLtr;
+    private Double petrolRate;
+    private Double petrolTotalTotalSell;
+    private Double dieselTotalCloseMeter;
+    private Double dieselTotalOpenMeter;
+    private Double dieselTotalSum;
+    private Double dieselTotalTesting;
+    private Double dieselLtr;
+    private Double dieselRate;
+    private Double dieselTotalTotalSell;
+    private Double oilTotalPrice;
+    private Double kharchTotal;
+    private String pType;
+    private Double petrolQuantity;
+    private Double petrolTotal;
+    private Double petrolVat;
+    private Double petrolCess;
+    private Double petrolJtcpercentage;
+    private Double petrolTotalPurchase;
+    private String dType;
+    private Double dieselQuantity;
+    private Double dieselTotal;
+    private Double dieselVat;
+    private Double dieselCess;
+    private Double dieselJtcpercentage;
+    private Double dieselTotalPurchase;
+    private Double amountTotal;
+    private Double jamaTotal;
+    private Double bakiTotal;
+    private String user_id;
+
+    private Double xppetrolCloseMeter;
+    private Double xppetrolOpenMeter;
+    private Double xppetrolLtr;
+    private Double xppetrolTotalSum;
+    private Double xppetrolRate;
+    private Double xppetrolTotalTesting;
+    private Double xppetrolTotalSell;
+
+    private Double powerdieselCloseMeter;
+    private Double powerdieselOpenMeter;
+    private Double powerdieselLtr;
+    private Double powerdieselTotalSum;
+    private Double powerdieselRate;
+    private Double powerdieselTotalTesting;
+    private Double powerdieselTotalSell;
+
+    // For XP Petrol Purchases
+    private Double xppetrolQuantity;
+    private Double xppetrolTotal;
+    private Double xppetrolVat;
+    private Double xppetrolCess;
+    private Double xppetrolJtcpercentage;
+    private Double xppetrolTotalPurchase;
+
+    // For Power Diesel Purchases
+    private Double powerdieselQuantity;
+    private Double powerdieselTotal;
+    private Double powerdieselVat;
+    private Double powerdieselCess;
+    private Double powerdieselJtcpercentage;
+    private Double powerdieselTotalPurchase;
