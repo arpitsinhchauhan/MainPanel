@@ -1,4 +1,4 @@
-<div class="card">
+div class="card">
                    <div class="card-header card-header-danger">
                       <h4 class="card-title">Expenses Details :-</h4>
                    </div>
@@ -1949,3 +1949,643 @@ public class AggregatedDataDTO {
     private Double powerdieselCess;
     private Double powerdieselJtcpercentage;
     private Double powerdieselTotalPurchase;
+///////////////////
+  <button mat-raised-button color="primary" (click)="oilType()">OilType Add</button>
+  
+  oilType() {
+    const dialogRef = this.dialog.open(OilListComponent, {
+      width: "40%",
+      height: "30%",
+      disableClose: true,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      this.getoilList();
+    });
+  }
+  ///////////////////////
+
+<div class="input-container">
+    <input [(ngModel)]="inputValue" placeholder="Enter text Oil Type" />
+    <button (click)="logInput()">Add</button>
+    <button (click)="cancel()">Cancel</button>
+  </div>
+  /////////
+  .input-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0;
+  }
+  
+  .input-container input {
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    flex: 1;
+  }
+  
+  .input-container button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    background-color: #1976d2;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .input-container button:hover {
+    background-color: #1565c0;
+  }
+  
+  .input-container button:nth-child(3) {
+    background-color: #9e9e9e;
+  }
+  
+  .input-container button:nth-child(3):hover {
+    background-color: #757575;
+  }
+  ////////////////////////
+  
+  
+  export class OilListComponent implements OnInit {
+
+ 
+  isReload: boolean;
+  inputValue: string = '';
+
+  constructor(public dialogRef: MatDialogRef<OilListComponent>,
+    private user:UserServiceService,private notificationService:NotificationService
+  ) { }
+
+  ngOnInit(): void {
+  }
+
+ logInput() {
+  const payload = { oilSellList: this.inputValue };
+  this.user.addOilType(payload).subscribe({
+    next: res => {
+      if (res) {
+        this.notificationService.success("✅ Data saved successfully.");
+        this.dialogRef.close({ isReload: this.isReload });
+      }
+    },
+    error: (err) => console.error('Error saving:', err),
+  });
+ }
+
+  cancel() {
+    this.dialogRef.close({ isReload: this.isReload });
+  }
+
+}
+
+
+
+//addOilType(payload: { oilSellList: string }) {
+    return this.http.post(API_OILTYPE_ADD, payload);
+  }
+  
+  //export const API_OILTYPE_ADD: string = `${prefix}/portal/api/addoilType`;
+  
+  
+  
+  
+  
+  @PostMapping(value = "/addoilType")
+    public ResponseEntity<ApiResponse> saveOilType(@RequestBody OilsellList oilsellList) {
+        oilsellListRepository.save(oilsellList);
+        return ResponseEntity.ok(new ApiResponse("Data saved successfully."));
+    }
+////////////////////////////////////////////////////
+
+.nav .nav {
+    padding-left: 20px;
+  }
+  .caret {
+    margin-left: auto;
+  }
+  
+
+<div class="logo">
+    <!-- <a class="simple-text logo-mini">
+        <div class="logo-img">
+            <img src="/assets/img/images.png"/>
+        </div>
+    </a> -->
+    <a class="simple-text logo-normal">
+        <div class="logo-img1">
+            <img src="./assets/img/manager.png" />
+        </div>
+    </a>
+</div>
+
+
+<div class="sidebar-wrapper">
+    <div *ngIf="isMobileMenu()">
+        <form class="navbar-form">
+            <span class="bmd-form-group">
+                <div class="input-group no-border">
+                    <input type="text" value="" class="form-control" placeholder="Search...">
+                    <button mat-raised-button type="submit" class="btn btn-white btn-round btn-just-icon">
+                        <i class="material-icons">search</i>
+                        <div class="ripple-container"></div>
+                    </button>
+                </div>
+            </span>
+        </form>
+        <ul class="nav navbar-nav nav-mobile-menu">
+            <li class="nav-item">
+                <a class="nav-link" href="javascript:void(0)">
+                    <i class="material-icons">dashboard</i>
+                    <p>
+                        <span class="d-lg-none d-md-block">Stats</span>
+                    </p>
+                </a>
+            </li>
+            <!-- <li class="nav-item dropdown">
+                <a class="nav-link" href="javascript:void(0)" id="navbarDropdownMenuLink" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                    <i class="material-icons">notifications</i>
+                    <span class="notification">5</span>
+                    <p>
+                        <span class="d-lg-none d-md-block">Some Actions</span>
+                    </p>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdownMenuLink">
+                    <a class="dropdown-item" href="#">Mike John responded to your email</a>
+                    <a class="dropdown-item" href="#">You have 5 new tasks</a>
+                    <a class="dropdown-item" href="#">You're now friend with Andrew</a>
+                    <a class="dropdown-item" href="#">Another Notification</a>
+                    <a class="dropdown-item" href="#">Another One</a>
+                </div>
+            </li> -->
+
+            <li class="nav-item">
+                <a class="nav-link" href="javascript:void(0)">
+                    <i class="material-icons">person</i>
+                    <p>
+                        <span class="d-lg-none d-md-block">Account</span>
+                    </p>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <ul class="nav">
+        <ng-container *ngFor="let menuItem of menuItems">
+          
+          <!-- Single route -->
+          <li *ngIf="!menuItem.children" routerLinkActive="active" class="{{menuItem.class}} nav-item">
+            <a class="nav-link" [routerLink]="[menuItem.path]">
+              <i class="material-icons">{{ menuItem.icon }}</i>
+              <p>{{ menuItem.title }}</p>
+            </a>
+          </li>
+      
+          <!-- Dropdown group -->
+          <li *ngIf="menuItem.children" class="nav-item">
+            <a class="nav-link" href="javascript:void(0)" (click)="menuItem.expanded = !menuItem.expanded">
+              <i class="material-icons">{{ menuItem.icon }}</i>
+              <p>
+                {{ menuItem.title }}
+                <b class="caret float-end"></b>
+              </p>
+            </a>
+            <ul class="nav" *ngIf="menuItem.expanded">
+              <li *ngFor="let child of menuItem.children" routerLinkActive="active" class="nav-item">
+                <a class="nav-link" [routerLink]="[child.path]">
+                  <i class="material-icons">{{ child.icon }}</i>
+                  <p>{{ child.title }}</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+        </ng-container>
+      </ul>
+      
+</div>
+
+
+
+import { Component, OnInit } from '@angular/core';
+import { UserServiceService } from 'app/services/user-service.service';
+import PerfectScrollbar from 'perfect-scrollbar';
+
+declare const $: any;
+declare interface RouteInfo {
+  path?: string;
+  title: string;
+  icon?: string;
+  class?: string;
+  children?: RouteInfo[]; // ✅ for nested menus
+}
+
+export const ROUTES: RouteInfo[] = [
+  { path: '/User', title: 'User Master', icon: 'supervised_user_circle', class: '' },
+  { path: '/dashboard', title: 'Dashboard', icon: 'dashboard', class: '' },
+  { path: '/dailyReport', title: 'Daily Report', icon: 'picture_as_pdf', class: '' },
+  { path: '/Report', title: 'Report', icon: 'picture_as_pdf', class: '' },
+
+  {
+    title: 'Petrol/Diesel',
+    icon: 'local_gas_station',
+    class: 'group',
+    children: [
+      { path: '/purchasedetails', title: 'Purchase Petrol & Diesel', icon: 'content_paste', class: '' },
+      { path: '/petroldetails', title: 'Petrol Sales', icon: 'library_books', class: '' },
+      { path: '/dieseldetails', title: 'Diesel Sales', icon: 'ev_station', class: '' },
+      { path: '/Dipp', title: 'Petrol/Diesel Dip', icon: 'open_with', class: '' }
+    ]
+  },
+  {
+    title: 'Extra Petrol/Diesel',
+    icon: 'local_gas_station',
+    class: 'group',
+    children: [
+      { path: '/extraPurchasedetails', title: 'Extra Purchase Petrol & Diesel', icon: 'content_paste', class: '' },
+      { path: '/XPpetrol', title: 'Extra Premium Petrol', icon: 'library_books', class: '' },
+      { path: '/powerDiesel', title: 'Extra Premium Diesel', icon: 'ev_station', class: '' },
+      { path: '/extraDipp', title: 'Extra Petrol/Diesel Dip', icon: 'open_with', class: '' }
+    ]
+  },
+
+  { path: '/oilsell', title: 'OilSell', icon: 'meeting_room', class: '' },
+  { path: '/Kharch', title: 'Indirect Expance', icon: 'money', class: '' },
+  { path: '/atm', title: 'ATM & Cash', icon: 'money', class: '' },
+  { path: '/Jama&Baki', title: 'Bill Credit & Debit', icon: 'money', class: '' },
+  { path: '/feedback', title: 'User Feedback', icon: 'unarchive', class: '' },
+
+  // { path: '/feedback', title: 'User Feedback', icon: 'unarchive', class: 'active-pro' },
+
+  // { path: '/image', title: 'Image',  icon:'image', class: '' },
+  // { path: '/map', title: 'Map',  icon:'map', class: '' },
+
+];
+
+@Component({
+  selector: 'app-sidebar',
+  templateUrl: './sidebar.component.html',
+  styleUrls: ['./sidebar.component.css']
+})
+export class SidebarComponent implements OnInit {
+  menuItems: any[];
+  role: string = '';
+  ps: any;
+
+  constructor(private userService: UserServiceService) { }
+
+
+  ngOnInit() {
+    const userId = localStorage.getItem('userId');
+    this.role = localStorage.getItem('role') || '';
+  
+    this.userService.getUserPump(userId).subscribe(response => {
+      const data = response?.data || {};
+  
+      const xpPetrolEnabled = data?.xp_petrol_nozzle !== '0';
+      const powerDieselEnabled = data?.powe_diesel_nozzle !== '0';
+  
+      // ✅ Step 1: Apply nozzle conditions
+      let filteredRoutes = ROUTES.map(route => {
+        if (route.children) {
+          // ✅ Filter children first
+          const filteredChildren = route.children.filter(child => {
+            if (child.path === '/XPpetrol' && !xpPetrolEnabled) return false;
+            if (child.path === '/powerDiesel' && !powerDieselEnabled) return false;
+            if ((child.path === '/extraDipp' || child.path === '/extraPurchasedetails') &&
+                !xpPetrolEnabled && !powerDieselEnabled) return false;
+            return true;
+          });
+      
+          // ✅ If no children left, remove the parent group too
+          if (filteredChildren.length === 0) {
+            return null;
+          }
+      
+          return { ...route, children: filteredChildren };
+        } else {
+          // ✅ Single routes — filter directly
+          if (route.path === '/XPpetrol' && !xpPetrolEnabled) return null;
+          if (route.path === '/powerDiesel' && !powerDieselEnabled) return null;
+          if ((route.path === '/extraDipp' || route.path === '/extraPurchasedetails') &&
+              !xpPetrolEnabled && !powerDieselEnabled) return null;
+          return route;
+        }
+      }).filter(Boolean); // ✅ Removes nulls from array
+      
+      
+  
+      // ✅ Step 2: Apply role-based filter *on top of* nozzle filter
+      if (this.role === 'admin') {
+        this.menuItems = filteredRoutes.filter(item => item.path === '/User');
+      } else if (this.role === 'user') {
+        this.menuItems = filteredRoutes.filter(item => item.path !== '/User');
+      } else {
+        this.menuItems = filteredRoutes;
+      }
+  
+      // ✅ Step 3: Initialize scrollbar
+      if (window.matchMedia(`(min-width: 960px)`).matches && !this.isMac()) {
+        const elemSidebar = <HTMLElement>document.querySelector('.sidebar .sidebar-wrapper');
+        this.ps = new PerfectScrollbar(elemSidebar);
+      }
+    });
+  }
+  
+  isMobileMenu() {
+    if ($(window).width() > 991) {
+      return false;
+    }
+    return true;
+  };
+  updatePS(): void {
+    if (window.matchMedia(`(min-width: 960px)`).matches && !this.isMac()) {
+      this.ps.update();
+    }
+  }
+  isMac(): boolean {
+    let bool = false;
+    if (navigator.platform.toUpperCase().indexOf('MAC') >= 0 || navigator.platform.toUpperCase().indexOf('IPAD') >= 0) {
+      bool = true;
+    }
+    return bool;
+  }
+  expandOrCollapseMenu(id) {
+    let parent = document.getElementById(id + "-p");
+    let child = document.getElementById(id);
+    parent.ariaExpanded = parent.ariaExpanded === "true" ? "false" : "true";
+    child.style.height = child.style.height === "0px" || child.style.height === "" ? "100%" : "0";
+  }
+}
+///////////////////////////////////////////
+<!DOCTYPE html
+        PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" dir="ltr" prefix="og: https://ogp.me/ns#"
+      xmlns:th="http://www.thymeleaf.org"
+      style="width:100%;font-family:lato, 'helvetica neue', helvetica, arial, sans-serif;-webkit-text-size-adjust:100%;-ms-text-size-adjust:100%;padding:0;Margin:0">
+
+<head>
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width, initial-scale=1" name="viewport"/>
+    <meta name="x-apple-disable-message-reformatting"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta content="telephone=no" name="format-detection"/>
+    <title>Profit Loss</title>
+        <style>
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+            th, td {
+                border: 1px solid black;
+                padding: 8px;
+                text-align: right;
+            }
+            th {
+                background-color: yellow;
+            }
+            .left-align {
+                text-align: left;
+
+            }
+            .highlight {
+                background-color: #FFFF00; /* Yellow */
+            }
+        </style>
+    </head>
+    <body>
+        <table>
+            <thead>
+                <tr>
+                    <th class="left-align">Particulars</th>
+                    <th>IT Return</th>
+                    <th class="left-align">Particulars</th>
+                    <th>IT Return</th>
+                </tr>
+                <tr>
+                    <th colspan="6"></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="left-align">Opening Stock</td>
+                    <td></td>
+                    <td class="left-align">SALES ACCOUNT</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="left-align">Diesel Stock</td>
+                    <td th:text="${dieselstock}">0.0</td>
+                    <td class="left-align">PETROL SALES A/C.</td>
+                    <td th:text="${petrolSale}">0.0</td>
+                </tr>
+                <tr>
+                    <td class="left-align">LUBRECANT</td>
+                    <td></td>
+                    <td class="left-align">DIESEL SALES A/C.</td>
+                    <td th:text="${dieselSale}">0.0</td>
+
+                </tr>
+                <tr>
+                    <td class="left-align">PETROL STOCK</td>
+                    <td th:text="${petrolStock}">0.0</td>
+                    <td class="left-align">LUBRICANT SALES A/C</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="left-align">Purchase Accounts</td>
+                    <td></td>
+                    <td class="left-align">Closing stock</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="left-align">DIESEL PURCHASE A/C.</td>
+                    <td></td>
+                    <td class="left-align">DIESEL STOCK</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="left-align">LUB PURCHASE A/C.</td>
+                    <td></td>
+                    <td class="left-align">LUBRECANT</td>
+                    <td ></td>
+                </tr>
+                <tr>
+                    <td class="left-align">PETROL PURCHASES A/C.</td>
+                    <td></td>
+                    <td class="left-align">PETROL STOCK</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="left-align">Direct Expenses</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="left-align">C GST EXP</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="left-align">S GST TAX EXP</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td class="left-align highlight">GROSS PROFIT C/O</td>
+                    <td class="left-align highlight"></td>
+                    <td class="left-align highlight">TOTAL</td>
+                    <td class="left-align highlight"></td>
+                </tr>
+                <tr>
+                    <td colspan="6"></td>
+                </tr>
+                <tr>
+                    <td class="left-align">Indirect Expenses</td>
+                    <td></td>
+                    <td class="left-align">GROSS PROFIT C/O</td>
+                    <td></td>
+                </tr>
+                <tr th:each="row : ${kharchList}">
+                    <td th:text="${row[0]}">Expense</td>
+                    <td th:text="${row[1]}">Price</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+            </tbody>
+        </table>
+
+    </body>
+</html>
+
+////////////////////////////////////////
+
+@Service
+public class MyReportGenerator implements ProfitLossService {
+
+    @Autowired
+    private DailyskockRepository dailyskockRepository;
+
+    @Autowired
+    private DailydieselstockRepository dailydieselstockRepository;
+
+    @Autowired
+    private PetrolSellRepository petrolSellRepository;
+
+    @Autowired
+    private DieselSellRepository dieselSellRepository;
+
+    @Autowired
+    private kharchrepository kharchrepository;
+
+
+
+    @Override
+    public ResponseEntity<byte[]> generatePdf(String userId, String startDate, String endDate) throws ParseException {
+        try {
+
+            Double petrolStock = dailyskockRepository.getTotalOpenstockBetweenDates(startDate, endDate, userId);
+
+            String dieselstock=dailydieselstockRepository.getTotalDieselOpenstockBetweenDates(startDate,endDate,userId);
+
+            String petrolSale = petrolSellRepository.getTotalPetrolSellBetweenDates(startDate, endDate, userId);
+
+            Double dieselSale = dieselSellRepository.getTotalDieselSellBetweenDates(startDate, endDate, userId);
+
+            List<kharch> kharchList = kharchrepository.getExpenseDetails(startDate, endDate, userId);
+
+            final Context ctx = new Context();
+
+            ctx.setVariable("petrolStock", petrolStock);
+            ctx.setVariable("dieselstock", dieselstock);
+            ctx.setVariable("petrolSale", petrolSale);
+            ctx.setVariable("dieselSale", dieselSale);
+            ctx.setVariable("kharchList", kharchList);
+
+            ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
+            resolver.setPrefix("templates/");
+            resolver.setSuffix(".html");
+            resolver.setTemplateMode(TemplateMode.HTML);
+            resolver.setCharacterEncoding("UTF-8");
+
+            // 3. Process template
+            TemplateEngine templateEngine = new TemplateEngine();
+            templateEngine.setTemplateResolver(resolver);
+            String html = templateEngine.process("ItReturn", ctx);
+
+            // 4. Generate PDF
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            ITextRenderer renderer = new ITextRenderer();
+            renderer.setDocumentFromString(html);
+            renderer.layout();
+
+            renderer.createPDF(outputStream);
+
+            byte[] pdfBytes = outputStream.toByteArray();
+
+            String desktopPath = System.getProperty("user.home") + "/Desktop/Personal/";
+            String fileName = "Profit&Loss"+startDate +"to"+endDate+".pdf";
+            Path outputPath = Paths.get(desktopPath + fileName);
+
+            Files.createDirectories(outputPath.getParent());
+
+            try {
+                // Write PDF file
+                Files.write(outputPath, pdfBytes);
+            } catch (IOException ex) {
+                Logger.getLogger(Utility.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.add("Content-Disposition", "attachment; filename=Profit&Loss.pdf");
+            System.out.println("PDF saved to: " + outputPath.toAbsolutePath());
+            return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+        } catch (IOException ex) {
+            Logger.getLogger(MyReportGenerator.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (DocumentException ex) {
+            Logger.getLogger(MyReportGenerator.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return null;
+    }
+}
+
+
+@Query(value = "SELECT COALESCE(SUM(openstock), 0) FROM dailystock WHERE date BETWEEN :startDate AND :endDate AND user_id = :userId", nativeQuery = true)
+    Double getTotalOpenstockBetweenDates(@Param("startDate") String startDate,
+                                         @Param("endDate") String endDate,
+                                         @Param("userId") String userId);
+
+
+@Query("SELECT CAST(SUM(d.dieselopenstock) AS string) FROM dailydieselstock d WHERE d.date BETWEEN :startDate AND :endDate AND d.userId = :userId")
+    String getTotalDieselOpenstockBetweenDates(@Param("startDate") String startDate,
+                                               @Param("endDate") String endDate,
+                                               @Param("userId") String userId);
+
+
+@Query(value = "SELECT CONVERT(SUM(total_sell), CHAR) FROM PetrolSell WHERE date BETWEEN :startDate AND :endDate AND user_id = :userId", nativeQuery = true)
+    String getTotalPetrolSellBetweenDates(@Param("startDate") String startDate,
+                                          @Param("endDate") String endDate,
+                                          @Param("userId") String userId);
+
+
+@Query(value = "SELECT COALESCE(SUM(total_sell), 0) FROM Dieselsell WHERE date BETWEEN :startDate AND :endDate AND user_id = :userId", nativeQuery = true)
+    Double getTotalDieselSellBetweenDates(@Param("startDate") String startDate,
+                                          @Param("endDate") String endDate,
+                                          @Param("userId") String userId);
+
+
+@Query(value = "SELECT k.expenses, k.price FROM kharch k WHERE k.date BETWEEN :startDate AND :endDate AND k.userId = :userId")
+    List<kharch> getExpenseDetails(@Param("startDate") String startDate,
+                                       @Param("endDate") String endDate,
+                                       @Param("userId") String userId);
+
+
+									   
+	
+	
+  
+  
