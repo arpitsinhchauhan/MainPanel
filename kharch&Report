@@ -9,7 +9,7 @@ div class="card">
                             <input type="date" id="start-date" [(ngModel)]="startDateJb" class="form-control" required />
                          </div>
                          <div class="col-md-4">
-                            <label for="end-date">End Date:</label>
+                            <labe for="end-date">End Date:</label>
                             <input type="date" id="end-date" [(ngModel)]="endDateJb" class="form-control" required />
                          </div>
                       </div>
@@ -2584,8 +2584,321 @@ public class MyReportGenerator implements ProfitLossService {
                                        @Param("userId") String userId);
 
 
-									   
-	
-	
+///////////////////////////////////////////////////////////////////////////////////
+getAbs(value: number): number {
+    return Math.abs(value || 0);
+  }
+
+
+  calculatePetrol(index: number) {
+    const petrol = this.petrolPumps[index];
+    const total = (petrol.closingMeter || 0) - (petrol.openingMeter || 0);
+    const testing = petrol.testing || 0;
+    const rate = petrol.rate || 0;
+  
+    petrol.saleLtr = Math.abs(total);
+    petrol.ltr = total - testing;
+  
+    // Round to 2 decimal places
+    petrol.total_rs = parseFloat(Math.abs(petrol.ltr * rate).toFixed(2));
+  
+    // Update Totals
+    this.petrolTotalLTR = parseFloat(
+      this.petrolPumps.reduce((sum, p) => sum + Math.abs(p.ltr || 0), 0).toFixed(2)
+    );
+    this.petrolTotalRS = parseFloat(
+      this.petrolPumps.reduce((sum, p) => sum + (p.total_rs || 0), 0).toFixed(2)
+    );
+  
+    this.updateTotalRs();
+  }
+  
+
+  calculateDiesel(index: number) {
+    const diesel = this.dieselPumps[index];
+    const total = (diesel.closingMeter || 0) - (diesel.openingMeter || 0);
+    const testing = diesel.testing || 0;
+    const rate = diesel.rate || 0;
+  
+    diesel.saleLtr = parseFloat(Math.abs(total).toFixed(2));
+    diesel.ltr = parseFloat((total - testing).toFixed(2));
+    diesel.total_rs = parseFloat(Math.abs(diesel.ltr * rate).toFixed(2));
+  
+    // Update Totals
+    this.dieselTotalLTR = parseFloat(
+      this.dieselPumps.reduce((sum, d) => sum + Math.abs(d.ltr || 0), 0).toFixed(2)
+    );
+    this.dieselTotalRS = parseFloat(
+      this.dieselPumps.reduce((sum, d) => sum + (d.total_rs || 0), 0).toFixed(2)
+    );
+  
+    this.updateTotalRs();
+  }
+  
+
+
+  calculateXpPetrol(index: number) {
+    const xpPetrol = this.xpPetrol[index];
+    const total = (xpPetrol.closingMeter || 0) - (xpPetrol.openingMeter || 0);
+    const testing = xpPetrol.testing || 0;
+    const rate = xpPetrol.rate || 0;
+  
+    xpPetrol.saleLtr = parseFloat(Math.abs(total).toFixed(2));
+    xpPetrol.ltr = parseFloat((total - testing).toFixed(2));
+    xpPetrol.total_rs = parseFloat(Math.abs(xpPetrol.ltr * rate).toFixed(2));
+  
+    // Update Totals
+    this.xpPetrolTotalLTR = parseFloat(
+      this.xpPetrol.reduce((sum, d) => sum + Math.abs(d.ltr || 0), 0).toFixed(2)
+    );
+    this.xpPetrolTotalRS = parseFloat(
+      this.xpPetrol.reduce((sum, d) => sum + (d.total_rs || 0), 0).toFixed(2)
+    );
+  
+    this.updateTotalRs();
+  }
+  
+
+  calculatepowerDiesel(index: number) {
+    const powerDiesel = this.powerDiesel[index];
+    const total = (powerDiesel.closingMeter || 0) - (powerDiesel.openingMeter || 0);
+    const testing = powerDiesel.testing || 0;
+    const rate = powerDiesel.rate || 0;
+  
+    powerDiesel.saleLtr = parseFloat(Math.abs(total).toFixed(2));
+    powerDiesel.ltr = parseFloat((total - testing).toFixed(2));
+    powerDiesel.total_rs = parseFloat(Math.abs(powerDiesel.ltr * rate).toFixed(2));
+  
+    // Update Totals
+    this.powerDieselTotalLTR = parseFloat(
+      this.powerDiesel.reduce((sum, d) => sum + Math.abs(d.ltr || 0), 0).toFixed(2)
+    );
+    this.powerDieselTotalRS = parseFloat(
+      this.powerDiesel.reduce((sum, d) => sum + (d.total_rs || 0), 0).toFixed(2)
+    );
+  
+    this.updateTotalRs();
+  }
+  
+
+
+  updateTotalRs() {
+    const round = (value: number) => parseFloat(value.toFixed(2));
+  
+    this.petrolTotalRS = round(this.petrolPumps.reduce((sum, p) => sum + (p.total_rs || 0), 0));
+    this.dieselTotalRS = round(this.dieselPumps.reduce((sum, d) => sum + (d.total_rs || 0), 0));
+    this.xpPetrolTotalRS = round(this.xpPetrol.reduce((sum, d) => sum + (d.total_rs || 0), 0));
+    this.powerDieselTotalRS = round(this.powerDiesel.reduce((sum, d) => sum + (d.total_rs || 0), 0));
+    this.totalRs = round(
+      this.petrolTotalRS + this.dieselTotalRS + this.xpPetrolTotalRS + this.powerDieselTotalRS
+    );
+  }
   
   
+  /////////////////////////////
+  List<Object[]> kharchList = kharchrepository.getExpenseDetails(startDate, endDate, userId);
+  
+   @Query(value = "SELECT k.expenses, SUM(k.price) as total_price " +
+            "FROM kharch k " +
+            "WHERE k.date BETWEEN :startDate AND :endDate " +
+            "AND k.user_id = :userId " +
+            "GROUP BY k.expenses", nativeQuery = true)
+    List<Object[]> getExpenseDetails(
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate,
+            @Param("userId") String userId
+    );
+	
+	
+	//////////////////////////
+	const originalDate = new Date(this.reportDate);
+    const nextDay = new Date(originalDate);
+    nextDay.setDate(originalDate.getDate() + 1);
+    const oneformattedDate = this.use.getFormattedDate(nextDay); 
+
+    this.use.savePetrolStockData(this.userId, oneformattedDate, this.TotalPetrolRemaining).subscribe({
+      next: res => {
+        if (res.message.includes('successfully')) {
+          this.notificationService.success("✅" + res.message);
+        } else if (res.message.includes('already')) {
+          this.notificationService.failure("⚠️" + res.message);
+        }
+      }
+    });
+
+    this.use.saveDieselStockData(this.userId, oneformattedDate, this.TotalDieselRemaining).subscribe({
+      next: res => {
+        if (res.message.includes('successfully')) {
+          this.notificationService.success("✅" + res.message);
+        } else if (res.message.includes('already')) {
+          this.notificationService.failure("⚠️" + res.message);
+        }
+      }
+    });
+
+    this.use.saveXPPetrolStockData(this.userId, oneformattedDate, this.TotalXPPetrolRemaining).subscribe({
+      next: res => {
+        if (res.message.includes('successfully')) {
+          this.notificationService.success("✅" + res.message);
+        } else if (res.message.includes('already')) {
+          this.notificationService.failure("⚠️" + res.message);
+        }
+      }
+    });
+
+    this.use.savePowerDieselStockData(this.userId, oneformattedDate, this.TotalPowerDieselRemaining).subscribe({
+      next: res => {
+        if (res.message.includes('successfully')) {
+          this.notificationService.success("✅" + res.message);
+        } else if (res.message.includes('already')) {
+          this.notificationService.failure("⚠️" + res.message);
+        }
+      }
+    });
+
+	
+	
+	savePetrolStockData(
+    userId: String,
+    date: string,
+    petrolRemaining: number
+  ): Observable<any> {
+    const payload = {
+      userId: userId,
+      date: date,
+      petrolRemaining: petrolRemaining,
+    };
+    return this.http.post(API_TOTAL_PERTOL_STOCK, payload);
+  }
+
+  saveDieselStockData(
+    userId: String,
+    date: string,
+    dieselRemaining: number
+  ): Observable<any> {
+    const payload = {
+      userId: userId,
+      date: date,
+      dieselRemaining: dieselRemaining,
+    };
+    return this.http.post(API_TOTAL_DIESEL_STOCK, payload);
+  }
+
+  saveXPPetrolStockData(
+    userId: String,
+    date: string,
+    xppetrolRemaining: number
+  ): Observable<any> {
+    const payload = {
+      userId: userId,
+      date: date,
+      xppetrolRemaining: xppetrolRemaining,
+    };
+    return this.http.post(API_TOTAL_XP_PERTOL_STOCK, payload);
+  }
+
+  savePowerDieselStockData(
+    userId: String,
+    date: string,
+    powerdieselRemaining: number
+  ): Observable<any> {
+    const payload = {
+      userId: userId,
+      date: date,
+      powerdieselRemaining: powerdieselRemaining,
+    };
+    return this.http.post(API_TOTAL_POWER_DIESEL_STOCK, payload);
+  }
+  
+  
+  export const API_TOTAL_PERTOL_STOCK: string = `${prefix}/portal/api/totalPetrolStock`;
+export const API_TOTAL_DIESEL_STOCK: string = `${prefix}/portal/api/totalDieselStock`;
+export const API_TOTAL_XP_PERTOL_STOCK: string = `${prefix}/portal/api/totalXPPetrolStock`;
+export const API_TOTAL_POWER_DIESEL_STOCK: string = `${prefix}/portal/api/totalPowerDieselStock`;
+
+
+
+
+@PostMapping(value = "/totalXPPetrolStock")
+    public ResponseEntity<ApiResponse> saveOrUpdateTotalXPPetrolStock(@RequestBody XPPetrolStockRequest xprequest) {
+        String userId = xprequest.getUserId();
+        String date = xprequest.getDate();
+        double minP = xprequest.getXppetrolRemaining();
+
+        if (xpdailystockRepository.countByDate(date, userId) == 0) {
+            xpdailystockRepository.insertXpPetrolstock(date, minP, userId);
+            return ResponseEntity.ok(new ApiResponse("XP Petrol stock saved successfully."));
+        } else {
+            xpdailystockRepository.updateDailyStock(date, minP, userId); // New update method
+            return ResponseEntity.ok(new ApiResponse("XP Petrol stock updated successfully."));
+        }
+    }
+	
+	
+	public class XPPetrolStockRequest {
+
+        private String userId;
+        private String date;
+        private double xppetrolRemaining;
+		}
+		
+		
+		@Query(value = "SELECT COUNT(*) FROM xpdailystock WHERE date = CAST(:date AS DATE) AND (:user_id IS NULL OR user_id = :user_id)", nativeQuery = true)
+    int countByDate(@Param("date") String date, @Param("user_id") String userId);
+
+   @Transactional
+   @Modifying
+   @Query(value = "INSERT INTO xpdailystock (date, xp_ugadto_stock, user_id) VALUES (CAST(:date AS DATE), :xp_ugadto_stock, :userId)", nativeQuery = true)
+   void insertXpPetrolstock(@Param("date") String date,
+                            @Param("xp_ugadto_stock") Double xp_ugadto_stock,
+                            @Param("userId") String userId);
+
+
+   @Modifying
+    @Transactional
+    @Query(value = "UPDATE xpdailystock SET xp_ugadto_stock = :xp_ugadto_stock WHERE date = :date AND user_id = :userId", nativeQuery = true)
+    void updateDailyStock(@Param("date") String date,
+                          @Param("xp_ugadto_stock") double xp_ugadto_stock,
+                          @Param("userId") String userId);
+						  
+						  
+						  
+///////////////////////////
+ @PostMapping(value = "/totalPowerDieselStock")
+    public ResponseEntity<ApiResponse> saveOrUpdatePowerDieselStock(@RequestBody PowerDieselStockRequest powerRequest) {
+        String userId = powerRequest.getUserId();
+        String date = powerRequest.getDate();
+        double mind = powerRequest.getPowerdieselRemaining();
+        if (powerdieseldailystockRepository.countByDate(date, userId) == 0) {
+            powerdieseldailystockRepository.insertDailyPowerdieselstock(date, mind, userId);
+            System.out.println("Power Diesel stock saved for date " + date);
+            return ResponseEntity.ok(new ApiResponse("Power Diesel stock saved successfully."));
+        } else {
+            powerdieseldailystockRepository.updateDailydieselstock(date, mind, userId);
+            System.out.println("Power Diesel stock updated for date " + date);
+            return ResponseEntity.ok(new ApiResponse("Power Diesel stock updated successfully."));
+        }
+    }
+	
+	public class PowerDieselStockRequest {
+
+    private String userId;
+    private String date;
+    private double powerdieselRemaining;
+	}
+	
+	
+	@Query(value = "SELECT COUNT(*) FROM powerdieseldailystock WHERE date = CAST(:date AS DATE) AND (:user_id IS NULL OR user_id = :user_id)", nativeQuery = true)
+    int countByDate(@Param("date") String date, @Param("user_id") String userId);
+
+    @Transactional
+    @Modifying
+    @Query(value = "INSERT INTO powerdieseldailystock (date, power_ugadto_stock, user_id) VALUES (CAST(:date AS DATE), :power_ugadto_stock, :userId)", nativeQuery = true)
+    void insertDailyPowerdieselstock(String date, Double power_ugadto_stock, String userId);
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE powerdieseldailystock SET power_ugadto_stock = :power_ugadto_stock WHERE date = :date AND user_id = :userId", nativeQuery = true)
+    void updateDailydieselstock(@Param("date") String date,
+                          @Param("power_ugadto_stock") double power_ugadto_stock,
+                          @Param("userId") String userId);
