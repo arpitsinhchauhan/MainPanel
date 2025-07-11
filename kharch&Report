@@ -2930,3 +2930,95 @@ export const MY_DATE_FORMATS = {
  import { MatMomentDateModule } from '@angular/material-moment-adapter';
  MatDatepickerModule,
     MatMomentDateModule,
+//add user
+<form [formGroup]="userForm">
+  <ng-template>Fill out your name</ng-template>
+  <mat-card-content class="row" style="margin-top: 32px;">
+     <div class="col-md-4">
+        <mat-form-field>
+           <mat-label>First Name</mat-label>
+           <input matInput formControlName="firstName" type="text">
+        </mat-form-field>
+     </div>
+     <div class="col-md-4">
+        <mat-form-field>
+           <mat-label>Last Name</mat-label>
+           <input matInput formControlName="lastName" type="text">
+        </mat-form-field>
+     </div>
+     <div class="col-md-4">
+        <mat-form-field>
+           <mat-label>Username</mat-label>
+           <input matInput formControlName="username" type="text">
+        </mat-form-field>
+     </div>
+     <div class="col-md-4">
+        <mat-form-field>
+           <mat-label>Password</mat-label>
+           <input matInput formControlName="password" type="text">
+        </mat-form-field>
+     </div>
+     <div class="col-md-4">
+        <mat-form-field>
+           <mat-label>Phone Number</mat-label>
+           <input matInput formControlName="phoneNumber" type="text">
+        </mat-form-field>
+     </div>
+     <div class="col-md-4">
+        <mat-form-field>
+           <mat-label>Role</mat-label>
+           <input matInput formControlName="role" type="text">
+        </mat-form-field>
+     </div>
+     <div class="col-md-12">
+        <mat-form-field>
+           <mat-label>Email</mat-label>
+           <input matInput formControlName="email" type="email">
+        </mat-form-field>
+     </div>
+     <div class="col-md-12" *ngIf="showPumpFields">
+     <div class="row" >
+     <div class="col-md-6">
+        <mat-form-field>
+           <mat-label>Petrol Pump</mat-label>
+           <mat-select formControlName="petrol_nozzle">
+              <mat-option *ngFor="let option of pumpOptions" [value]="option">{{ option }}</mat-option>
+           </mat-select>
+        </mat-form-field>
+     </div>
+     <div class="col-md-6">
+        <mat-form-field>
+           <mat-label>Diesel Pump</mat-label>
+           <mat-select formControlName="diesel_nozzle">
+              <mat-option *ngFor="let option of pumpOptions" [value]="option">{{ option }}</mat-option>
+           </mat-select>
+        </mat-form-field>
+     </div>
+     <div class="col-md-6">
+        <mat-form-field>
+           <mat-label>Power Petrol Pump</mat-label>
+           <mat-select formControlName="xp_petrol_nozzle">
+              <mat-option *ngFor="let option of pumpOptions" [value]="option">{{ option }}</mat-option>
+           </mat-select>
+        </mat-form-field>
+     </div>
+     <div class="col-md-6">
+        <mat-form-field>
+           <mat-label>Power Diesel Pump</mat-label>
+           <mat-select formControlName="powe_diesel_nozzle">
+              <mat-option *ngFor="let option of pumpOptions" [value]="option">{{ option }}</mat-option>
+           </mat-select>
+        </mat-form-field>
+     </div>
+    </div>
+    </div>
+  </mat-card-content>
+  <div>
+     <button mat-raised-button  type="button" class="btn btn-danger pull-right" *ngIf="!data" (click)="addUser()"
+        style="width: 15%;">Add</button>
+        <button mat-raised-button  type="button" class="btn btn-danger pull-right" *ngIf="data" (click)="editUser()"
+        style="width: 15%;">Edit</button>
+     <button mat-raised-button  type="button" class="btn btn-danger pull-right" (click)="cancel()"
+        style="width: 15%;">cancel</button>
+  </div>
+</form>
