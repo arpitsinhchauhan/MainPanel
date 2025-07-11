@@ -2902,3 +2902,31 @@ export const API_TOTAL_POWER_DIESEL_STOCK: string = `${prefix}/portal/api/totalP
     void updateDailydieselstock(@Param("date") String date,
                           @Param("power_ugadto_stock") double power_ugadto_stock,
                           @Param("userId") String userId);
+//////////////////////////////////////////////////////////////////////////////////////////
+import { MAT_DATE_FORMATS } from '@angular/material/core';
+
+export const MY_DATE_FORMATS = {
+  parse: {
+    dateInput: 'DD-MM-YYYY', // for parsing input
+  },
+  display: {
+    dateInput: 'DD-MM-YYYY', // format displayed in the input box
+    monthYearLabel: 'MMM YYYY',
+    dateA11yLabel: 'LL',
+    monthYearA11yLabel: 'MMMM YYYY',
+  },
+};
+@Component({
+  selector: 'app-main-panel',
+  templateUrl: './main-panel.component.html',
+  styleUrls: ['./main-panel.component.scss'],
+  providers: [
+    { provide: MAT_DATE_FORMATS, useValue: MY_DATE_FORMATS }
+  ]
+
+})
+
+ //app
+ import { MatMomentDateModule } from '@angular/material-moment-adapter';
+ MatDatepickerModule,
+    MatMomentDateModule,
