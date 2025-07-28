@@ -242,3 +242,14 @@ SELECT
                 GROUP by date) Pdg ON p.date = Pdg.date
                 ORDER BY
                 p.date;
+
+/////////////
+JavaScript and TypeScript Nightly
+Angular Material v10 snippets
+angular2-switcher
+CSS Formatter
+GitHub Codespaces
+Material Icon Theme
+GitLens — Git supercharged
+VSCode Great Icons
+
