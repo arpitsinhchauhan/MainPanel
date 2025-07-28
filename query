@@ -1,0 +1,244 @@
+SELECT
+                p.date,
+                COALESCE(p.total_sum, 0) AS petrol_total_sum,
+                COALESCE(p.total_testing, 0) AS petrol_total_testing,
+                COALESCE(p.petrol_ltr, 0) AS petrol_ltr,
+                COALESCE(p.rate, 0) AS petrol_rate,
+                COALESCE(p.total_total_sell, 0) AS petrol_total_total_sell,
+                COALESCE(d.total_sum, 0) AS diesel_total_sum,
+                COALESCE(d.total_testing, 0) AS diesel_total_testing,
+                COALESCE(d.diesel_ltr, 0) AS diesel_ltr,
+                COALESCE(d.rate, 0) AS diesel_rate,
+                COALESCE(d.total_total_sell, 0) AS diesel_total_total_sell,
+                COALESCE(xp.xppetrol_ltr, 0) AS xppetrol_ltr,
+                COALESCE(xp.total_sum, 0) AS xppetrol_total_sum,
+                COALESCE(xp.rate, 0) AS xppetrol_rate,
+                COALESCE(xp.total_testing, 0) AS xppetrol_total_testing,
+                COALESCE(xp.total_sell, 0) AS xppetrol_total_sell,
+                COALESCE(pd.powerdiesel_ltr, 0) AS powerdiesel_ltr,
+                COALESCE(pd.total_sum, 0) AS powerdiesel_total_sum,
+                COALESCE(pd.rate, 0) AS powerdiesel_rate,
+                COALESCE(pd.total_testing, 0) AS powerdiesel_total_testing,
+                COALESCE(pd.total_sell, 0) AS powerdiesel_total_sell,
+                COALESCE(o.total_price, 0) AS oil_total_price,
+                COALESCE(k.Kharch_Total, 0) AS Kharch_Total,
+                COALESCE(pp.petrol_quantity, 0) AS Petrol_Quantity,
+                COALESCE(pp.petrol_total, 0) AS Petrol_Total,
+                COALESCE(pp.petrol_vat, 0) AS Petrol_Vat,
+                COALESCE(pp.petrol_cess, 0) AS Petrol_Cess,
+                COALESCE(pp.petrol_jtcpercentage, 0) AS Petrol_Jtcpercentage,
+                COALESCE(pp.petrol_total_purchase, 0) AS Petrol_Total_Purchase,
+                COALESCE(dp.diesel_quantity, 0) AS Diesel_Quantity,
+                COALESCE(dp.diesel_total, 0) AS Diesel_Total,
+                COALESCE(dp.diesel_vat, 0) AS Diesel_Vat,
+                COALESCE(dp.diesel_cess, 0) AS Diesel_Cess,
+                COALESCE(dp.diesel_jtcpercentage, 0) AS Diesel_Jtcpercentage,
+                COALESCE(dp.diesel_total_purchase, 0) AS Diesel_Total_Purchase,
+                COALESCE(t.Amount_Total, 0) AS Amount_Total,
+                COALESCE(j.Jama_Total, 0) AS Jama_Total,
+                COALESCE(j.Baki_Total, 0) AS Baki_Total,
+                COALESCE(xpp.xppetrol_quantity, 0) AS xppetrol_quantity,
+                COALESCE(xpp.xppetrol_total, 0) AS xppetrol_total,
+                COALESCE(xpp.xppetrol_cess, 0) AS xppetrol_cess,
+                COALESCE(xpp.xppetrol_jtcpercentage, 0) AS xppetrol_jtcpercentage,
+                COALESCE(xpp.xppetrol_total_purchase, 0) AS xppetrol_total_purchase,
+                COALESCE(xpp.xppetrol_vat, 0) AS xppetrol_vat,
+                COALESCE(pdp.powerdiesel_quantity, 0) AS powerdiesel_quantity,
+                COALESCE(pdp.powerdiesel_total, 0) AS powerdiesel_total,
+                COALESCE(pdp.powerdiesel_cess, 0) AS powerdiesel_cess,
+                COALESCE(pdp.powerdiesel_jtcpercentage, 0) AS powerdiesel_jtcpercentage,
+                COALESCE(pdp.powerdiesel_total_purchase, 0) AS powerdiesel_total_purchase,
+                COALESCE(pdp.powerdiesel_vat, 0) AS powerdiesel_vat,
+                COALESCE(pg.petrolgatt_Total, 0) AS petrolgatt_Total,
+                COALESCE(dg.dieselgatt_Total, 0) AS dieselgatt_Total,
+                COALESCE(xpg.xppetrolgatt_Total, 0) AS xppetrolgatt_Total,
+                COALESCE(Pdg.power_dieselgatt_Total, 0) AS power_dieselgatt_Total
+                from
+                (SELECT
+                date,
+                SUM(close_meter) AS total_close_meter,
+                SUM(open_meter) AS total_open_meter,
+                SUM(total) AS total_sum,
+                SUM(testing) AS total_testing,
+                SUM(petrol_ltr) AS petrol_ltr,
+                rate,
+                SUM(total_sell) AS total_total_sell
+                FROM
+                petrolsell
+              WHERE date BETWEEN '2025-04-01' AND '2025-08-01' AND user_id = '3' 
+                GROUP BY
+                date) p
+                JOIN
+                (SELECT
+                date,
+                SUM(close_meter) AS total_close_meter,
+                SUM(open_meter ) AS total_open_meter,
+                SUM(total) AS total_sum,
+                SUM(testing) AS total_testing,
+                SUM(diesel_ltr) AS diesel_ltr,
+                rate,
+                SUM(total_sell) AS total_total_sell
+                FROM
+                dieselsell
+               WHERE date BETWEEN '2025-04-01' AND '2025-08-01' AND user_id = '3' 
+                GROUP BY
+                date) d
+                ON
+                p.date = d.date
+                LEFT JOIN
+                (SELECT
+                date,
+                SUM(price) AS total_price
+                FROM
+                oilsell
+               WHERE date BETWEEN '2025-04-01' AND '2025-08-01' AND user_id = '3' 
+                GROUP BY
+                date) o
+                ON
+                p.date = o.date
+                LEFT JOIN
+                (SELECT
+                date,
+                SUM(price) AS Kharch_Total
+                FROM
+                kharch
+              WHERE date BETWEEN '2025-04-01' AND '2025-08-01' AND user_id = '3' 
+                GROUP BY
+                date) k
+                ON
+                p.date = k.date
+                LEFT JOIN
+                (SELECT
+                date, type,
+                quantity AS petrol_quantity,
+                total AS petrol_total,
+                vat AS petrol_vat,
+                cess AS petrol_cess,
+                jtcpercentage AS petrol_jtcpercentage,
+                total_purchase AS petrol_total_purchase
+                FROM
+                purchase
+                WHERE
+                type = 'petrol' AND user_id = '" + 1 ') pp 
+                ON
+                p.date = pp.date
+                LEFT JOIN
+                (SELECT
+                date,
+                SUM(amount) AS Amount_Total
+                FROM
+                transaction
+              	WHERE date BETWEEN '2025-04-01' AND '2025-08-01' AND user_id = '3'  
+                GROUP BY
+                date) t
+                ON
+                p.date = t.date
+                LEFT JOIN
+                (SELECT
+                date, type,
+                quantity AS diesel_quantity,
+                total AS diesel_total,
+                vat AS diesel_vat,
+                cess AS diesel_cess,
+                jtcpercentage AS diesel_jtcpercentage,
+                total_purchase AS diesel_total_purchase
+                FROM
+                purchase
+                WHERE
+                type = 'diesel'  AND user_id = '" + userId ') dp 
+                ON
+                d.date = dp.date
+                LEFT JOIN (
+                SELECT date,
+                extra_cess AS xppetrol_cess,
+                extra_jtcpercentage AS xppetrol_jtcpercentage,
+                extra_quantity AS xppetrol_quantity,
+                extra_total AS xppetrol_total,
+                extra_total_purchase AS xppetrol_total_purchase,
+                extra_vat AS xppetrol_vat
+                FROM extrapurchases
+                WHERE extra_type = 'XP Petrol'
+                AND user_id = ' 1 '
+                AND date BETWEEN '2025-04-01' AND '2025-08-01' 
+                ) xpp ON p.date = xpp.date
+                LEFT JOIN (
+                SELECT date,
+                extra_cess AS powerdiesel_cess,
+                extra_jtcpercentage AS powerdiesel_jtcpercentage,
+                extra_quantity AS powerdiesel_quantity,
+                extra_total AS powerdiesel_total,
+                extra_total_purchase AS powerdiesel_total_purchase,
+                extra_vat AS powerdiesel_vat
+                FROM extrapurchases
+                WHERE extra_type = 'Power Diesel'
+                AND user_id = '" + 1 '
+                AND date BETWEEN '2025-04-01' AND '2025-08-01' 
+                ) pdp ON p.date = pdp.date
+                LEFT JOIN
+                (SELECT
+                date,
+                SUM(jama) AS Jama_Total,
+                SUM(baki) AS Baki_Total
+                FROM
+                jamabakireport
+              WHERE date BETWEEN '2025-04-01' AND '2025-08-01' AND user_id = '3' 
+                GROUP BY
+                date) j
+                ON
+                 p.date = j.date
+                LEFT JOIN (SELECT date,
+                SUM(close_meter) AS total_close_meter,
+                SUM(open_meter) AS total_open_meter,
+                SUM(xppetrol_ltr) AS xppetrol_ltr,
+                SUM(testing) AS total_testing,
+                SUM(total) AS total_sum,
+                SUM(total_sell) AS total_sell,
+                rate
+                FROM xppetrol
+                    WHERE date BETWEEN '2025-04-01' AND '2025-08-01' AND user_id = '3'
+                GROUP BY date) xp ON p.date = xp.date
+                LEFT JOIN (SELECT date,
+                SUM(close_meter) AS total_close_meter,
+                SUM(open_meter) AS total_open_meter,
+                SUM(powerdiesel_ltr) AS powerdiesel_ltr,
+                SUM(testing) AS total_testing,
+                SUM(total) AS total_sum,
+                SUM(total_sell) AS total_sell,
+                rate
+                FROM powerdiesel
+                    WHERE date BETWEEN '2025-04-01' AND '2025-08-01' AND user_id = '3'
+                GROUP BY date) pd ON p.date = pd.date
+                LEFT JOIN
+                (SELECT
+                date,
+                SUM(petrolgatt) AS petrolgatt_Total
+                FROM
+                petrolgatt
+              	WHERE date BETWEEN '2025-04-01' AND '2025-08-01' AND user_id = '3' 
+                GROUP by date) pg ON p.date = pg.date
+                LEFT JOIN
+                (SELECT
+                date,
+                SUM(dieselgatt) AS dieselgatt_Total
+                FROM
+                dieselgatt
+              	WHERE date BETWEEN '2025-04-01' AND '2025-08-01' AND user_id = '3' 
+                GROUP by date) dg ON p.date = dg.date
+                LEFT JOIN
+                (SELECT
+                date,
+                SUM(xppetrolgatt) AS xppetrolgatt_Total
+                FROM
+                xppetrolgatt
+              	WHERE date BETWEEN '2025-04-01' AND '2025-08-01' AND user_id = '3' 
+                GROUP by date) xpg ON p.date = xpg.date
+                LEFT JOIN
+                (SELECT
+                date,
+                SUM(power_dieselgatt) AS power_dieselgatt_Total
+                FROM
+                powerdieselgatt
+              	WHERE date BETWEEN '2025-04-01' AND '2025-08-01' AND user_id = '3' 
+                GROUP by date) Pdg ON p.date = Pdg.date
+                ORDER BY
+                p.date;
