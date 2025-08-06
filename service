@@ -560,3 +560,141 @@ public class CipherUtil
         }
     }
 }
+//////////////////////////NEEWWWWWWWW PAAA
+public void changePassword(UserMst user, UserRequest userRequest) {
+        String newPassword = null;
+        if (!user.getPassword().isEmpty() || user.getPassword() != null || user.getPassword() != "") {
+            newPassword = reetrakPasswordEncoder.encode(user.getPassword());
+        }
+        user = findUserById(user.getId());
+        UserMst oldUser = findUserById(user.getId());
+
+        if (!(oldUser.getPassword().equals(newPassword))) {
+            user.setPassword(newPassword);
+        }
+//        if (!checkPasswordDuplicationAllowed(user)) {
+//            throw new BusinessException(Constant.FAILURE_CODE, Constant.DUPLICATE_PASSWORD);
+//        }
+        user.setLastLogin(new Date());
+        user.setFirstTimeFlag(false);
+        // Userpwdhistory userpwdhistory = setPassword(user, newPassword); Todo
+        // userpwdhistory.setUserid(user.getId());
+        // auditTrailService.updateEventAuditTrail(user, oldUser, Constant.USER,
+        // userRequest);
+        userRepository.save(user);
+        // for set password history to manage duplicate password
+        // userpwdhistoryRepository.save(userpwdhistory); Todo
+    }
+	
+/////////////////
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+
+@Service
+public class ReetrakPasswordEncoder implements PasswordEncoder {
+
+    @Override
+    public String encode(CharSequence charSequence) {
+        try {
+            return CipherUtil.encrypt(charSequence.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public boolean matches(CharSequence charSequence, String s) {
+        try {
+            return CipherUtil.decrypt(s).equals(charSequence.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public String decode(String s) {
+        try {
+            return CipherUtil.decrypt(s);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+}
+//////////////////////////////
+import org.apache.commons.codec.binary.Hex;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
+import java.io.UnsupportedEncodingException;
+
+public class CipherUtil
+{
+    private static final Log logger = LogFactory.getLog(CipherUtil.class);
+    public static SecretKeySpec specKey = null;
+    private static final byte[] keyValue = { 84, 112, 97, 83, 83, 78, 112, 97, 115, 83, 84, 112, 97, 83, 115, 75 };
+    private static final String ALGO = "AES";
+ //   private static final String PREFIX = "T~!@N#";
+  //  private static final String SUFFIX = "$%T^&*";
+
+    public static String encrypt(String Data)
+            throws Exception
+    {
+        Data = "T~!@N#" + Data + "$%T^&*";
+        Cipher encryptCipher = Cipher.getInstance("AES");
+        encryptCipher.init(1, generateAESKey(new String(keyValue), "UTF-8"));
+        return new String(Hex.encodeHex(encryptCipher.doFinal(Data.getBytes("UTF-8"))));
+    }
+
+    public static String decrypt(String encryptedData)
+            throws Exception
+    {
+        Cipher decryptCipher = Cipher.getInstance("AES");
+        decryptCipher.init(2, generateAESKey(new String(keyValue), "UTF-8"));
+        byte[] decValue = decryptCipher.doFinal(Hex.decodeHex(encryptedData.toCharArray()));
+        String returnString = new String(decValue);
+        returnString = returnString.replace("T~!@N#", "");
+        returnString = returnString.replace("$%T^&*", "");
+        return returnString;
+    }
+
+    private static SecretKeySpec generateAESKey(final String key, final String encoding) {
+        try {
+            final byte[] finalKey = new byte[16];
+            int i = 0;
+            for (byte b : key.getBytes(encoding)) {
+                finalKey[i++ % 16] ^= b;
+            }
+            specKey = new SecretKeySpec(finalKey, ALGO);
+            return specKey;
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String serialize(String s){
+        try {
+            return  encrypt(s);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e);
+            return null;
+        }
+    }
+
+    public static String deserialize(String s){
+        try {
+            return  decrypt(s);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(e);
+            return null;
+        }
+    }
+}
