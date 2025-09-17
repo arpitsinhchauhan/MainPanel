@@ -3324,3 +3324,541 @@ public class PurchaseController {
 
 
 }
+
+
+
+/////////
+<!-- data-display.component.html -->
+<div class="row">
+   <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12">
+      <div class="card">
+         <div class="card-header card-header-danger">
+            <h4 class="card-title">Pump Excel Details :-</h4>
+         </div>
+         <div class="card-body" style="overflow: scroll;">
+            <div *ngIf="productList.length > 0">
+               <button (click)="exportToExcel()">Export to Excel</button>
+               <table>
+                  <tr>
+                     <th>Date</th>
+                     <th>Petrol Total Sum</th>
+                     <th>Petrol Rate</th>
+                     <th>Petrol Total Sell</th>
+                     <th>Petrol Gatt</th>
+                     <th>Diesel Total Sum</th>
+                     <th>Diesel Rate</th>
+                     <th>Diesel Total Sell</th>
+                     <th>Diesel Gatt</th>
+                     <th>Oil Total Price</th>
+                     <th>Kharch Total</th>
+                     <th>Petrol Quantity</th>
+                     <th>Petrol Total</th>
+                     <th>Petrol Vat</th>
+                     <th>Petrol Cess</th>
+                     <th>Petrol Jtcpercentage</th>
+                     <th>Petrol Total Purchase</th>
+                     <th>Diesel Quantity</th>
+                     <th>Diesel Total</th>
+                     <th>Diesel Vat</th>
+                     <th>Diesel Cess</th>
+                     <th>Diesel Jtcpercentage</th>
+                     <th>Diesel Total Purchase</th>
+                     <th>ATM Total</th>
+                     <th>Jama Total</th>
+                     <th>Baki Total</th>
+                     <th *ngFor="let header of expenseHeaders">{{ header }}</th>
+                     <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">XP Petrol Total Sum</th>
+                     <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">XP Petrol Rate</th>
+                     <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">XP Petrol Total Sell</th>
+                     <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">XP Petrol Gatt</th>
+                     <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">Power Diesel Total Sum</th>
+                     <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">Power Diesel Rate</th>
+                     <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">Power Diesel Total Sell</th>
+                     <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">Power Diesel Gatt</th>
+                     <!-- ✅ New XP Petrol Purchase -->
+                     <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">XP Petrol Quantity</th>
+                     <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">XP Petrol Total</th>
+                     <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">XP Petrol VAT</th>
+                     <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">XP Petrol CESS</th>
+                     <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">XP Petrol JTC%</th>
+                     <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">XP Petrol Total Purchase</th>
+                     <!-- ✅ New Power Diesel Purchase -->
+                     <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">Power Diesel Quantity</th>
+                     <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">Power Diesel Total</th>
+                     <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">Power Diesel VAT</th>
+                     <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">Power Diesel CESS</th>
+                     <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">Power Diesel JTC%</th>
+                     <th *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">Power Diesel Total Purchase</th>
+                  </tr>
+                  <tr *ngFor="let item of productList">
+                     <td>{{ item.date }}</td>
+                     <td>{{ item.petrolTotalSum }}</td>
+                     <td>{{ item.petrolRate }}</td>
+                     <td>{{ item.petrolTotalTotalSell }}</td>
+                     <td>{{ item.petrolgatt_Total }}</td>
+                     <td>{{ item.dieselTotalSum }}</td>
+                     <td>{{ item.dieselRate }}</td>
+                     <td>{{ item.dieselTotalTotalSell }}</td>
+                     <td>{{ item.dieselgatt_Total }}</td>
+                     <td>{{ item.oilTotalPrice }}</td>
+                     <td>{{ item.kharchTotal }}</td>
+                     <td>{{ item.petrolQuantity }}</td>
+                     <td>{{ item.petrolTotal }}</td>
+                     <td>{{ item.petrolVat }}</td>
+                     <td>{{ item.petrolCess }}</td>
+                     <td>{{ item.petrolJtcpercentage }}</td>
+                     <td>{{ item.petrolTotalPurchase }}</td>
+                     <td>{{ item.dieselQuantity }}</td>
+                     <td>{{ item.dieselTotal }}</td>
+                     <td>{{ item.dieselVat }}</td>
+                     <td>{{ item.dieselCess }}</td>
+                     <td>{{ item.dieselJtcpercentage }}</td>
+                     <td>{{ item.dieselTotalPurchase }}</td>
+                     <td>{{ item.amountTotal }}</td>
+                     <td>{{ item.jamaTotal }}</td>
+                     <td>{{ item.bakiTotal }}</td>
+                     <td *ngFor="let header of expenseHeaders">
+                        {{ item.expenseMap[header] || 0 }}
+                     </td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.xppetrolTotalSum }}</td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.xppetrolRate }}</td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.xppetrolTotalSell }}</td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.xppetrolgatt_Total }}</td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.powerdieselTotalSum }}</td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.powerdieselRate }}</td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.powerdieselTotalSell }}</td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.power_dieselgatt_Total }}</td>
+                     <!-- ✅ New XP Petrol Purchase -->
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.xppetrolQuantity }}</td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.xppetrolTotal }}</td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.xppetrolVat }}</td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.xppetrolCess }}</td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.xppetrolJtcpercentage }}</td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.xppetrolTotalPurchase }}</td>
+                     <!-- ✅ New Power Diesel Purchase -->
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.powerdieselQuantity }}</td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.powerdieselTotal }}</td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.powerdieselVat }}</td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.powerdieselCess }}</td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.powerdieselJtcpercentage }}</td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ item.powerdieselTotalPurchase }}</td>
+                  </tr>
+                  <tr>
+                     <td></td>
+                     <td>{{ totalPetrolSum }}</td>
+                     <td></td>
+                     <td>{{ totalPetroltotalsum }}</td>
+                     <td></td>
+                     <td>{{ totalDieselsum }}</td>
+                     <td></td>
+                     <td>{{ totalDieseltotalSum }}</td>
+                     <td></td>
+                     <td>{{ totalOilTotalPrice }}</td>
+                     <td>{{ totalKharchTotal }}</td>
+                     <td>{{ totalPetrolQuantity }}</td>
+                     <td>{{ totalPetrolTotal }}</td>
+                     <td>{{ totalPetrolVat }}</td>
+                     <td>{{ totalPetrolCess }}</td>
+                     <td>{{ totalPetrolJtcpercentage }}</td>
+                     <td>{{ totalPetrolTotalPurchase }}</td>
+                     <td>{{ totalDieselQuantity }}</td>
+                     <td>{{ totalDieselTotal }}</td>
+                     <td>{{ totalDieselVat }}</td>
+                     <td>{{ totalDieselCess }}</td>
+                     <td>{{ totalDieselJtcpercentage }}</td>
+                     <td>{{ totalDieselTotalPurchase }}</td>
+                     <td>{{ totalAmountTotal }}</td>
+                     <td>{{ totalJamaTotal }}</td>
+                     <td>{{ totalBakiTotal }}</td>
+                     <!-- XP Petrol Totals -->
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalXpPetrolTotalSum }}</td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0"></td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalXpPetrolTotalSell }}</td>
+                     <td></td>
+                     <!-- Power Diesel Totals -->
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalPowerDieselTotalSum }}</td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0"></td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalPowerDieselTotalSell }}</td>
+                     <td></td>
+                     <!-- XP Petrol Purchase Totals -->
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalXpPetrolQuantity }}</td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalXpPetrolTotal }}</td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalXpPetrolVat }}</td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalXpPetrolCess }}</td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalXpPetrolJtcpercentage }}</td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalXpPetrolTotalPurchase }}</td>
+                     <!-- Power Diesel Purchase Totals -->
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalPowerDieselQuantity }}</td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalPowerDieselTotal }}</td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalPowerDieselVat }}</td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalPowerDieselCess }}</td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalPowerDieselJtcpercentage }}</td>
+                     <td *ngIf="xp_petrol_nozzle > 0 || powe_diesel_nozzle > 0">{{ totalPowerDieselTotalPurchase }}</td>
+                  </tr>
+               </table>
+            </div>
+            <div *ngIf="productList.length === 0">
+               No data available.
+            </div>
+         </div>
+      </div>
+   </div>
+</div>
+
+////////
+export class PumpDetailComponent implements OnInit {
+  // productList: any = [];
+  startDate: string;
+  totalPetrolSum: number = 0;
+  endDate: string;
+  combinedSummary: any[] = [];
+  productList: AggregatedDataDTO[] = [];
+  expenseHeaders: any[] = [];
+  totalPetroltotalsum: number = 0;
+  totalDieselsum: number = 0;
+  totalDieseltotalSum: number = 0;
+  totalOilTotalPrice: number = 0;
+  totalKharchTotal: number = 0;
+  totalPetrolQuantity: number = 0;
+  totalPetrolTotal: number = 0;
+  totalPetrolVat: number = 0;
+  totalPetrolCess: number = 0;
+  totalPetrolJtcpercentage: number = 0;
+  totalPetrolTotalPurchase: number = 0;
+  totalDieselQuantity: number = 0;
+  totalDieselTotal: number = 0;
+  totalDieselVat: number = 0;
+  totalDieselCess: number = 0;
+  totalDieselJtcpercentage: number = 0;
+  totalDieselTotalPurchase: number = 0;
+  totalAmountTotal: number = 0;
+  totalJamaTotal: number = 0;
+  totalBakiTotal: number = 0;
+  // XP Petrol Totals
+  totalXpPetrolTotalSum: number = 0;
+  totalXpPetrolTotalSell: number = 0;
+  totalXpPetrolQuantity: number = 0;
+  totalXpPetrolTotal: number = 0;
+  totalXpPetrolVat: number = 0;
+  totalXpPetrolCess: number = 0;
+  totalXpPetrolJtcpercentage: number = 0;
+  totalXpPetrolTotalPurchase: number = 0;
+
+  // Power Diesel Totals
+  totalPowerDieselTotalSum: number = 0;
+  totalPowerDieselTotalSell: number = 0;
+  totalPowerDieselQuantity: number = 0;
+  totalPowerDieselTotal: number = 0;
+  totalPowerDieselVat: number = 0;
+  totalPowerDieselCess: number = 0;
+  totalPowerDieselJtcpercentage: number = 0;
+  totalPowerDieselTotalPurchase: number = 0;
+  xp_petrol_nozzle: number;
+  powe_diesel_nozzle: number;
+  userId = localStorage.getItem("userId");
+
+  constructor(
+    private http: HttpClient,
+    private use: UserServiceService,
+    private dialog: MatDialog,
+    @Inject(MAT_DIALOG_DATA) public data: any
+  ) {
+    this.startDate = data.startDate;
+    this.endDate = data.endDate;
+  }
+
+  ngOnInit(): void {
+    this.getPurchase();
+    this.getUserName();
+  }
+
+  getUserName() {
+    this.use.getUserNameAndNozzle(this.userId).subscribe((data) => {
+      this.xp_petrol_nozzle = Number(data.data.xp_petrol_nozzle);
+      this.powe_diesel_nozzle = Number(data.data.powe_diesel_nozzle);
+    });
+  }
+
+  getPurchase() {
+    const userId = localStorage.getItem("userId");
+    const params = new HttpParams()
+      .set("startDate", this.startDate.toString().split("T")[0])
+      .set("endDate", this.endDate.toString().split("T")[0])
+      .set("userId", userId);
+
+    this.http
+      .get<AggregatedDataDTO[]>(API_AGGREGATED_DATA, { params })
+      .subscribe(
+        (data) => {
+          // build headers (unique expense names)
+          this.expenseHeaders = this.getUniqueExpenseHeaders(data);
+
+          // add expenseMap for quick lookup
+          this.productList = data.map(item => ({
+            ...item,
+            expenseMap: this.buildExpenseMap(item.expensesList)
+          }));
+
+          this.calculateTotals();
+        },
+        (error) => {
+          console.error("Error fetching data:", error);
+        }
+      );
+  }
+
+  getUniqueExpenseHeaders(data: any[]): string[] {
+    const headers = new Set<string>();
+    data.forEach(item => {
+      if (Array.isArray(item.expensesList)) {
+        item.expensesList.forEach((exp: any) => headers.add(exp.expenses));
+      }
+    });
+    return Array.from(headers);
+  }
+
+  // Build a map: { "ASSOSIASAN FEE EXP": 10800, "BANK INTEREST": 2000, ... }
+  buildExpenseMap(expensesList: any[]): { [key: string]: number } {
+    const map: { [key: string]: number } = {};
+    if (!Array.isArray(expensesList)) return map;
+    expensesList.forEach(exp => {
+      map[exp.expenses] = Number(exp.total_price ?? 0);
+    });
+    return map;
+  }
+
+  // Optional: Keep a function so template call won't break
+  public getExpenseValue(expensesList: any[], header: string): number {
+    if (!Array.isArray(expensesList)) return 0;
+    const exp = expensesList.find(e => e.expenses === header);
+    return exp ? Number(exp.total_price) : 0;
+  }
+
+  calculateTotals() {
+    this.totalPetrolSum = this.productList.reduce((sum, item) => {
+      return sum + item.petrolTotalSum;
+    }, 0);
+    this.totalPetroltotalsum = this.productList.reduce(
+      (sum, item) => sum + item.petrolTotalTotalSell,
+      0
+    );
+    this.totalDieselsum = this.productList.reduce(
+      (sum, item) => sum + item.dieselTotalSum,
+      0
+    );
+    this.totalDieseltotalSum = this.productList.reduce(
+      (sum, item) => sum + item.dieselTotalTotalSell,
+      0
+    );
+
+    this.totalOilTotalPrice = this.productList.reduce(
+      (sum, item) => sum + item.oilTotalPrice,
+      0
+    );
+    this.totalKharchTotal = this.productList.reduce(
+      (sum, item) => sum + item.kharchTotal,
+      0
+    );
+    this.totalPetrolQuantity = this.productList.reduce(
+      (sum, item) => sum + item.petrolQuantity,
+      0
+    );
+    this.totalPetrolTotal = this.productList.reduce(
+      (sum, item) => sum + item.petrolTotal,
+      0
+    );
+    this.totalPetrolVat = this.productList.reduce(
+      (sum, item) => sum + item.petrolVat,
+      0
+    );
+    this.totalPetrolCess = this.productList.reduce(
+      (sum, item) => sum + item.petrolCess,
+      0
+    );
+    this.totalPetrolJtcpercentage = this.productList.reduce(
+      (sum, item) => sum + item.petrolJtcpercentage,
+      0
+    );
+    this.totalPetrolTotalPurchase = this.productList.reduce(
+      (sum, item) => sum + item.petrolTotalPurchase,
+      0
+    );
+    this.totalDieselQuantity = this.productList.reduce(
+      (sum, item) => sum + item.dieselQuantity,
+      0
+    );
+    this.totalDieselTotal = this.productList.reduce(
+      (sum, item) => sum + item.dieselTotal,
+      0
+    );
+    this.totalDieselVat = this.productList.reduce(
+      (sum, item) => sum + item.dieselVat,
+      0
+    );
+    this.totalDieselCess = this.productList.reduce(
+      (sum, item) => sum + item.dieselCess,
+      0
+    );
+    this.totalDieselJtcpercentage = this.productList.reduce(
+      (sum, item) => sum + item.dieselJtcpercentage,
+      0
+    );
+    this.totalDieselTotalPurchase = this.productList.reduce(
+      (sum, item) => sum + item.dieselTotalPurchase,
+      0
+    );
+    this.totalAmountTotal = this.productList.reduce(
+      (sum, item) => sum + item.amountTotal,
+      0
+    );
+    this.totalJamaTotal = this.productList.reduce(
+      (sum, item) => sum + item.jamaTotal,
+      0
+    );
+    this.totalBakiTotal = this.productList.reduce(
+      (sum, item) => sum + item.bakiTotal,
+      0
+    );
+    this.totalXpPetrolTotalSum = this.productList.reduce(
+      (sum, item) => sum + item.xppetrolTotalSum,
+      0
+    );
+    this.totalXpPetrolTotalSell = this.productList.reduce(
+      (sum, item) => sum + item.xppetrolTotalSell,
+      0
+    );
+    this.totalXpPetrolQuantity = this.productList.reduce(
+      (sum, item) => sum + item.xppetrolQuantity,
+      0
+    );
+    this.totalXpPetrolTotal = this.productList.reduce(
+      (sum, item) => sum + item.xppetrolTotal,
+      0
+    );
+    this.totalXpPetrolVat = this.productList.reduce(
+      (sum, item) => sum + item.xppetrolVat,
+      0
+    );
+    this.totalXpPetrolCess = this.productList.reduce(
+      (sum, item) => sum + item.xppetrolCess,
+      0
+    );
+    this.totalXpPetrolJtcpercentage = this.productList.reduce(
+      (sum, item) => sum + item.xppetrolJtcpercentage,
+      0
+    );
+    this.totalXpPetrolTotalPurchase = this.productList.reduce(
+      (sum, item) => sum + item.xppetrolTotalPurchase,
+      0
+    );
+
+    // Power Diesel totals
+    this.totalPowerDieselTotalSum = this.productList.reduce(
+      (sum, item) => sum + item.powerdieselTotalSum,
+      0
+    );
+    this.totalPowerDieselTotalSell = this.productList.reduce(
+      (sum, item) => sum + item.powerdieselTotalSell,
+      0
+    );
+    this.totalPowerDieselQuantity = this.productList.reduce(
+      (sum, item) => sum + item.powerdieselQuantity,
+      0
+    );
+    this.totalPowerDieselTotal = this.productList.reduce(
+      (sum, item) => sum + item.powerdieselTotal,
+      0
+    );
+    this.totalPowerDieselVat = this.productList.reduce(
+      (sum, item) => sum + item.powerdieselVat,
+      0
+    );
+    this.totalPowerDieselCess = this.productList.reduce(
+      (sum, item) => sum + item.powerdieselCess,
+      0
+    );
+    this.totalPowerDieselJtcpercentage = this.productList.reduce(
+      (sum, item) => sum + item.powerdieselJtcpercentage,
+      0
+    );
+    this.totalPowerDieselTotalPurchase = this.productList.reduce(
+      (sum, item) => sum + item.powerdieselTotalPurchase,
+      0
+    );
+  }
+
+  exportToExcel(): void {
+    const includeXpAndPower = this.xp_petrol_nozzle > 0 || this.powe_diesel_nozzle > 0;
+
+    // ✅ Create rows with flat expense columns
+    const dataForExcel = this.productList.map(item => {
+      const row: any = { ...item };
+
+      // Expand expensesList into separate columns
+      if (item.expensesList) {
+        item.expensesList.forEach((exp: any) => {
+          row[exp.expenses] = exp.total_price; // e.g. row["ASSOSIASAN FEE EXP"] = 10800
+        });
+      }
+
+      return row;
+    });
+
+    // ✅ Create totals row with same structure
+    const totalsRow: any = {
+      date: "Total",
+      petrolTotalTotalSell: this.totalPetroltotalsum,
+      dieselTotalSum: this.totalDieselsum,
+      dieselTotalTotalSell: this.totalDieseltotalSum,
+      oilTotalPrice: this.totalOilTotalPrice,
+      kharchTotal: this.totalKharchTotal,
+      petrolQuantity: this.totalPetrolQuantity,
+      petrolTotal: this.totalPetrolTotal,
+      petrolVat: this.totalPetrolVat,
+      petrolCess: this.totalPetrolCess,
+      petrolJtcpercentage: this.totalPetrolJtcpercentage,
+      petrolTotalPurchase: this.totalPetrolTotalPurchase,
+      dieselVat: this.totalDieselVat,
+      dieselCess: this.totalDieselCess,
+      dieselJtcpercentage: this.totalDieselJtcpercentage,
+      dieselTotalPurchase: this.totalDieselTotalPurchase,
+      amountTotal: this.totalAmountTotal,
+      jamaTotal: this.totalJamaTotal,
+      bakiTotal: this.totalBakiTotal
+    };
+
+    // Add expense totals into totals row
+    this.expenseHeaders.forEach(header => {
+      totalsRow[header] = this.productList.reduce((sum, item) => {
+        const match = item.expensesList?.find((exp: any) => exp.expenses === header);
+        return sum + (match ? match.total_price : 0);
+      }, 0);
+    });
+
+    const dataWithTotals = [...dataForExcel, totalsRow];
+
+    // ✅ Dynamically create header order (including expense columns)
+    const headerOrder = [
+      "date", "petrolTotalSum", "petrolRate", "petrolTotalTotalSell", "petrolgatt_Total",
+      "dieselTotalSum", "dieselRate", "dieselTotalTotalSell", "dieselgatt_Total", "oilTotalPrice", "kharchTotal",
+      "petrolQuantity", "petrolTotal", "petrolVat", "petrolCess", "petrolJtcpercentage",
+      "petrolTotalPurchase", "dieselQuantity", "dieselTotal", "dieselVat", "dieselCess",
+      "dieselJtcpercentage", "dieselTotalPurchase", "amountTotal", "jamaTotal", "bakiTotal",
+      ...this.expenseHeaders // <-- dynamically add expense columns
+    ];
+
+    // ✅ Generate worksheet
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(dataWithTotals, {
+      header: headerOrder,
+    });
+
+    const workbook: XLSX.WorkBook = {
+      Sheets: { data: worksheet },
+      SheetNames: ["data"],
+    };
+
+    XLSX.writeFile(workbook, "ProductList.xlsx");
+  }
+
+
+}
